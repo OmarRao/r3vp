@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>R3VP Test Run</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F4F6F8; color: #1A1A2E; }
+  .sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100vh; background: #1A1A2E; display: flex; flex-direction: column; }
+  .logo { padding: 24px 20px 20px; border-bottom: 1px solid #2a2a3e; }
+  .logo-text { font-size: 20px; font-weight: 700; color: #fff; }
+  .logo-sub { font-size: 10px; color: #00B336; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
+  .nav { flex: 1; padding: 16px 0; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 13px; color: #8888aa; cursor: pointer; border-left: 3px solid transparent; }
+  .nav-item.active { color: #fff; border-left-color: #00B336; background: rgba(0,179,54,0.08); }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid #2a2a3e; font-size: 11px; color: #555; }
+  .sidebar-footer a { color: #00B336; text-decoration: none; }
+  .main { margin-left: 220px; padding: 28px 32px; }
+  .breadcrumb { font-size: 12px; color: #aaa; margin-bottom: 16px; }
+  .breadcrumb a { color: #00B336; text-decoration: none; }
+  .page-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: #666; margin-bottom: 24px; }
+  .grid-top { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .card-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+  .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .meta-item { }
+  .meta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: #aaa; font-weight: 600; }
+  .meta-val { font-size: 15px; font-weight: 600; margin-top: 3px; color: #1A1A2E; }
+  .meta-val.green { color: #00B336; }
+  .meta-val.red { color: #EF4444; }
+  .badge { display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+  .badge-pass { background: #dcfce7; color: #16a34a; }
+  .badge-fail { background: #fee2e2; color: #dc2626; }
+
+  /* Step timeline */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .step { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid #f5f5f5; align-items: flex-start; }
+  .step:last-child { border: none; }
+  .step-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+  .step-icon.pass { background: #dcfce7; color: #16a34a; }
+  .step-icon.fail { background: #fee2e2; color: #dc2626; }
+  .step-icon.run { background: #dbeafe; color: #3B82F6; }
+  .step-icon.skip { background: #f3f4f6; color: #9ca3af; }
+  .step-body { flex: 1; }
+  .step-name { font-size: 13px; font-weight: 600; color: #1A1A2E; }
+  .step-detail { font-size: 12px; color: #888; margin-top: 3px; line-height: 1.5; }
+  .step-time { font-size: 11px; color: #bbb; margin-top: 3px; }
+  .step-duration { font-size: 12px; color: #555; font-weight: 500; margin-left: auto; padding-left: 16px; white-space: nowrap; margin-top: 3px; }
+
+  /* Health checks */
+  .hc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .hc-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; border: 1px solid #f0f0f0; }
+  .hc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .hc-name { font-size: 12px; font-weight: 500; }
+  .hc-result { font-size: 11px; color: #aaa; margin-top: 1px; }
+
+  /* Evidence */
+  .evidence-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .evidence-item { border-radius: 8px; background: #f8f9fa; border: 1px solid #eee; overflow: hidden; }
+  .evidence-thumb { height: 80px; background: linear-gradient(135deg, #1A1A2E, #2a2a4e); display: flex; align-items: center; justify-content: center; color: #888; font-size: 11px; }
+  .evidence-label { padding: 6px 10px; font-size: 11px; font-weight: 500; color: #555; }
+</style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="logo"><div class="logo-text">R3VP</div><div class="logo-sub">Recovery Validation</div></div>
+  <div class="nav">
+    <div class="nav-item"><span>&#9632;</span> Dashboard</div>
+    <div class="nav-item"><span>&#9632;</span> Workloads</div>
+    <div class="nav-item active"><span>&#9632;</span> Test Runs</div>
+    <div class="nav-item"><span>&#9632;</span> Reports</div>
+    <div class="nav-item"><span>&#9632;</span> Appliances</div>
+    <div class="nav-item"><span>&#9632;</span> Audit Log</div>
+    <div class="nav-item"><span>&#9632;</span> Settings</div>
+  </div>
+  <div class="sidebar-footer">Built by <a href="https://www.linkedin.com/in/omarrao/">Omar Rao</a><br>Engineer, Data Resilience &amp; Cybersecurity</div>
+</nav>
+<main class="main">
+  <div class="breadcrumb"><a href="#">Test Runs</a> / dc-01.prod.local / Run #TR-00041</div>
+  <div class="page-title">dc-01.prod.local &nbsp;<span class="badge badge-pass">Passed</span></div>
+  <div class="page-sub">Recovery validation run completed June 13, 2026 at 2:14 AM &nbsp;&#183;&nbsp; Triggered by scheduled test</div>
+
+  <div class="grid-top">
+    <div class="card">
+      <div class="card-title">Result Summary</div>
+      <div class="meta-grid">
+        <div class="meta-item"><div class="meta-label">RTO Target</div><div class="meta-val">30 min</div></div>
+        <div class="meta-item"><div class="meta-label">Actual RTO</div><div class="meta-val green">11 min 42 sec</div></div>
+        <div class="meta-item"><div class="meta-label">RPO Target</div><div class="meta-val">60 min</div></div>
+        <div class="meta-item"><div class="meta-label">Actual RPO</div><div class="meta-val green">18 min</div></div>
+        <div class="meta-item"><div class="meta-label">Restore Point Used</div><div class="meta-val" style="font-size:13px">Jun 13, 2026 1:50 AM</div></div>
+        <div class="meta-item"><div class="meta-label">Readiness Score</div><div class="meta-val green">94 / 100</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Health Checks</div>
+      <div class="hc-grid">
+        <div class="hc-item"><div class="hc-dot" style="background:#00B336"></div><div><div class="hc-name">OS Boot</div><div class="hc-result">Windows 2022 running</div></div></div>
+        <div class="hc-item"><div class="hc-dot" style="background:#00B336"></div><div><div class="hc-name">Network Reachable</div><div class="hc-result">Ping 4ms avg</div></div></div>
+        <div class="hc-item"><div class="hc-dot" style="background:#00B336"></div><div><div class="hc-name">Active Directory</div><div class="hc-result">LDAP bind OK</div></div></div>
+        <div class="hc-item"><div class="hc-dot" style="background:#00B336"></div><div><div class="hc-name">DNS Service</div><div class="hc-result">Responding</div></div></div>
+        <div class="hc-item"><div class="hc-dot" style="background:#00B336"></div><div><div class="hc-name">SYSVOL Share</div><div class="hc-result">Accessible</div></div></div>
+        <div class="hc-item"><div class="hc-dot" style="background:#00B336"></div><div><div class="hc-name">Kerberos Auth</div><div class="hc-result">Ticket issued</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px">
+    <div class="card">
+      <div class="card-title">Workflow Steps</div>
+      <div class="timeline">
+        <div class="step"><div class="step-icon pass">&#10003;</div><div class="step-body"><div class="step-name">Inventory Sync</div><div class="step-detail">Synced 52 workloads from Veeam B&amp;R 12.3</div><div class="step-time">2:00:12 AM</div></div><div class="step-duration">8 sec</div></div>
+        <div class="step"><div class="step-icon pass">&#10003;</div><div class="step-body"><div class="step-name">Select Restore Point</div><div class="step-detail">Latest consistent point: Jun 13, 1:50 AM (18 min old)</div><div class="step-time">2:00:20 AM</div></div><div class="step-duration">3 sec</div></div>
+        <div class="step"><div class="step-icon pass">&#10003;</div><div class="step-body"><div class="step-name">Provision Isolated Network</div><div class="step-detail">Created r3vp-isolated-tr41 on VLAN 4090</div><div class="step-time">2:00:23 AM</div></div><div class="step-duration">12 sec</div></div>
+        <div class="step"><div class="step-icon pass">&#10003;</div><div class="step-body"><div class="step-name">Start Instant Recovery</div><div class="step-detail">Veeam session VBR-SESSION-9921 started</div><div class="step-time">2:00:35 AM</div></div><div class="step-duration">45 sec</div></div>
+        <div class="step"><div class="step-icon pass">&#10003;</div><div class="step-body"><div class="step-name">Wait for VM Boot</div><div class="step-detail">VMware Tools reported running in 6 min 22 sec</div><div class="step-time">2:01:20 AM</div></div><div class="step-duration">6 min 22 sec</div></div>
+        <div class="step"><div class="step-icon pass">&#10003;</div><div class="step-body"><div class="step-name">Run Health Checks</div><div class="step-detail">6/6 checks passed (OS, Network, AD, DNS, SYSVOL, Kerberos)</div><div class="step-time">2:07:42 AM</div></div><div class="step-duration">4 min 01 sec</div></div>
+        <div class="step"><div class="step-icon pass">&#10003;</div><div class="step-body"><div class="step-name">Capture Evidence</div><div class="step-detail">Screenshot, event log, network trace saved to S3</div><div class="step-time">2:11:43 AM</div></div><div class="step-duration">18 sec</div></div>
+        <div class="step"><div class="step-icon pass">&#10003;</div><div class="step-body"><div class="step-name">Teardown Isolated Environment</div><div class="step-detail">VM stopped, VLAN removed, session closed</div><div class="step-time">2:12:01 AM</div></div><div class="step-duration">1 min 41 sec</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Evidence Artifacts</div>
+      <div class="evidence-grid">
+        <div class="evidence-item"><div class="evidence-thumb" style="background:linear-gradient(135deg,#1a2e1a,#2a4e2a);font-size:20px">&#128247;</div><div class="evidence-label">console-screenshot.png</div></div>
+        <div class="evidence-item"><div class="evidence-thumb" style="background:linear-gradient(135deg,#1a1a2e,#2a2a4e);font-size:20px">&#128196;</div><div class="evidence-label">event-log.txt</div></div>
+        <div class="evidence-item"><div class="evidence-thumb" style="background:linear-gradient(135deg,#2e1a1a,#4e2a2a);font-size:20px">&#128202;</div><div class="evidence-label">health-checks.json</div></div>
+      </div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0">
+        <button style="width:100%;padding:9px;border-radius:8px;border:1px solid #e0e0e0;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#1A1A2E">Download Full Report (PDF)</button>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

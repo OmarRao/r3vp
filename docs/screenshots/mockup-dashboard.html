@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>R3VP Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F4F6F8; color: #1A1A2E; }
+
+  /* Sidebar */
+  .sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100vh; background: #1A1A2E; display: flex; flex-direction: column; }
+  .logo { padding: 24px 20px 20px; border-bottom: 1px solid #2a2a3e; }
+  .logo-text { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+  .logo-sub { font-size: 10px; color: #00B336; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
+  .nav { flex: 1; padding: 16px 0; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 13px; color: #8888aa; cursor: pointer; border-left: 3px solid transparent; transition: all 0.15s; }
+  .nav-item.active { color: #fff; border-left-color: #00B336; background: rgba(0,179,54,0.08); }
+  .nav-item:hover:not(.active) { color: #ccc; background: rgba(255,255,255,0.04); }
+  .nav-icon { width: 16px; text-align: center; }
+  .sidebar-footer { padding: 16px 20px; border-top: 1px solid #2a2a3e; font-size: 11px; color: #555; }
+  .sidebar-footer a { color: #00B336; text-decoration: none; }
+
+  /* Main */
+  .main { margin-left: 220px; padding: 28px 32px; min-height: 100vh; }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .page-title { font-size: 22px; font-weight: 700; }
+  .page-sub { font-size: 13px; color: #666; margin-top: 2px; }
+  .btn { padding: 9px 18px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+  .btn-primary { background: #00B336; color: #fff; }
+
+  /* Stat cards */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #888; font-weight: 600; }
+  .stat-value { font-size: 32px; font-weight: 700; margin: 8px 0 4px; line-height: 1; }
+  .stat-sub { font-size: 12px; color: #aaa; }
+  .green { color: #00B336; }
+  .red { color: #EF4444; }
+  .amber { color: #F59E0B; }
+  .blue { color: #3B82F6; }
+
+  /* Gauge */
+  .gauge-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); display: flex; flex-direction: column; align-items: center; }
+  .gauge-wrap { position: relative; width: 160px; height: 90px; overflow: hidden; margin-bottom: 8px; }
+  .gauge-wrap svg { position: absolute; top: 0; left: 0; }
+  .gauge-score { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 34px; font-weight: 800; color: #1A1A2E; }
+  .gauge-label { font-size: 12px; color: #888; font-weight: 500; }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; margin-bottom: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .card-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: #1A1A2E; }
+
+  /* Chart bars (RTO/RPO) */
+  .chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 100px; padding-top: 8px; }
+  .bar-group { display: flex; gap: 3px; align-items: flex-end; flex: 1; }
+  .bar { width: 100%; border-radius: 3px 3px 0 0; transition: opacity 0.2s; }
+  .bar:hover { opacity: 0.8; }
+  .chart-labels { display: flex; gap: 6px; margin-top: 6px; }
+  .chart-label { flex: 1; text-align: center; font-size: 10px; color: #aaa; }
+  .chart-legend { display: flex; gap: 16px; margin-top: 12px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+
+  /* Workloads table */
+  .workload-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .workload-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: #aaa; font-weight: 600; padding: 0 12px 10px 0; border-bottom: 1px solid #f0f0f0; }
+  .workload-table td { padding: 11px 12px 11px 0; border-bottom: 1px solid #f8f8f8; vertical-align: middle; }
+  .workload-table tr:last-child td { border: none; }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .badge-pass { background: #dcfce7; color: #16a34a; }
+  .badge-fail { background: #fee2e2; color: #dc2626; }
+  .badge-pending { background: #fef9c3; color: #854d0e; }
+  .badge-never { background: #f3f4f6; color: #9ca3af; }
+  .platform-icon { font-size: 11px; background: #f0f4ff; color: #3B82F6; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+
+  /* Progress ring */
+  .ring-wrap { display: flex; gap: 20px; align-items: center; }
+  .ring-info { flex: 1; }
+  .ring-item { margin-bottom: 12px; }
+  .ring-item-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+  .ring-item-bar { height: 6px; background: #f0f0f0; border-radius: 3px; overflow: hidden; }
+  .ring-item-fill { height: 100%; border-radius: 3px; }
+
+  /* Activity feed */
+  .activity-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f8f8f8; align-items: flex-start; }
+  .activity-item:last-child { border: none; }
+  .activity-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .activity-text { font-size: 12px; color: #444; line-height: 1.5; }
+  .activity-time { font-size: 11px; color: #bbb; margin-top: 2px; }
+
+  /* Veeam jobs */
+  .job-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f8f8f8; font-size: 13px; }
+  .job-row:last-child { border: none; }
+  .job-name { font-weight: 500; }
+  .job-meta { font-size: 11px; color: #aaa; margin-top: 2px; }
+  .job-status { display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-text">R3VP</div>
+    <div class="logo-sub">Recovery Validation</div>
+  </div>
+  <div class="nav">
+    <div class="nav-item active"><span class="nav-icon">&#9632;</span> Dashboard</div>
+    <div class="nav-item"><span class="nav-icon">&#9632;</span> Workloads</div>
+    <div class="nav-item"><span class="nav-icon">&#9632;</span> Test Runs</div>
+    <div class="nav-item"><span class="nav-icon">&#9632;</span> Reports</div>
+    <div class="nav-item"><span class="nav-icon">&#9632;</span> Appliances</div>
+    <div class="nav-item"><span class="nav-icon">&#9632;</span> Audit Log</div>
+    <div class="nav-item"><span class="nav-icon">&#9632;</span> Settings</div>
+  </div>
+  <div class="sidebar-footer">
+    Built by <a href="https://www.linkedin.com/in/omarrao/" target="_blank">Omar Rao</a><br>
+    Engineer, Data Resilience &amp; Cybersecurity
+  </div>
+</nav>
+
+<!-- Main -->
+<main class="main">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Recovery Readiness Dashboard</div>
+      <div class="page-sub">Acme Corp &nbsp;&#183;&nbsp; Last test run 2 hours ago</div>
+    </div>
+    <button class="btn btn-primary">+ Run Validation Test</button>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Readiness Score</div>
+      <div class="stat-value green">82</div>
+      <div class="stat-sub">+6 from last month</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Workloads Protected</div>
+      <div class="stat-value">47 <span style="font-size:16px;color:#aaa">/ 52</span></div>
+      <div class="stat-sub">5 unprotected</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">RTO Compliance</div>
+      <div class="stat-value blue">91%</div>
+      <div class="stat-sub">Avg RTO: 14 min</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">RPO Compliance</div>
+      <div class="stat-value blue">88%</div>
+      <div class="stat-sub">Avg RPO: 22 min</div>
+    </div>
+  </div>
+
+  <!-- Row 2 -->
+  <div class="grid-2" style="margin-bottom:20px">
+    <!-- Gauge + compliance -->
+    <div class="card">
+      <div class="card-title">Overall Readiness</div>
+      <div style="display:flex;align-items:center;gap:20px">
+        <div>
+          <div class="gauge-wrap">
+            <svg width="160" height="90" viewBox="0 0 160 90">
+              <path d="M 10 85 A 70 70 0 0 1 150 85" fill="none" stroke="#f0f0f0" stroke-width="14" stroke-linecap="round"/>
+              <path d="M 10 85 A 70 70 0 0 1 150 85" fill="none" stroke="#00B336" stroke-width="14" stroke-linecap="round"
+                    stroke-dasharray="220" stroke-dashoffset="40"/>
+            </svg>
+            <div class="gauge-score">82</div>
+          </div>
+          <div class="gauge-label" style="text-align:center;margin-top:4px">out of 100</div>
+        </div>
+        <div style="flex:1">
+          <div class="ring-item">
+            <div class="ring-item-label">Tests Passed (30d)</div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:3px"><span>38 / 44</span><span class="green">86%</span></div>
+            <div class="ring-item-bar"><div class="ring-item-fill" style="width:86%;background:#00B336"></div></div>
+          </div>
+          <div class="ring-item">
+            <div class="ring-item-label">Workload Coverage (30d)</div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:3px"><span>40 / 52</span><span class="blue">77%</span></div>
+            <div class="ring-item-bar"><div class="ring-item-fill" style="width:77%;background:#3B82F6"></div></div>
+          </div>
+          <div class="ring-item">
+            <div class="ring-item-label">Veeam Backup Coverage</div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:3px"><span>47 / 52</span><span class="amber">90%</span></div>
+            <div class="ring-item-bar"><div class="ring-item-fill" style="width:90%;background:#F59E0B"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RTO / RPO chart -->
+    <div class="card">
+      <div class="card-title">RTO &amp; RPO Trend (last 90 days)</div>
+      <div class="chart-bars">
+        <div class="bar-group"><div class="bar" style="height:55px;background:#00B336;opacity:0.7"></div><div class="bar" style="height:40px;background:#3B82F6;opacity:0.7"></div></div>
+        <div class="bar-group"><div class="bar" style="height:60px;background:#00B336;opacity:0.7"></div><div class="bar" style="height:45px;background:#3B82F6;opacity:0.7"></div></div>
+        <div class="bar-group"><div class="bar" style="height:50px;background:#00B336;opacity:0.7"></div><div class="bar" style="height:38px;background:#3B82F6;opacity:0.7"></div></div>
+        <div class="bar-group"><div class="bar" style="height:70px;background:#EF4444;opacity:0.8"></div><div class="bar" style="height:55px;background:#3B82F6;opacity:0.7"></div></div>
+        <div class="bar-group"><div class="bar" style="height:48px;background:#00B336;opacity:0.7"></div><div class="bar" style="height:35px;background:#3B82F6;opacity:0.7"></div></div>
+        <div class="bar-group"><div class="bar" style="height:44px;background:#00B336;opacity:0.7"></div><div class="bar" style="height:30px;background:#3B82F6;opacity:0.7"></div></div>
+        <div class="bar-group"><div class="bar" style="height:42px;background:#00B336;opacity:0.7"></div><div class="bar" style="height:28px;background:#3B82F6;opacity:0.7"></div></div>
+        <div class="bar-group"><div class="bar" style="height:38px;background:#00B336;opacity:0.7"></div><div class="bar" style="height:25px;background:#3B82F6;opacity:0.7"></div></div>
+        <div class="bar-group"><div class="bar" style="height:35px;background:#00B336;opacity:0.7"></div><div class="bar" style="height:22px;background:#3B82F6;opacity:0.7"></div></div>
+      </div>
+      <div class="chart-labels">
+        <div class="chart-label">Apr 1</div><div class="chart-label">Apr 11</div><div class="chart-label">Apr 21</div>
+        <div class="chart-label">May 1</div><div class="chart-label">May 11</div><div class="chart-label">May 21</div>
+        <div class="chart-label">Jun 1</div><div class="chart-label">Jun 7</div><div class="chart-label">Jun 14</div>
+      </div>
+      <div class="chart-legend" style="margin-top:14px">
+        <span><span class="legend-dot" style="background:#00B336;display:inline-block"></span><span style="font-size:12px;color:#555">Avg RTO (mins)</span></span>
+        <span><span class="legend-dot" style="background:#3B82F6;display:inline-block"></span><span style="font-size:12px;color:#555">Avg RPO (mins)</span></span>
+        <span><span class="legend-dot" style="background:#EF4444;display:inline-block"></span><span style="font-size:12px;color:#555">RTO breach</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: Workloads + Activity + Veeam Jobs -->
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px">
+    <!-- Workloads table -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="card-title" style="margin:0">Workloads</div>
+        <a href="#" style="font-size:12px;color:#00B336;text-decoration:none">View all 52 &rarr;</a>
+      </div>
+      <table class="workload-table">
+        <thead>
+          <tr>
+            <th>Name</th><th>Platform</th><th>Last Backup</th><th>RTO Target</th><th>Last Test</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>dc-01.prod.local</strong><div style="font-size:11px;color:#aaa">Domain Controller</div></td>
+            <td><span class="platform-icon">VMware</span></td>
+            <td style="color:#555">2h ago</td>
+            <td style="color:#555">30 min</td>
+            <td style="color:#aaa;font-size:12px">Jun 13</td>
+            <td><span class="badge badge-pass">Passed</span></td>
+          </tr>
+          <tr>
+            <td><strong>sql-prod-01</strong><div style="font-size:11px;color:#aaa">SQL Server 2022</div></td>
+            <td><span class="platform-icon">VMware</span></td>
+            <td style="color:#555">4h ago</td>
+            <td style="color:#555">60 min</td>
+            <td style="color:#aaa;font-size:12px">Jun 12</td>
+            <td><span class="badge badge-pass">Passed</span></td>
+          </tr>
+          <tr>
+            <td><strong>web-app-cluster</strong><div style="font-size:11px;color:#aaa">IIS / .NET 8</div></td>
+            <td><span class="platform-icon">VMware</span></td>
+            <td style="color:#555">6h ago</td>
+            <td style="color:#555">15 min</td>
+            <td style="color:#aaa;font-size:12px">Jun 10</td>
+            <td><span class="badge badge-fail">Failed</span></td>
+          </tr>
+          <tr>
+            <td><strong>fs-01.prod.local</strong><div style="font-size:11px;color:#aaa">File Server</div></td>
+            <td><span class="platform-icon">VMware</span></td>
+            <td style="color:#555">1h ago</td>
+            <td style="color:#555">120 min</td>
+            <td style="color:#aaa;font-size:12px">Jun 14</td>
+            <td><span class="badge badge-pass">Passed</span></td>
+          </tr>
+          <tr>
+            <td><strong>exchange-01</strong><div style="font-size:11px;color:#aaa">Exchange 2019</div></td>
+            <td><span class="platform-icon">VMware</span></td>
+            <td style="color:#555">3h ago</td>
+            <td style="color:#555">45 min</td>
+            <td style="color:#aaa;font-size:12px">Never</td>
+            <td><span class="badge badge-never">Never tested</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Activity feed -->
+    <div class="card">
+      <div class="card-title">Recent Activity</div>
+      <div class="activity-item">
+        <div class="activity-dot" style="background:#00B336"></div>
+        <div>
+          <div class="activity-text"><strong>fs-01.prod.local</strong> recovery test passed in 18 min (RTO: 120 min)</div>
+          <div class="activity-time">2 hours ago</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-dot" style="background:#EF4444"></div>
+        <div>
+          <div class="activity-text"><strong>web-app-cluster</strong> recovery test failed: IIS health check timeout after 15 min</div>
+          <div class="activity-time">6 hours ago</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-dot" style="background:#00B336"></div>
+        <div>
+          <div class="activity-text"><strong>sql-prod-01</strong> passed. RTO actual: 38 min vs 60 min target</div>
+          <div class="activity-time">Yesterday, 11:42 PM</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-dot" style="background:#3B82F6"></div>
+        <div>
+          <div class="activity-text">Appliance <strong>prod-site-01</strong> synced 52 workloads from Veeam B&amp;R 12.3</div>
+          <div class="activity-time">Yesterday, 9:00 AM</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-dot" style="background:#00B336"></div>
+        <div>
+          <div class="activity-text"><strong>dc-01.prod.local</strong> passed. RTO actual: 11 min vs 30 min target</div>
+          <div class="activity-time">Jun 13, 2:14 AM</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>
