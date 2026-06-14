@@ -1,0 +1,11 @@
+[tool.uv.workspace]
+members = ["apps/appliance", "apps/api"]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "httpx>=0.27",
+    "ruff>=0.4",
+    "mypy>=1.10",
+]

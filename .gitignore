@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# uv
+uv.lock
+
+# Node
+node_modules/
+.next/
+.turbo/
+*.tsbuildinfo
+.env.local
+.env.*.local
+
+# Secrets & certs
+*.pem
+*.key
+*.p12
+*.pfx
+.sops.yaml
+secrets/
+certs/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+!*.tfvars.example
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.ova
+*.vmdk
