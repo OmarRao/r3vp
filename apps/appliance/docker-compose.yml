@@ -1,0 +1,18 @@
+services:
+  appliance:
+    build: .
+    restart: unless-stopped
+    environment:
+      R3VP_APPLIANCE_ID: ${R3VP_APPLIANCE_ID}
+      R3VP_ORG_ID: ${R3VP_ORG_ID}
+      R3VP_SAAS_BASE_URL: ${R3VP_SAAS_BASE_URL:-https://api.r3vp.io}
+      R3VP_TEMPORAL_ADDRESS: ${R3VP_TEMPORAL_ADDRESS:-temporal.r3vp.io:7233}
+      R3VP_MTLS_CERT_PATH: /certs/appliance.crt
+      R3VP_MTLS_KEY_PATH: /certs/appliance.key
+      R3VP_MTLS_CA_PATH: /certs/r3vp-ca.crt
+      R3VP_VAULT_SECRETS_PATH: /vault/secrets.enc.yaml
+      R3VP_VAULT_AGE_KEY_PATH: /vault/age.key
+    volumes:
+      - ./certs:/certs:ro
+      - ./vault:/vault:ro
+    network_mode: host

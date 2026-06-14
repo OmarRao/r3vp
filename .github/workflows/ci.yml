@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+jobs:
+  lint-and-test-appliance:
+    name: Appliance — lint & test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/appliance
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+      - run: uv sync
+      - run: uv run ruff check src/ health_checks/
+      - run: uv run mypy src/ health_checks/
+      - run: uv run pytest tests/ -v
+
+  lint-and-test-api:
+    name: API — lint & test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: r3vp
+          POSTGRES_PASSWORD: r3vp
+          POSTGRES_DB: r3vp
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+      - run: uv sync
+      - run: uv run ruff check src/
+      - run: uv run mypy src/
+      - run: uv run pytest tests/ -v
+        env:
+          R3VP_API_DATABASE_URL: postgresql+asyncpg://r3vp:r3vp@localhost:5432/r3vp
+
+  lint-portal:
+    name: Portal — type check & lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/portal
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: apps/portal/pnpm-lock.yaml
+      - run: pnpm install
+      - run: pnpm type-check
+      - run: pnpm lint
+
+  docker-build:
+    name: Docker builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build appliance image
+        run: docker build -t r3vp-appliance:ci apps/appliance/
+      - name: Build API image
+        run: docker build -t r3vp-api:ci apps/api/
