@@ -17,6 +17,14 @@ dependencies = [
     "pillow>=10.3",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "mypy>=1.10",
+]
+
 [project.scripts]
 r3vp-appliance = "src.main:main"
 
