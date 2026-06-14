@@ -1,0 +1,26 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_US
+  keyboard:
+    layout: us
+  network:
+    network:
+      version: 2
+      ethernets:
+        ens33:
+          dhcp4: true
+  storage:
+    layout:
+      name: lvm
+  identity:
+    hostname: r3vp-appliance
+    username: r3vp
+    password: "$6$rounds=4096$saltsalt$hashedpassword"
+  ssh:
+    install-server: true
+    allow-pw: true
+  packages:
+    - qemu-guest-agent
+  late-commands:
+    - echo 'r3vp ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/r3vp

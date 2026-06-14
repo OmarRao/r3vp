@@ -89,6 +89,28 @@ async def set_targets(
     return {"status": "updated"}
 
 
+class SetScheduleRequest(BaseModel):
+    schedule_cron: str | None  # e.g. "0 2 * * *" for daily at 2 AM, None to disable
+
+
+@router.put("/{workload_id}/schedule")
+async def set_schedule(
+    workload_id: uuid.UUID,
+    req: SetScheduleRequest,
+    user: AuthUser,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    from sqlalchemy import update
+    await get_workload(workload_id, user, db)
+    await db.execute(
+        update(Workload)
+        .where(Workload.id == workload_id)
+        .values(schedule_cron=req.schedule_cron)
+    )
+    await db.commit()
+    return {"status": "updated", "schedule_cron": req.schedule_cron}
+
+
 @router.get("/{workload_id}/history")
 async def get_history(
     workload_id: uuid.UUID,
