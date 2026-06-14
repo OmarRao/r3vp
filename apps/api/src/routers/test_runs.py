@@ -2,16 +2,20 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
+import structlog
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import AuthUser
+from src.config import settings
 from src.db.session import get_db
 from src.models.test_run import TestRun, TestRunStep
 from src.models.workload import Workload
 from src.models.appliance import Appliance
+
+log = structlog.get_logger()
 
 router = APIRouter()
 
@@ -74,7 +78,28 @@ async def trigger_test_run(
     await db.commit()
     await db.refresh(run)
 
-    # TODO Phase 3: enqueue Temporal workflow via Temporal Cloud SDK
+    # Enqueue Temporal workflow if client is available
+    try:
+        from src.main import get_temporal_client
+        tc = get_temporal_client()
+        wf_handle = await tc.start_workflow(
+            "RecoveryTestWorkflow",
+            args=[str(run.id), str(workload.id), str(workload.appliance_id)],
+            id=str(run.id),
+            task_queue=settings.temporal_task_queue,
+        )
+        from sqlalchemy import update
+        await db.execute(
+            update(TestRun).where(TestRun.id == run.id).values(
+                workflow_run_id=wf_handle.first_execution_run_id,
+                status="running",
+                started_at=datetime.now(timezone.utc),
+            )
+        )
+        await db.commit()
+        await db.refresh(run)
+    except Exception as exc:
+        log.warning("temporal enqueue failed, run stays pending", error=str(exc))
 
     return {
         "id": run.id,
@@ -133,7 +158,73 @@ async def download_report(
     run_id: uuid.UUID,
     user: AuthUser,
     db: AsyncSession = Depends(get_db),
-) -> dict:
-    # Phase 5: generate presigned S3 URL to PDF report
-    await get_test_run(run_id, user, db)
-    return {"url": ""}
+):
+    from fastapi.responses import Response
+    from jinja2 import Environment, FileSystemLoader
+    import weasyprint
+    import os
+    from src.models.test_run import HealthCheckResult
+
+    run_data = await get_test_run(run_id, user, db)
+
+    # Load health checks
+    hc_rows = await db.execute(
+        select(HealthCheckResult).where(HealthCheckResult.run_id == run_id)
+    )
+    health_checks = [
+        {"check_name": h.check_name, "passed": h.passed, "output": h.output}
+        for h in hc_rows.scalars().all()
+    ]
+
+    # Load workload for targets
+    workload = await db.scalar(
+        select(Workload).where(Workload.id == run_data["workload_id"])
+    )
+
+    steps = run_data.get("steps", [])
+    for step in steps:
+        sa = step.get("started_at")
+        ea = step.get("ended_at")
+        if sa and ea:
+            try:
+                delta = datetime.fromisoformat(ea) - datetime.fromisoformat(sa)
+                step["duration"] = f"{int(delta.total_seconds())} sec"
+            except Exception:
+                step["duration"] = ""
+        else:
+            step["duration"] = ""
+        step["detail_summary"] = str(step.get("detail", "") or "")[:80]
+
+    rto_actual = run_data.get("rto_actual_mins") or 0
+    rpo_actual = run_data.get("rpo_actual_mins") or 0
+    rto_target = workload.rto_target_mins or 0 if workload else 0
+    rpo_target = workload.rpo_target_mins or 0 if workload else 0
+
+    templates_dir = os.path.join(os.path.dirname(__file__), "..", "templates")
+    env = Environment(loader=FileSystemLoader(os.path.abspath(templates_dir)))
+    template = env.get_template("report.html")
+
+    html = template.render(
+        org_name=str(user.org_id),
+        generated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        workload_name=workload.name if workload else "Unknown",
+        test_date=run_data.get("started_at") or "",
+        passed=run_data.get("status") == "passed",
+        rto_target=rto_target,
+        rto_actual=rto_actual,
+        rto_ok=rto_actual <= rto_target if rto_target else True,
+        rpo_target=rpo_target,
+        rpo_actual=rpo_actual,
+        rpo_ok=rpo_actual <= rpo_target if rpo_target else True,
+        readiness_score=run_data.get("readiness_score"),
+        steps=steps,
+        health_checks=health_checks,
+        failure_reason=None,
+    )
+
+    pdf_bytes = weasyprint.HTML(string=html).write_pdf()
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="r3vp-report-{run_id}.pdf"'},
+    )

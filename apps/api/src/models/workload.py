@@ -22,6 +22,7 @@ class Workload(Base):
     last_backup_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     rto_target_mins: Mapped[int | None] = mapped_column(Integer)
     rpo_target_mins: Mapped[int | None] = mapped_column(Integer)
+    schedule_cron: Mapped[str | None] = mapped_column(String(100))
     tags: Mapped[dict] = mapped_column(JSONB, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(

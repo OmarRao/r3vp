@@ -1,0 +1,18 @@
+[Unit]
+Description=R3VP Appliance
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/r3vp
+EnvironmentFile=-/opt/r3vp/.env
+ExecStartPre=/opt/r3vp/scripts/configure-from-ovf.sh
+ExecStart=/usr/bin/docker compose up
+ExecStop=/usr/bin/docker compose down
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

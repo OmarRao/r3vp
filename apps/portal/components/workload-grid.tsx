@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
 type WorkloadStatus = "passed" | "failed" | "pending" | "never";
@@ -25,6 +26,7 @@ const statusBadge: Record<string, string> = {
 };
 
 export function WorkloadGrid() {
+  const router = useRouter();
   const { data: workloads = [], isLoading } = useQuery<Workload[]>({
     queryKey: ["workloads"],
     queryFn: () => api.get("/v1/workloads").then((r) => r.data),
@@ -52,7 +54,7 @@ export function WorkloadGrid() {
           {workloads.map((w) => {
             const status = w.last_test_run_status ?? "never";
             return (
-              <tr key={w.id} className="border-b hover:bg-gray-50 cursor-pointer">
+              <tr key={w.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/dashboard/workloads/${w.id}`)}>
                 <td className="py-2 pr-4 font-medium text-gray-900">{w.name}</td>
                 <td className="py-2 pr-4 text-gray-600">{w.platform}</td>
                 <td className="py-2 pr-4">

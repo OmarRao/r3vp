@@ -1,0 +1,3 @@
+# Copy to appliance.pkrvars.hcl and fill in values before running packer build
+appliance_version = "0.2.0"
+output_directory  = "output/r3vp-appliance"

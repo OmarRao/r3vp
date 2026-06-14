@@ -77,7 +77,18 @@ async def sync_inventory(inp: SyncInventoryInput) -> None:
     relay = RelayClient()
     await relay.sync_inventory({
         "run_id": inp.run_id,
-        "vms": [vm.model_dump() for vm in vms],
+        "vms": [
+            {
+                "object_id": vm.object_id,
+                "name": vm.name,
+                "platform": vm.platform,
+                "os_type": None,
+                "is_protected": True,
+                "last_backup": vm.last_backup.isoformat() if vm.last_backup else None,
+                "moref": None,
+            }
+            for vm in vms
+        ],
     })
     await relay.close()
 
