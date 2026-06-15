@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth import AuthUser
+from src.auth import AuthUser, AdminUser
 from src.config import settings
 from src.db.session import get_db
 from src.models.test_run import TestRun, TestRunStep
@@ -57,7 +57,7 @@ async def _owned_workload(
 @router.post("", response_model=TestRunResponse)
 async def trigger_test_run(
     req: TriggerTestRunRequest,
-    user: AuthUser,
+    user: AdminUser,
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     workload = await _owned_workload(req.workload_id, user, db)

@@ -5,7 +5,7 @@ import structlog
 from temporalio.client import Client, TLSConfig
 
 from src.config import settings
-from src.routers import appliances, workloads, test_runs, readiness, evidence, audit
+from src.routers import appliances, workloads, test_runs, readiness, evidence, audit, notifications, users, portal_appliances, reports
 
 log = structlog.get_logger()
 
@@ -77,6 +77,10 @@ app.include_router(test_runs.router, prefix="/v1/test-runs", tags=["Test Runs"])
 app.include_router(readiness.router, prefix="/v1/dashboard", tags=["Dashboard"])
 app.include_router(evidence.router, prefix="/v1/evidence", tags=["Evidence"])
 app.include_router(audit.router, prefix="/v1/audit-log", tags=["Audit"])
+app.include_router(notifications.router, prefix="/v1/notifications", tags=["Notifications"])
+app.include_router(users.router, prefix="/v1/users", tags=["Users"])
+app.include_router(portal_appliances.router, prefix="/v1/portal/appliances", tags=["Portal Appliances"])
+app.include_router(reports.router, prefix="/v1/reports", tags=["Reports"])
 
 
 @app.get("/health")

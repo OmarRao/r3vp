@@ -27,6 +27,7 @@ class CurrentUser(BaseModel):
     sub: str
     org_id: uuid.UUID
     email: str = ""
+    role: str = "admin"
 
 
 @lru_cache(maxsize=1)
@@ -98,3 +99,13 @@ async def get_current_user(
 
 # Convenience alias for use in route signatures
 AuthUser = Annotated[CurrentUser, Depends(get_current_user)]
+
+
+def require_admin(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:
+    """Raise 403 if user is not an admin."""
+    if user.role != "admin":
+        raise HTTPException(403, "Admin access required")
+    return user
+
+
+AdminUser = Annotated[CurrentUser, Depends(require_admin)]

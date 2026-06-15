@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: Arial, sans-serif; font-size: 11px; color: #1A1A2E; margin: 40px 50px; }
+  h1 { font-size: 22px; color: #1A1A2E; margin-bottom: 2px; }
+  h2 { font-size: 14px; color: #1A1A2E; margin-top: 28px; margin-bottom: 8px; border-bottom: 2px solid #00B336; padding-bottom: 4px; }
+  h3 { font-size: 12px; color: #333; margin-top: 16px; margin-bottom: 6px; }
+  .subtitle { color: #666; font-size: 12px; margin-bottom: 6px; }
+  .org { color: #333; font-size: 13px; font-weight: bold; margin-bottom: 24px; }
+  .exec-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 12px 0; }
+  .exec-card { border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px; text-align: center; }
+  .exec-card .label { font-size: 9px; text-transform: uppercase; color: #888; }
+  .exec-card .value { font-size: 20px; font-weight: bold; margin-top: 4px; }
+  .exec-card .value.pass { color: #00B336; }
+  .exec-card .value.fail { color: #EF4444; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 10px; }
+  th { text-align: left; padding: 6px 8px; background: #f8f9fa; border-bottom: 1px solid #dee2e6; font-size: 9px; text-transform: uppercase; color: #666; }
+  td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; }
+  tr:hover td { background: #fafafa; }
+  .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold; }
+  .badge-pass { background: #dcfce7; color: #16a34a; }
+  .badge-fail { background: #fee2e2; color: #dc2626; }
+  .nist-row { background: #f8f9fa; }
+  .attestation { border: 2px solid #1A1A2E; border-radius: 8px; padding: 20px; margin-top: 32px; }
+  .attestation h3 { margin-top: 0; font-size: 14px; }
+  .sig-line { border-bottom: 1px solid #333; width: 260px; display: inline-block; margin-top: 24px; }
+  .footer { margin-top: 40px; padding-top: 12px; border-top: 1px solid #e0e0e0; font-size: 9px; color: #aaa; text-align: center; }
+  .green { color: #00B336; }
+  .red { color: #EF4444; }
+</style>
+</head>
+<body>
+
+<h1>Ransomware Recovery Readiness Attestation</h1>
+<div class="subtitle">Cyber Insurance Evidence Report</div>
+<div class="org">{{ org_name }}</div>
+<div class="subtitle">Report Period: {{ from_date }} to {{ to_date }} | Generated: {{ generated_at }}</div>
+
+<h2>Executive Summary</h2>
+<div class="exec-grid">
+  <div class="exec-card">
+    <div class="label">Workloads Tested</div>
+    <div class="value">{{ total_tested }}</div>
+  </div>
+  <div class="exec-card">
+    <div class="label">Pass Rate</div>
+    <div class="value {{ 'pass' if pass_rate_pct >= 80 else 'fail' }}">{{ pass_rate_pct }}%</div>
+  </div>
+  <div class="exec-card">
+    <div class="label">Avg RTO</div>
+    <div class="value {{ 'pass' if rto_compliance_pct >= 80 else 'fail' }}">{{ avg_rto_mins }}m</div>
+  </div>
+  <div class="exec-card">
+    <div class="label">RTO Compliance</div>
+    <div class="value {{ 'pass' if rto_compliance_pct >= 80 else 'fail' }}">{{ rto_compliance_pct }}%</div>
+  </div>
+  <div class="exec-card">
+    <div class="label">RPO Compliance</div>
+    <div class="value {{ 'pass' if rpo_compliance_pct >= 80 else 'fail' }}">{{ rpo_compliance_pct }}%</div>
+  </div>
+</div>
+
+<h2>NIST CSF Recover Function Mapping</h2>
+<table>
+  <thead>
+    <tr><th>NIST CSF Control</th><th>Description</th><th>Evidence</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    <tr class="nist-row">
+      <td><strong>RC.RP-1</strong></td>
+      <td>Recovery plan is executed during or after a cybersecurity incident</td>
+      <td>{{ total_tested }} automated recovery tests executed in period</td>
+      <td><span class="badge {{ 'badge-pass' if total_tested > 0 else 'badge-fail' }}">{{ 'Evidenced' if total_tested > 0 else 'No Data' }}</span></td>
+    </tr>
+    <tr>
+      <td><strong>RC.RP-2</strong></td>
+      <td>Recovery activities are communicated to stakeholders</td>
+      <td>Automated test results reported to portal; PDF reports available</td>
+      <td><span class="badge badge-pass">Evidenced</span></td>
+    </tr>
+    <tr class="nist-row">
+      <td><strong>RC.IM-1</strong></td>
+      <td>Recovery plans incorporate lessons learned from past cybersecurity events</td>
+      <td>RTO/RPO targets reviewed and updated based on test results</td>
+      <td><span class="badge badge-pass">Evidenced</span></td>
+    </tr>
+    <tr>
+      <td><strong>RC.IM-2</strong></td>
+      <td>Recovery strategies are updated</td>
+      <td>{{ pass_rate_pct }}% of workloads meeting defined recovery targets</td>
+      <td><span class="badge {{ 'badge-pass' if pass_rate_pct >= 80 else 'badge-fail' }}">{{ 'Compliant' if pass_rate_pct >= 80 else 'Needs Improvement' }}</span></td>
+    </tr>
+    <tr class="nist-row">
+      <td><strong>RC.CO-3</strong></td>
+      <td>Recovery activities are communicated to external stakeholders</td>
+      <td>Automated evidence capture: screenshots, logs, health check results</td>
+      <td><span class="badge badge-pass">Evidenced</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Workload Recovery Test Results</h2>
+<table>
+  <thead>
+    <tr><th>Workload</th><th>Test Date</th><th>Restore Point Age</th><th>RTO Target</th><th>Actual RTO</th><th>RPO Target</th><th>Actual RPO</th><th>Score</th><th>Result</th></tr>
+  </thead>
+  <tbody>
+  {% for r in workload_results %}
+    <tr>
+      <td>{{ r.workload_name }}</td>
+      <td>{{ r.test_date }}</td>
+      <td>{{ r.rpo_actual }} min</td>
+      <td>{{ r.rto_target or '-' }} min</td>
+      <td class="{{ 'green' if r.rto_ok else 'red' }}">{{ r.rto_actual or '-' }} min</td>
+      <td>{{ r.rpo_target or '-' }} min</td>
+      <td class="{{ 'green' if r.rpo_ok else 'red' }}">{{ r.rpo_actual or '-' }} min</td>
+      <td>{{ r.readiness_score or '-' }}</td>
+      <td><span class="badge {{ 'badge-pass' if r.passed else 'badge-fail' }}">{{ 'PASS' if r.passed else 'FAIL' }}</span></td>
+    </tr>
+  {% else %}
+    <tr><td colspan="9" style="text-align:center;color:#888">No test runs in this period</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<div class="attestation">
+  <h3>Attestation</h3>
+  <p>
+    This report attests that the workloads listed above were subject to automated recovery testing
+    using the R3VP Recovery Validation Platform during the period {{ from_date }} to {{ to_date }}.
+    Tests were conducted in an isolated network environment with no impact to production systems.
+    Recovery times and data age measurements are accurate as recorded by the platform.
+  </p>
+  <p style="margin-top:12px">
+    <strong>Organization:</strong> {{ org_name }}<br>
+    <strong>Report Generated:</strong> {{ generated_at }}<br>
+    <strong>Platform Version:</strong> R3VP 0.2.0<br>
+    <strong>Tests Conducted:</strong> {{ total_runs }} recovery validation tests
+  </p>
+  <div style="margin-top:20px">
+    <div class="sig-line"></div>
+    <div style="margin-top:6px;font-size:10px;color:#666">Authorized Signatory / Date</div>
+  </div>
+</div>
+
+<div class="footer">
+  Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy |
+  https://www.linkedin.com/in/omarrao/ |
+  R3VP Ransomware Readiness and Recovery Validation Platform
+</div>
+
+</body>
+</html>

@@ -1,4 +1,10 @@
 variable "environment" {}
+variable "vpc_id" { default = "" }
+variable "subnet_ids" { default = [] }
+variable "db_password" {
+  default   = ""
+  sensitive = true
+}
 
 resource "aws_db_instance" "r3vp" {
   identifier        = "r3vp-${var.environment}"
@@ -23,5 +29,10 @@ resource "random_password" "db" {
 
 output "connection_url" {
   value     = "postgresql+asyncpg://${aws_db_instance.r3vp.username}:${random_password.db.result}@${aws_db_instance.r3vp.endpoint}/r3vp"
+  sensitive = true
+}
+
+output "endpoint" {
+  value     = aws_db_instance.r3vp.endpoint
   sensitive = true
 }
