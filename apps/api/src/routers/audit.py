@@ -43,3 +43,56 @@ async def list_audit_events(
             for r in rows.scalars().all()
         ],
     }
+
+
+@router.get("/export")
+async def export_audit_csv(
+    user: AuthUser,
+    from_date: str = Query(..., description="ISO date e.g. 2026-01-01"),
+    to_date: str = Query(..., description="ISO date e.g. 2026-12-31"),
+    db: AsyncSession = Depends(get_db),
+):
+    from fastapi.responses import StreamingResponse
+    from fastapi import HTTPException
+    from datetime import datetime, timezone
+    import csv
+    import io
+
+    try:
+        from_dt = datetime.fromisoformat(from_date).replace(tzinfo=timezone.utc)
+        to_dt = datetime.fromisoformat(to_date).replace(tzinfo=timezone.utc)
+    except ValueError:
+        raise HTTPException(400, "Invalid date format. Use ISO 8601 e.g. 2026-01-01")
+
+    if (to_dt - from_dt).days > 90:
+        raise HTTPException(400, "Date range cannot exceed 90 days")
+
+    rows = await db.execute(
+        select(AuditEvent)
+        .where(
+            AuditEvent.org_id == user.org_id,
+            AuditEvent.occurred_at >= from_dt,
+            AuditEvent.occurred_at <= to_dt,
+        )
+        .order_by(AuditEvent.occurred_at.asc())
+    )
+
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["occurred_at", "event_type", "actor_type", "actor_id", "resource_id", "detail"])
+    for r in rows.scalars().all():
+        writer.writerow([
+            r.occurred_at.isoformat(),
+            r.event_type,
+            r.actor_type,
+            str(r.actor_id) if r.actor_id else "",
+            str(r.resource_id) if r.resource_id else "",
+            str(r.detail or ""),
+        ])
+
+    buf.seek(0)
+    return StreamingResponse(
+        iter([buf.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="r3vp-audit-{from_date}-{to_date}.csv"'},
+    )

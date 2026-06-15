@@ -77,4 +77,5 @@ class User(Base):
     org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("orgs.id"), nullable=False)
     auth0_sub: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(255), nullable=False)
+    role: Mapped[str] = mapped_column(String(50), default="admin")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

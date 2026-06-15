@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth import AuthUser
+from src.auth import AuthUser, AdminUser
 from src.db.session import get_db
 from src.models.workload import Workload
 
@@ -73,7 +73,7 @@ async def get_workload(
 async def set_targets(
     workload_id: uuid.UUID,
     req: SetTargetsRequest,
-    user: AuthUser,
+    user: AdminUser,
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     from sqlalchemy import update
@@ -97,7 +97,7 @@ class SetScheduleRequest(BaseModel):
 async def set_schedule(
     workload_id: uuid.UUID,
     req: SetScheduleRequest,
-    user: AuthUser,
+    user: AdminUser,
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     from sqlalchemy import update

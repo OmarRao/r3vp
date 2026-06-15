@@ -195,6 +195,31 @@ async def finalise_run(
     )
     await db.commit()
 
+    # Send breach notifications (best-effort)
+    try:
+        from src.models.workload import Workload
+        from src.models.appliance import Appliance as App
+        from src.services.notifications import send_breach_notifications
+        run_row = await db.scalar(select(TestRun).where(TestRun.id == run_id))
+        if run_row:
+            wl = await db.scalar(
+                select(Workload).where(Workload.id == run_row.workload_id)
+            )
+            if wl:
+                app_row = await db.scalar(select(App).where(App.id == wl.appliance_id))
+                org_id = app_row.org_id if app_row else None
+                if org_id:
+                    await send_breach_notifications(
+                        db, org_id=org_id,
+                        workload_name=wl.name, run_id=str(run_id),
+                        rto_target=wl.rto_target_mins, rto_actual=rto_actual_mins,
+                        rpo_target=wl.rpo_target_mins, rpo_actual=rpo_actual_mins,
+                        passed=passed,
+                    )
+    except Exception as exc:
+        import structlog as _sl
+        _sl.get_logger().warning("notification dispatch error", error=str(exc))
+
 
 async def _audit(
     db: AsyncSession,
