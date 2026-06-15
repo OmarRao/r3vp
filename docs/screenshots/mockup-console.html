@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>R3VP Console</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F4F6F8; color: #1A1A2E; }
+  .sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100vh; background: #1A1A2E; display: flex; flex-direction: column; overflow: hidden; }
+  .logo { padding: 24px 20px 16px; border-bottom: 1px solid #2a2a3e; }
+  .logo-text { font-size: 20px; font-weight: 700; color: #fff; }
+  .logo-sub { font-size: 10px; color: #00B336; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
+  .logo-version { font-size: 9px; color: #555; margin-top: 2px; }
+  .nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+  .nav-section { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #444; padding: 12px 20px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 9px 20px; font-size: 12px; color: #8888aa; cursor: pointer; border-left: 3px solid transparent; }
+  .nav-item.active { color: #fff; border-left-color: #00B336; background: rgba(0,179,54,0.08); }
+  .nav-item:hover { color: #ccc; }
+  .nav-item .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: #00B336; }
+  .dot-red { background: #EF4444; }
+  .dot-amber { background: #F59E0B; }
+  .dot-blue { background: #3B82F6; }
+  .sidebar-footer { padding: 14px 20px; border-top: 1px solid #2a2a3e; font-size: 10px; color: #555; }
+  .sidebar-footer a { color: #00B336; text-decoration: none; }
+  .main { margin-left: 220px; padding: 24px 28px; }
+
+  /* Notification bar */
+  .notif-bar { background: #1A1A2E; color: #fff; padding: 8px 16px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; font-size: 12px; }
+  .notif-bar .pulse { width: 8px; height: 8px; border-radius: 50%; background: #EF4444; animation: pulse 1.5s infinite; flex-shrink: 0; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .page-title { font-size: 22px; font-weight: 700; }
+
+  /* KPI row */
+  .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi { background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.7px; color: #aaa; font-weight: 600; }
+  .kpi-val { font-size: 24px; font-weight: 700; margin-top: 4px; }
+  .kpi-sub { font-size: 10px; color: #aaa; margin-top: 2px; }
+
+  /* Main grid */
+  .main-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .card { background: #fff; border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .card-title { font-size: 13px; font-weight: 700; }
+  .view-all { font-size: 11px; color: #00B336; cursor: pointer; }
+
+  /* Threat findings */
+  .finding { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+  .finding:last-child { border: none; }
+  .sev { width: 48px; text-align: center; padding: 3px 0; border-radius: 4px; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+  .sev-crit { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+  .sev-high { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
+  .sev-med { background: #fefce8; color: #a16207; border: 1px solid #fde047; }
+  .finding-name { font-size: 12px; font-weight: 600; }
+  .finding-host { font-size: 11px; color: #888; margin-top: 2px; }
+  .finding-time { font-size: 10px; color: #bbb; margin-top: 2px; }
+
+  /* Recovery tests */
+  .test-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 12px; }
+  .test-row:last-child { border: none; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 600; }
+  .badge-pass { background: #dcfce7; color: #16a34a; }
+  .badge-fail { background: #fee2e2; color: #dc2626; }
+  .badge-running { background: #dbeafe; color: #2563eb; }
+  .test-name { font-weight: 500; flex: 1; }
+  .test-rto { font-size: 11px; color: #666; }
+
+  /* Scan gauge */
+  .scan-status { display: flex; flex-direction: column; align-items: center; padding: 10px 0; }
+  .gauge-ring { width: 100px; height: 100px; border-radius: 50%; background: conic-gradient(#00B336 0deg 295deg, #f0f0f0 295deg 360deg); display: flex; align-items: center; justify-content: center; margin: 8px 0; }
+  .gauge-inner { width: 78px; height: 78px; border-radius: 50%; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .gauge-pct { font-size: 20px; font-weight: 700; color: #00B336; }
+  .gauge-label { font-size: 9px; color: #aaa; }
+
+  /* Bottom grid */
+  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .mini-stat { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 12px; }
+  .mini-stat:last-child { border: none; }
+  .mini-label { color: #666; }
+  .mini-val { font-weight: 600; }
+
+  /* Incident row */
+  .incident { padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+  .incident:last-child { border: none; }
+  .inc-title { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .inc-meta { font-size: 11px; color: #888; margin-top: 3px; }
+  .inc-actions { font-size: 11px; color: #00B336; margin-top: 4px; cursor: pointer; }
+</style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-text">R3VP</div>
+    <div class="logo-sub">Recovery Validation</div>
+    <div class="logo-version">v0.4.0 - Threat Intel</div>
+  </div>
+  <div class="nav">
+    <div class="nav-section">Resilience</div>
+    <div class="nav-item active"><span class="dot dot-green"></span> Dashboard</div>
+    <div class="nav-item"><span class="dot dot-green"></span> Workloads</div>
+    <div class="nav-item"><span class="dot dot-blue"></span> Test Runs</div>
+    <div class="nav-item"><span class="dot dot-green"></span> Reports</div>
+    <div class="nav-section">Threat Intel</div>
+    <div class="nav-item"><span class="dot dot-red"></span> Threat Scanner</div>
+    <div class="nav-item"><span class="dot dot-red"></span> Findings <span style="background:#EF4444;color:#fff;border-radius:99px;padding:1px 6px;font-size:9px;margin-left:auto">3</span></div>
+    <div class="nav-item"><span class="dot dot-amber"></span> Incidents</div>
+    <div class="nav-section">Integrations</div>
+    <div class="nav-item"><span class="dot dot-blue"></span> SOAR / SIEM</div>
+    <div class="nav-item"><span class="dot dot-blue"></span> VeeamONE</div>
+    <div class="nav-section">Platform</div>
+    <div class="nav-item"><span class="dot dot-green"></span> Appliances</div>
+    <div class="nav-item"><span class="dot dot-green"></span> Audit Log</div>
+    <div class="nav-item"><span class="dot dot-green"></span> Settings</div>
+  </div>
+  <div class="sidebar-footer">Built by <a href="https://www.linkedin.com/in/omarrao/">Omar Rao</a><br>Engineer, Data Resilience &amp; Cybersecurity</div>
+</nav>
+
+<main class="main">
+  <!-- Live threat alert bar -->
+  <div class="notif-bar">
+    <div class="pulse"></div>
+    <strong>THREAT DETECTED</strong> &nbsp;|&nbsp; LockBit 3.0 process signature matched on sql-prod-01 at 14:32 UTC &nbsp;&mdash;&nbsp; Incident response workflow triggered automatically &nbsp;|&nbsp;
+    <span style="color:#00B336;cursor:pointer">View Incident &rarr;</span>
+  </div>
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">Recovery Readiness Console</div>
+      <div style="font-size:12px;color:#888;margin-top:2px">Last scan: 2 min ago &bull; 52 workloads &bull; 3 active threats</div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button style="padding:8px 14px;border-radius:7px;border:1px solid #ddd;background:#fff;font-size:12px;font-weight:500;cursor:pointer">Run Threat Scan</button>
+      <button style="padding:8px 14px;border-radius:7px;border:none;background:#00B336;color:#fff;font-size:12px;font-weight:600;cursor:pointer">+ Run Recovery Test</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Readiness Score</div>
+      <div class="kpi-val" style="color:#00B336">82</div>
+      <div class="kpi-sub">out of 100</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Workloads Tested</div>
+      <div class="kpi-val" style="color:#1A1A2E">40<span style="font-size:14px;color:#aaa">/52</span></div>
+      <div class="kpi-sub">last 30 days</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">RTO Compliance</div>
+      <div class="kpi-val" style="color:#00B336">87%</div>
+      <div class="kpi-sub">within target</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Active Threats</div>
+      <div class="kpi-val" style="color:#EF4444">3</div>
+      <div class="kpi-sub">2 critical, 1 high</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Open Incidents</div>
+      <div class="kpi-val" style="color:#F59E0B">1</div>
+      <div class="kpi-sub">IR in progress</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Last Clean Backup</div>
+      <div class="kpi-val" style="color:#1A1A2E;font-size:16px">18 min</div>
+      <div class="kpi-sub">ago - pre-incident</div>
+    </div>
+  </div>
+
+  <!-- Main grid -->
+  <div class="main-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Active Threat Findings</div>
+        <div class="view-all">View all findings &rarr;</div>
+      </div>
+      <div class="finding">
+        <div class="sev sev-crit">CRIT</div>
+        <div>
+          <div class="finding-name">LockBit 3.0 - Process Signature Match</div>
+          <div class="finding-host">sql-prod-01 &bull; PID 4821 (svchost32.exe) &bull; MITRE T1486</div>
+          <div class="finding-time">Detected 2 min ago &bull; Incident response triggered &bull; SOAR alerted</div>
+        </div>
+      </div>
+      <div class="finding">
+        <div class="sev sev-crit">CRIT</div>
+        <div>
+          <div class="finding-name">CVE-2024-40711 - Veeam RCE (CVSS 9.8)</div>
+          <div class="finding-host">veeam-server.prod.local &bull; Veeam B&amp;R 12.1 unpatched</div>
+          <div class="finding-time">Detected 1 hour ago &bull; Patch available &bull; SIEM event sent</div>
+        </div>
+      </div>
+      <div class="finding">
+        <div class="sev sev-high">HIGH</div>
+        <div>
+          <div class="finding-name">Suspicious Scheduled Task - Persistence</div>
+          <div class="finding-host">dc-01.prod.local &bull; HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</div>
+          <div class="finding-time">Detected 14 min ago &bull; APT29 TTP match &bull; Under investigation</div>
+        </div>
+      </div>
+      <div class="finding">
+        <div class="sev sev-med">MED</div>
+        <div>
+          <div class="finding-name">YARA Rule Match - Generic Dropper</div>
+          <div class="finding-host">web-app-cluster &bull; /tmp/update.exe (SHA256: a1b2c3...)</div>
+          <div class="finding-time">Detected 38 min ago &bull; File quarantined &bull; Awaiting analysis</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Threat Scan Status</div>
+        <div class="view-all">Configure &rarr;</div>
+      </div>
+      <div class="scan-status">
+        <div style="font-size:11px;color:#888">Clean systems</div>
+        <div class="gauge-ring">
+          <div class="gauge-inner">
+            <div class="gauge-pct">82%</div>
+            <div class="gauge-label">clean</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#888">43 of 52 workloads clean</div>
+      </div>
+      <div class="mini-stat"><span class="mini-label">Last full scan</span><span class="mini-val">2 min ago</span></div>
+      <div class="mini-stat"><span class="mini-label">Scan frequency</span><span class="mini-val">Every 60 min</span></div>
+      <div class="mini-stat"><span class="mini-label">Signatures loaded</span><span class="mini-val">48,291</span></div>
+      <div class="mini-stat"><span class="mini-label">YARA rules active</span><span class="mini-val">124</span></div>
+      <div class="mini-stat"><span class="mini-label">DB last synced</span><span class="mini-val">4 hours ago</span></div>
+      <div class="mini-stat"><span class="mini-label">Ransomware families</span><span class="mini-val">312</span></div>
+    </div>
+  </div>
+
+  <!-- Bottom grid -->
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Recent Recovery Tests</div>
+        <div class="view-all">All runs &rarr;</div>
+      </div>
+      <div class="test-row"><div class="test-name">dc-01.prod.local</div><span class="badge badge-pass">Passed</span><div class="test-rto">RTO 11m</div></div>
+      <div class="test-row"><div class="test-name">sql-prod-01</div><span class="badge badge-running">Running</span><div class="test-rto">--</div></div>
+      <div class="test-row"><div class="test-name">web-app-cluster</div><span class="badge badge-fail">Failed</span><div class="test-rto">RTO 23m</div></div>
+      <div class="test-row"><div class="test-name">fs-01.prod.local</div><span class="badge badge-pass">Passed</span><div class="test-rto">RTO 18m</div></div>
+      <div class="test-row"><div class="test-name">linux-web-01</div><span class="badge badge-pass">Passed</span><div class="test-rto">RTO 22m</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Active Incidents</div>
+        <div class="view-all">All incidents &rarr;</div>
+      </div>
+      <div class="incident">
+        <div class="inc-title">
+          <div class="pulse" style="width:7px;height:7px;border-radius:50%;background:#EF4444;display:inline-block"></div>
+          INC-0041 - Ransomware Detection
+        </div>
+        <div class="inc-meta">sql-prod-01 &bull; Started 2 min ago &bull; IR workflow running</div>
+        <div class="inc-meta" style="margin-top:3px">Backup triggered (pre-incident clean point saved) &bull; SOAR notified &bull; SIEM event dispatched</div>
+        <div class="inc-actions">View workflow &rarr;</div>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid #f5f5f5;">
+        <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:6px">Integration Status</div>
+        <div class="mini-stat"><span class="mini-label">SOAR (Splunk)</span><span style="color:#00B336;font-size:11px;font-weight:600">Alerted</span></div>
+        <div class="mini-stat"><span class="mini-label">SIEM (Sentinel)</span><span style="color:#00B336;font-size:11px;font-weight:600">Event sent</span></div>
+        <div class="mini-stat"><span class="mini-label">VeeamONE</span><span style="color:#00B336;font-size:11px;font-weight:600">Reported</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Platform Status</div>
+      </div>
+      <div class="mini-stat"><span class="mini-label">Appliance</span><span style="color:#00B336;font-weight:600">Active</span></div>
+      <div class="mini-stat"><span class="mini-label">Veeam B&amp;R</span><span style="color:#00B336;font-weight:600">Connected</span></div>
+      <div class="mini-stat"><span class="mini-label">vCenter</span><span style="color:#00B336;font-weight:600">Connected</span></div>
+      <div class="mini-stat"><span class="mini-label">Temporal</span><span style="color:#00B336;font-weight:600">Running</span></div>
+      <div class="mini-stat"><span class="mini-label">Threat DB</span><span style="color:#00B336;font-weight:600">Synced</span></div>
+      <div class="mini-stat"><span class="mini-label">SOAR Webhook</span><span style="color:#00B336;font-weight:600">Active</span></div>
+      <div class="mini-stat"><span class="mini-label">SIEM Syslog</span><span style="color:#00B336;font-weight:600">Streaming</span></div>
+      <div class="mini-stat"><span class="mini-label">VeeamONE</span><span style="color:#00B336;font-weight:600">Connected</span></div>
+    </div>
+  </div>
+</main>
+</body>
+</html>
