@@ -40,6 +40,20 @@ The whole cycle runs in an isolated bubble that has zero impact on production sy
 
 The SaaS portal shows you readiness scores, RTO and RPO trends over time, which workloads have never been tested, and which ones missed their SLA targets. Every test produces a downloadable PDF evidence report suitable for auditors and cyber insurance requirements.
 
+### Phase 4: Threat Intelligence and Incident Response
+
+R3VP Phase 4 adds an active threat detection layer that runs alongside recovery validation.
+
+**Threat signature database.** The appliance carries a local SQLite database synced every 6 hours from the R3VP cloud threat intelligence feed. It contains ransomware family signatures (LockBit, BlackCat/ALPHV, Cl0p, Royal, Black Basta, and others), malware file hashes, APT behavioral indicators mapped to MITRE ATT&CK, critical CVEs for Veeam and VMware infrastructure, and YARA rules.
+
+**Automated scanning.** The appliance scans running processes, file system paths, active network connections, Windows registry persistence locations, and Veeam service configuration every hour. Scans can also be triggered on demand from the portal. Findings are cross-referenced against the threat database and YARA rule set, then reported to the portal in real time over a server-sent events connection.
+
+**SOAR and SIEM integration.** When a threat at HIGH or CRITICAL severity is confirmed, R3VP automatically sends a structured alert to your SOAR platform (Splunk SOAR or Palo Alto XSOAR) and emits a CEF/LEEF/JSON-Syslog event to your SIEM (Splunk, IBM QRadar, Microsoft Sentinel). Every event includes the threat name, severity, affected host, IOCs, and the MITRE ATT&CK technique mapping.
+
+**Auto-backup on threat detection.** The moment a ransomware signature or critical threat is confirmed, R3VP immediately triggers a Veeam backup of the affected VM to preserve a clean pre-incident restore point. This happens automatically before any encryption or data loss can progress further.
+
+**VeeamONE reporting.** Recovery test results and threat detection events are pushed to VeeamONE dashboards via the VeeamONE REST API, giving your infrastructure team a unified view of backup health and threat status in one place.
+
 ---
 
 ## Screenshots
@@ -61,6 +75,24 @@ The workloads view lists every VM discovered from Veeam and vCenter. You can see
 ![Test Run Detail](docs/screenshots/test-run-detail.png)
 
 Each test run shows the full workflow step timeline with durations, health check results, the restore point used, actual RTO and RPO measurements, and links to evidence artifacts.
+
+### Threat Intelligence Console
+
+![Console](docs/screenshots/console.png)
+
+The console brings recovery validation and threat intelligence together. Active threat detections appear in a live notification bar at the top. The KPI row shows readiness score, workload coverage, and active threat count side by side. The incident panel shows SOAR/SIEM/VeeamONE dispatch status in real time.
+
+### Threat Scanner
+
+![Threat Scanner](docs/screenshots/threat-scanner.png)
+
+The threat scanner shows all findings from the signature database cross-reference, YARA rule matches, and CVE detections. Each finding shows severity, threat family, affected host, MITRE ATT&CK technique, and current status. One-click Investigate launches the incident response workflow.
+
+### Incident Response
+
+![Incidents](docs/screenshots/incidents.png)
+
+The incidents page tracks the full automated incident response workflow: threat detection to pre-incident backup to SOAR/SIEM dispatch to SecOps notification. Every step is timestamped and shows dispatch confirmation from each integration.
 
 ---
 
@@ -86,6 +118,29 @@ Customer Environment                          Cloud (SaaS)
                                               |  - Test run detail        |
                                               |  - Reports + Audit log    |
                                               +---------------------------+
+```
+
+**Phase 4 Architecture (Threat Intelligence layer):**
+
+```
+Customer Environment                          Cloud (SaaS)
++-------------------------------------+       +-------------------------------+
+|  R3VP Appliance (Docker)            |       |  SaaS API (FastAPI)           |
+|                                     | mTLS  |                               |
+|  - Threat Scanner (hourly)     -----+------>|  - Threat findings relay      |
+|  - Signature DB (SQLite, synced)    |       |  - Incident management        |
+|  - YARA Rules Engine                |       |  - VeeamONE push              |
+|  - Incident Response Trigger        |       |  - SSE notification stream    |
+|  - SOAR webhook client              |       +-------------------------------+
+|  - SIEM syslog/CEF emitter          |                   |
++-------------------------------------+       +-------------------------------+
+                                              |  Portal (Next.js)             |
+                                              |  - Threat Scanner page        |
+                                              |  - Findings table             |
+                                              |  - Incidents + IR workflow    |
+                                              |  - SOAR/SIEM config           |
+                                              |  - Live notification bar      |
+                                              +-------------------------------+
 ```
 
 **Tech stack:**

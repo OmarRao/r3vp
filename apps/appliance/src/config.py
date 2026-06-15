@@ -39,5 +39,12 @@ class ApplianceSettings(BaseSettings):
 
     log_level: str = "INFO"
 
+    # Threat intelligence settings
+    threat_db_path: str = "/opt/r3vp/data/threat.db"
+    threat_scan_paths: str = "/tmp,/var/tmp"       # comma-separated
+    threat_scan_interval_secs: int = 3600
+    threat_feed_url: str = "https://api.r3vp.io/v1/threat-feed"
+    threat_feed_api_key: str = ""
+
 
 settings = ApplianceSettings()
