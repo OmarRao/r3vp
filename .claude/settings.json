@@ -1,0 +1,8 @@
+{
+  "rules": [
+    "NEVER add Claude, Anthropic, Co-authored-by: Claude, or any AI tool attribution to any file, commit message, docstring, comment, or GitHub issue/PR body.",
+    "Attribution is ONLY: Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy. Links: https://www.linkedin.com/in/omarrao/ and https://omarrao.substack.com/",
+    "No em-dashes anywhere in any file.",
+    "Always update README, CHANGELOG, docs/phases/, and screenshots when building new features."
+  ]
+}
