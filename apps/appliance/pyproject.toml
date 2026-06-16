@@ -17,6 +17,10 @@ dependencies = [
     "pillow>=10.3",
     "yara-python>=4.3",
     "psutil>=6.0",
+    "boto3>=1.34",
+    "azure-identity>=1.16",
+    "azure-mgmt-recoveryservicesbackup>=9.0",
+    "msal>=1.28",
 ]
 
 [project.optional-dependencies]

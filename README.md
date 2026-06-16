@@ -7,7 +7,7 @@
 
 Most organizations assume their backups work. R3VP proves it.
 
-R3VP is an automated recovery validation platform that connects to your Veeam Backup and Replication environment and VMware vCenter, spins up isolated recovery tests on a schedule, measures real RTO and RPO numbers, and reports results to a cloud portal. No more manual DR drills. No more guessing whether you can actually recover within your SLA window.
+R3VP is an automated recovery validation platform that connects to your Veeam Backup and Replication environment and VMware vCenter, spins up isolated recovery tests on a schedule, measures real RTO and RPO numbers, and reports results to a cloud portal. Phase 5 extends coverage to VMware, Hyper-V, Azure, and AWS so every workload gets validated regardless of where it lives. No more manual DR drills. No more guessing whether you can actually recover within your SLA window.
 
 ---
 
@@ -39,6 +39,28 @@ The whole cycle runs in an isolated bubble that has zero impact on production sy
 ### The Portal
 
 The SaaS portal shows you readiness scores, RTO and RPO trends over time, which workloads have never been tested, and which ones missed their SLA targets. Every test produces a downloadable PDF evidence report suitable for auditors and cyber insurance requirements.
+
+### Multi-Cloud Support (Phase 5)
+
+R3VP supports four infrastructure providers:
+
+- **VMware vSphere + Veeam B&R** (Phases 1-3): The original flow. Veeam detects protected VMs, vCenter provisions the isolated VLAN, Veeam performs instant recovery.
+- **Microsoft Hyper-V** (Phase 5): WMI-based VM inventory and checkpoint recovery on Windows hosts with the Hyper-V role.
+- **Azure Backup** (Phase 5): Recovery Services Vault integration. Test restores run to a dedicated isolated resource group with no production network access.
+- **AWS Backup** (Phase 5): Vault and EC2 recovery point inventory. Test restores run to an isolated VPC subnet with no internet gateway.
+
+The provider is configured per appliance via the `R3VP_PROVIDER` environment variable. All four providers use the same Temporal workflow engine, the same health check module, and the same portal for results.
+
+### Veeam B&R Version Support
+
+| Version | API | Instant Recovery | Veeam Inline Malware Events |
+|---|---|---|---|
+| Veeam 10.x | v1.0 | Not supported | No |
+| Veeam 11.x | v1.0 | Supported | No |
+| Veeam 12.x | v1.1 | Supported | No |
+| Veeam 13.0.2+ | v1.2 | Supported | Yes |
+
+R3VP auto-detects the Veeam version at startup. No manual version configuration needed.
 
 ### Phase 4: Threat Intelligence and Incident Response
 
@@ -93,6 +115,18 @@ The threat scanner shows all findings from the signature database cross-referenc
 ![Incidents](docs/screenshots/incidents.png)
 
 The incidents page tracks the full automated incident response workflow: threat detection to pre-incident backup to SOAR/SIEM dispatch to SecOps notification. Every step is timestamped and shows dispatch confirmation from each integration.
+
+### Multi-Cloud Provider Breakdown
+
+![Providers](docs/screenshots/providers.png)
+
+The providers page shows recovery test coverage and pass rates for every configured cloud platform. Each provider card shows workload count, total test runs, pass rate bar, and average actual RTO. Providers not yet configured show as inactive, prompting connection.
+
+### Multi-Cloud Dashboard Widget
+
+![Multi-cloud Dashboard](docs/screenshots/multicloud-dashboard.png)
+
+The main dashboard gains a Provider Coverage row showing all four providers at a glance. Workload counts and pass rates update in real time as tests complete.
 
 ---
 

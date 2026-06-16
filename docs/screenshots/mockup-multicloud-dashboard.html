@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>R3VP Dashboard - Provider Coverage</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F4F6F8; color: #1A1A2E; }
+  .sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100vh; background: #1A1A2E; display: flex; flex-direction: column; }
+  .logo { padding: 24px 20px 16px; border-bottom: 1px solid #2a2a3e; }
+  .logo-text { font-size: 20px; font-weight: 700; color: #fff; }
+  .logo-sub { font-size: 10px; color: #00B336; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
+  .nav { flex: 1; padding: 12px 0; }
+  .nav-section { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #444; padding: 12px 20px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 9px 20px; font-size: 12px; color: #8888aa; cursor: pointer; border-left: 3px solid transparent; }
+  .nav-item.active { color: #fff; border-left-color: #00B336; background: rgba(0,179,54,0.08); }
+  .sidebar-footer { padding: 14px 20px; border-top: 1px solid #2a2a3e; font-size: 10px; color: #555; }
+  .sidebar-footer a { color: #00B336; text-decoration: none; }
+  .main { margin-left: 220px; padding: 24px 28px; }
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi { background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.7px; color: #aaa; font-weight: 600; }
+  .kpi-val { font-size: 28px; font-weight: 700; margin-top: 4px; }
+  .card { background: #fff; border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 16px; }
+  .provider-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px; }
+  .provider-cell { background: #F9FAFB; border-radius: 10px; padding: 14px 12px; text-align: center; }
+  .provider-name { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #666; margin-bottom: 6px; }
+  .provider-count { font-size: 26px; font-weight: 700; color: #1A1A2E; }
+  .provider-unit { font-size: 10px; color: #aaa; }
+  .provider-rate { font-size: 11px; font-weight: 700; margin-top: 5px; }
+  .rate-green { color: #00B336; }
+  .rate-amber { color: #F59E0B; }
+  .provider-icon-row { display: flex; justify-content: center; margin-bottom: 6px; }
+  .picon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+  .bar-wrap { display: flex; align-items: center; gap: 5px; margin-top: 6px; }
+  .bar-bg { flex: 1; background: #E5E7EB; border-radius: 99px; height: 4px; }
+  .bar-fill { height: 4px; border-radius: 99px; }
+</style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="logo"><div class="logo-text">R3VP</div><div class="logo-sub">Recovery Validation</div></div>
+  <div class="nav">
+    <div class="nav-section">Resilience</div>
+    <div class="nav-item active">&#9632; Dashboard</div>
+    <div class="nav-item">&#9632; Workloads</div>
+    <div class="nav-item">&#9632; Test Runs</div>
+    <div class="nav-item">&#9632; Provider Coverage</div>
+    <div class="nav-item">&#9632; Reports</div>
+    <div class="nav-section">Threat Intel</div>
+    <div class="nav-item">&#9632; Threat Scanner</div>
+    <div class="nav-item">&#9632; Incidents</div>
+    <div class="nav-section">Integrations</div>
+    <div class="nav-item">&#9632; SOAR / SIEM</div>
+    <div class="nav-section">Platform</div>
+    <div class="nav-item">&#9632; Appliances</div>
+    <div class="nav-item">&#9632; Settings</div>
+  </div>
+  <div class="sidebar-footer">Built by <a href="https://www.linkedin.com/in/omarrao/">Omar Rao</a><br>Engineer, Data Resilience &amp; Cybersecurity</div>
+</nav>
+<main class="main">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <div>
+      <div style="font-size:22px;font-weight:700">Recovery Readiness Dashboard</div>
+      <div style="font-size:12px;color:#888;margin-top:2px">52 workloads across 4 providers &bull; Veeam 13.0.2 (v1.2)</div>
+    </div>
+    <button style="padding:8px 14px;border-radius:7px;border:none;background:#00B336;color:#fff;font-size:12px;font-weight:600">+ Run Recovery Test</button>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Readiness Score</div><div class="kpi-val" style="color:#00B336">84</div></div>
+    <div class="kpi"><div class="kpi-label">Workloads Tested</div><div class="kpi-val">44<span style="font-size:14px;color:#aaa">/52</span></div></div>
+    <div class="kpi"><div class="kpi-label">RTO Compliance</div><div class="kpi-val" style="color:#00B336">85%</div></div>
+    <div class="kpi"><div class="kpi-label">Providers Active</div><div class="kpi-val">4</div></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:13px;font-weight:700">Provider Coverage</div>
+      <a href="#" style="font-size:11px;color:#00B336;text-decoration:none">View breakdown &rarr;</a>
+    </div>
+    <div class="provider-grid">
+      <div class="provider-cell">
+        <div class="provider-icon-row"><div class="picon" style="background:#EFF6FF;color:#1D4ED8">VM</div></div>
+        <div class="provider-name">VMware</div>
+        <div class="provider-count">34</div>
+        <div class="provider-unit">workloads</div>
+        <div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:88%;background:#00B336"></div></div></div>
+        <div class="provider-rate rate-green">88% pass</div>
+      </div>
+      <div class="provider-cell">
+        <div class="provider-icon-row"><div class="picon" style="background:#F5F3FF;color:#6D28D9">HV</div></div>
+        <div class="provider-name">Hyper-V</div>
+        <div class="provider-count">8</div>
+        <div class="provider-unit">workloads</div>
+        <div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:81%;background:#00B336"></div></div></div>
+        <div class="provider-rate rate-green">81% pass</div>
+      </div>
+      <div class="provider-cell">
+        <div class="provider-icon-row"><div class="picon" style="background:#E0F2FE;color:#0369A1">AZ</div></div>
+        <div class="provider-name">Azure</div>
+        <div class="provider-count">6</div>
+        <div class="provider-unit">workloads</div>
+        <div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:73%;background:#F59E0B"></div></div></div>
+        <div class="provider-rate rate-amber">73% pass</div>
+      </div>
+      <div class="provider-cell">
+        <div class="provider-icon-row"><div class="picon" style="background:#FFF7ED;color:#C2410C">AWS</div></div>
+        <div class="provider-name">AWS</div>
+        <div class="provider-count">4</div>
+        <div class="provider-unit">workloads</div>
+        <div class="bar-wrap"><div class="bar-bg"><div class="bar-fill" style="width:75%;background:#00B336"></div></div></div>
+        <div class="provider-rate rate-green">75% pass</div>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

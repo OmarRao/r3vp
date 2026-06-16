@@ -1,3 +1,11 @@
+"""
+Veeam B&R REST API data models.
+
+Supports Veeam 11 (v1.0), 12 (v1.1), and 13.0.2+ (v1.2).
+
+Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
+https://www.linkedin.com/in/omarrao/
+"""
 from __future__ import annotations
 from datetime import datetime
 from pydantic import BaseModel, Field
@@ -6,30 +14,72 @@ from pydantic import BaseModel, Field
 class VeeamJob(BaseModel):
     id: str
     name: str
-    type: str
-    is_enabled: bool = Field(alias="isEnabled", default=True)
-    last_run: datetime | None = Field(alias="lastRun", default=None)
-    status: str | None = None
-
-    model_config = {"populate_by_name": True}
+    type: str = ""
+    isDisabled: bool = False
+    description: str = ""
 
 
 class VeeamVM(BaseModel):
-    object_id: str = Field(alias="objectId")
+    objectId: str
     name: str
-    platform: str
-    job_id: str = Field(alias="jobId")
-    last_backup: datetime | None = Field(alias="lastBackup", default=None)
-    restore_points_count: int = Field(alias="restorePointsCount", default=0)
+    platform: str = "vmware"
+    osType: str | None = None
+    isProtected: bool = True
+    backupJobsCount: int = 0
 
-    model_config = {"populate_by_name": True}
+    # Keep legacy aliases so existing code calling vm.object_id / vm.last_backup still works
+    @property
+    def object_id(self) -> str:
+        return self.objectId
+
+    @property
+    def last_backup(self) -> None:
+        return None
 
 
 class VeeamRestorePoint(BaseModel):
     id: str
-    creation_time: datetime = Field(alias="creationTime")
-    object_id: str = Field(alias="objectId")
-    is_consistent: bool = Field(alias="isConsistent", default=True)
-    backup_size_bytes: int = Field(alias="backupSizeBytes", default=0)
+    name: str = ""
+    creationTime: datetime
+    objectId: str = ""
+    backupSize: int = 0
 
-    model_config = {"populate_by_name": True}
+    # Legacy aliases used by existing activities
+    @property
+    def creation_time(self) -> datetime:
+        return self.creationTime
+
+    @property
+    def is_consistent(self) -> bool:
+        return True
+
+
+class VeeamRepository(BaseModel):
+    id: str
+    name: str
+    type: str = ""
+    capacity: int = 0
+    freeSpace: int = 0
+    path: str = ""
+
+
+class VeeamMalwareEvent(BaseModel):
+    """Inline malware detection event from Veeam 13's built-in scanner."""
+    id: str
+    detectionTime: datetime
+    machineId: str = ""
+    machineName: str = ""
+    eventType: str = ""       # e.g. "SuspiciousActivity", "MalwareDetected"
+    severity: str = "Unknown" # "High", "Medium", "Low", "Unknown"
+    details: str = ""
+    isResolved: bool = False
+
+
+class VeeamJobSession(BaseModel):
+    id: str
+    jobId: str = ""
+    creationTime: datetime
+    endTime: datetime | None = None
+    state: str = "Running"    # "Running", "Stopped", "Failed", "Success"
+    result: str = "None"      # "None", "Success", "Warning", "Failed"
+    progress: int = 0
