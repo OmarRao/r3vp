@@ -24,6 +24,9 @@ class Workload(Base):
     rpo_target_mins: Mapped[int | None] = mapped_column(Integer)
     schedule_cron: Mapped[str | None] = mapped_column(String(100))
     tags: Mapped[dict] = mapped_column(JSONB, default=dict)
+    provider: Mapped[str] = mapped_column(String(50), default="vmware")  # vmware, hyperv, azure, aws
+    cloud_resource_id: Mapped[str | None] = mapped_column(String(512))   # ARN, Azure resource ID, Hyper-V VM ID
+    cloud_region: Mapped[str | None] = mapped_column(String(100))         # for Azure/AWS workloads
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

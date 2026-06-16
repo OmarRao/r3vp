@@ -3,7 +3,10 @@
 Handles auth token lifecycle, retries, version-aware API path selection,
 and maps Veeam API responses into the platform's internal data models.
 
-Supports Veeam 11 (api_version v1.0) and Veeam 12+ (api_version v1.1).
+Supports Veeam 11 (v1.0), Veeam 12 (v1.1), and Veeam 13.0.2+ (v1.2).
+
+Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
+https://www.linkedin.com/in/omarrao/
 """
 from __future__ import annotations
 
@@ -13,7 +16,7 @@ from datetime import datetime, timedelta
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from src.config import settings
-from .models import VeeamJob, VeeamVM, VeeamRestorePoint
+from .models import VeeamJob, VeeamVM, VeeamRestorePoint, VeeamRepository, VeeamMalwareEvent, VeeamJobSession
 
 log = structlog.get_logger()
 
@@ -39,14 +42,16 @@ class VeeamClient:
     def api_version(self) -> str:
         """Return the effective API version string based on the detected build version.
 
-        Returns 'v1.1' for Veeam 12.x and later, 'v1.0' for anything older.
+        Returns 'v1.2' for Veeam 13.x, 'v1.1' for Veeam 12.x, 'v1.0' for anything older.
         If version has not been detected yet, defaults to 'v1.1'.
         """
-        if self._build_version and self._build_version.startswith("12"):
-            return "v1.1"
         if self._build_version:
-            return "v1.0"
-        return "v1.1"
+            major = self._build_version.split(".")[0]
+            if major == "13":
+                return "v1.2"
+            if major == "12":
+                return "v1.1"
+        return "v1.0"
 
     async def __aenter__(self) -> VeeamClient:
         await self._ensure_token()
@@ -130,10 +135,11 @@ class VeeamClient:
     async def list_restore_points(self, object_id: str) -> list[VeeamRestorePoint]:
         """Fetch restore points for a backup object, using the version-appropriate API path.
 
-        Veeam 12 (v1.1): GET /backupObjects/{objectId}/restorePoints
+        Veeam 12 (v1.1) and Veeam 13 (v1.2): GET /backupObjects/{objectId}/restorePoints
         Veeam 11 (v1.0): GET /restorePoints?backupObjectId={objectId}
+        v1.2 uses the same path as v1.1 -- no change needed for Veeam 13.
         """
-        if self.api_version == "v1.1":
+        if self.api_version in ("v1.1", "v1.2"):
             data = await self._get(f"/backupObjects/{object_id}/restorePoints")
         else:
             data = await self._get("/restorePoints", backupObjectId=object_id)
@@ -159,7 +165,12 @@ class VeeamClient:
             "powerOn": True,
             "reason": "R3VP automated recovery validation",
         }
-        data = await self._post("/instantRecovery/vmware/vm", body)
+        # Veeam 13 (v1.2) renamed the endpoint; v1.1 and earlier use the vmware-specific path
+        if self.api_version == "v1.2":
+            endpoint = "/instantRecovery/vm"
+        else:
+            endpoint = "/instantRecovery/vmware/vm"
+        data = await self._post(endpoint, body)
         return data["sessionId"]
 
     async def get_session_state(self, session_id: str) -> str:
@@ -167,4 +178,38 @@ class VeeamClient:
         return data.get("state", "unknown")
 
     async def stop_instant_recovery(self, session_id: str) -> None:
-        await self._post(f"/instantRecovery/vmware/vm/{session_id}/stopPublishing", {})
+        if self.api_version == "v1.2":
+            await self._post(f"/instantRecovery/vm/{session_id}/stopPublishing", {})
+        else:
+            await self._post(f"/instantRecovery/vmware/vm/{session_id}/stopPublishing", {})
+
+    async def list_backup_repositories(self) -> list[dict]:
+        """List all backup repositories. Requires Veeam 13 (v1.2)."""
+        if self.api_version != "v1.2":
+            return []
+        data = await self._get("/backupRepositories")
+        return data.get("data", [])
+
+    async def list_malware_detection_events(self, limit: int = 50) -> list[dict]:
+        """
+        Fetch inline malware detection events from Veeam 13's built-in scanner.
+        Requires Veeam 13 (v1.2). Returns empty list on older versions.
+        """
+        if self.api_version != "v1.2":
+            return []
+        data = await self._get("/malwareDetection/events", limit=limit)
+        return data.get("data", [])
+
+    async def trigger_backup_job(self, job_id: str) -> str:
+        """Start a backup job immediately. Returns the session ID."""
+        data = await self._post(f"/jobs/{job_id}/start", {})
+        return data.get("sessionId", "")
+
+    async def get_backup_job_session(self, session_id: str) -> dict:
+        """Get current state of a backup job session."""
+        return await self._get(f"/jobSessions/{session_id}")
+
+    async def list_backup_objects(self) -> list[dict]:
+        """List all backup objects (protected VMs/workloads) with full metadata."""
+        data = await self._get("/backupObjects")
+        return data.get("data", [])

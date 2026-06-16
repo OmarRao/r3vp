@@ -200,6 +200,91 @@ async def report_results(inp: ReportResultInput) -> None:
 
 
 @activity.defn
+async def detect_provider_vms(inp: SyncInventoryInput) -> list[dict]:
+    """
+    Detect VMs and workloads from the configured provider.
+
+    Routes to the correct connector based on settings.provider.
+    Returns a list of VM dicts in the standard format for relay sync.
+    """
+    from src.config import settings as _s
+
+    provider = _s.provider.lower()
+
+    if provider == "hyperv":
+        from src.connectors.hyperv.client import HyperVClient
+        client = HyperVClient(host=_s.hyperv_host)
+        if not client.connect():
+            return []
+        vms = client.list_vms()
+        return [
+            {
+                "object_id": vm.vm_id,
+                "name": vm.name,
+                "platform": "hyperv",
+                "os_type": "windows",
+                "is_protected": True,
+                "moref": vm.vm_id,
+            }
+            for vm in vms
+        ]
+
+    elif provider == "aws":
+        from src.connectors.aws_backup.client import AWSBackupClient
+        client = AWSBackupClient(region=_s.aws_region)
+        if not client.connect():
+            return []
+        vaults = client.list_vaults()
+        result = []
+        for vault in vaults:
+            rps = client.list_recovery_points(vault.vault_name)
+            seen: set[str] = set()
+            for rp in rps:
+                resource_id = rp.resource_arn.split("/")[-1]
+                if resource_id not in seen:
+                    seen.add(resource_id)
+                    result.append({
+                        "object_id": rp.resource_arn,
+                        "name": resource_id,
+                        "platform": "aws",
+                        "os_type": None,
+                        "is_protected": True,
+                        "moref": rp.resource_arn,
+                        "last_backup": rp.creation_date.isoformat() if rp.creation_date else None,
+                    })
+        return result
+
+    elif provider == "azure":
+        from src.connectors.azure_backup.client import AzureBackupClient
+        client = AzureBackupClient(
+            subscription_id=_s.azure_subscription_id,
+            tenant_id=_s.azure_tenant_id,
+        )
+        if not client.connect():
+            return []
+        items = client.list_protected_vms(
+            vault_name=_s.azure_vault_name,
+            resource_group=_s.azure_resource_group,
+        )
+        return [
+            {
+                "object_id": item.item_id,
+                "name": item.friendly_name,
+                "platform": "azure",
+                "os_type": None,
+                "is_protected": True,
+                "moref": item.item_id,
+                "last_backup": item.last_backup_time.isoformat() if item.last_backup_time else None,
+            }
+            for item in items
+        ]
+
+    else:
+        # Default: vmware -- existing behavior is handled by the existing sync_inventory activity
+        return []
+
+
+@activity.defn
 async def teardown_isolated_env(inp: TeardownInput) -> None:
     if inp.recovery_session_id:
         async with VeeamClient() as veeam:

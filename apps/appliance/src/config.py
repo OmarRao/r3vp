@@ -39,6 +39,28 @@ class ApplianceSettings(BaseSettings):
 
     log_level: str = "INFO"
 
+    # Multi-cloud provider settings
+    provider: str = "vmware"   # "vmware", "hyperv", "azure", "aws"
+
+    # AWS Backup settings
+    aws_region: str = "us-east-1"
+    aws_backup_vault: str = ""
+    aws_target_subnet_id: str = ""
+    aws_target_security_group_id: str = ""
+    aws_iam_role_arn: str = ""
+
+    # Azure Backup settings
+    azure_subscription_id: str = ""
+    azure_tenant_id: str = ""
+    azure_vault_name: str = ""
+    azure_resource_group: str = ""
+    azure_target_resource_group: str = ""
+    azure_target_vnet_id: str = ""
+    azure_target_subnet_name: str = "r3vp-isolated"
+
+    # Hyper-V settings
+    hyperv_host: str = "localhost"
+
     # Threat intelligence settings
     threat_db_path: str = "/opt/r3vp/data/threat.db"
     threat_scan_paths: str = "/tmp,/var/tmp"       # comma-separated

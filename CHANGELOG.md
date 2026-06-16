@@ -7,7 +7,29 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
-## [Unreleased] - Phase 4: Threat Intelligence and Incident Response
+## [Unreleased] - Phase 5: Multi-Cloud and Hyper-V Support
+
+### Added
+- Veeam B&R 13.0.2 support: API version v1.2 with auto-detection via serverInfo
+- Veeam 13 backup repositories endpoint: list repos with capacity and free space
+- Veeam 13 malware detection events: ingest Veeam inline scanner findings
+- Veeam 13 instant recovery path update: /instantRecovery/vm (v1.2) vs /instantRecovery/vmware/vm (v1.1)
+- Veeam backup job control: trigger immediate backup jobs, monitor session progress
+- Hyper-V connector: WMI-based VM inventory, checkpoint management, isolated virtual switch
+- AWS Backup connector: vault inventory, EC2 recovery points, test restore to isolated VPC subnet, EC2 health checks
+- Azure Backup connector: Recovery Services Vault integration, protected VM list, restore to isolated resource group
+- Multi-cloud workflow routing: Temporal activities dispatch to correct connector based on configured provider
+- Provider breakdown dashboard: per-provider workload count, pass rate, avg RTO
+- /dashboard/providers page: detailed provider coverage cards with pass rate bar charts
+- Provider filter on workload list
+- Workload model: provider, cloud_resource_id, cloud_region fields
+- Alembic migration 0006: workload provider columns
+- Multi-cloud readiness API: GET /v1/multicloud/provider-summary, GET /v1/multicloud/workloads
+- New dependencies: boto3, azure-identity, azure-mgmt-recoveryservicesbackup, msal
+
+---
+
+## [0.4.0] - Phase 4 - 2026-06-16
 
 ### Added
 - Ransomware, malware, APT, and vulnerability signature database with automatic cloud sync

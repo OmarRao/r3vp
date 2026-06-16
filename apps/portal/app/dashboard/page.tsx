@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { ReadinessGauge } from "@/components/readiness-gauge";
 import { RtoRpoChart } from "@/components/rto-rpo-chart";
 import { WorkloadGrid } from "@/components/workload-grid";
@@ -16,6 +17,18 @@ export default function DashboardPage() {
     queryKey: ["coverage"],
     queryFn: () => api.get("/v1/dashboard/coverage").then((r) => r.data),
   });
+
+  const { data: providerSummary = [] } = useQuery<{ provider: string; total_workloads: number; pass_rate: number | null }[]>({
+    queryKey: ["provider-summary"],
+    queryFn: () => api.get("/v1/multicloud/provider-summary").then((r) => r.data),
+  });
+
+  const providerLabels: Record<string, string> = {
+    vmware: "VMware",
+    hyperv: "Hyper-V",
+    azure: "Azure",
+    aws: "AWS",
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -60,6 +73,32 @@ export default function DashboardPage() {
       <div className="bg-white rounded-xl shadow p-5">
         <h2 className="text-lg font-semibold mb-4">Workloads</h2>
         <WorkloadGrid />
+      </div>
+
+      {/* Provider coverage */}
+      <div className="bg-white rounded-xl shadow p-5">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Provider Coverage</h2>
+          <Link href="/dashboard/providers" className="text-sm text-veeam-green hover:underline">
+            View breakdown &rarr;
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {providerSummary.map((p) => (
+            <div key={p.provider} className="bg-gray-50 rounded-lg p-3 text-center">
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                {providerLabels[p.provider] ?? p.provider}
+              </div>
+              <div className="text-2xl font-bold text-gray-900">{p.total_workloads}</div>
+              <div className="text-xs text-gray-400 mt-0.5">workloads</div>
+              {p.pass_rate != null && (
+                <div className={`text-xs font-semibold mt-1 ${p.pass_rate >= 80 ? "text-green-600" : p.pass_rate >= 50 ? "text-yellow-600" : "text-red-600"}`}>
+                  {p.pass_rate}% pass rate
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
