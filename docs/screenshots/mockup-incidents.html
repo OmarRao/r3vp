@@ -2,159 +2,206 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1440">
-<title>R3VP Incidents</title>
+<meta name="viewport" content="width=1280">
+<title>R3VP - Incidents</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F4F6F8; color: #1A1A2E; }
-  .sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100vh; background: #1A1A2E; display: flex; flex-direction: column; }
-  .logo { padding: 24px 20px 16px; border-bottom: 1px solid #2a2a3e; }
-  .logo-text { font-size: 20px; font-weight: 700; color: #fff; }
-  .logo-sub { font-size: 10px; color: #00B336; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
-  .nav { flex: 1; padding: 12px 0; }
-  .nav-section { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #444; padding: 12px 20px 4px; }
-  .nav-item { display: flex; align-items: center; gap: 9px; padding: 9px 20px; font-size: 12px; color: #8888aa; cursor: pointer; border-left: 3px solid transparent; }
-  .nav-item.active { color: #fff; border-left-color: #F59E0B; background: rgba(245,158,11,0.08); }
-  .sidebar-footer { padding: 14px 20px; border-top: 1px solid #2a2a3e; font-size: 10px; color: #555; }
-  .sidebar-footer a { color: #00B336; text-decoration: none; }
-  .main { margin-left: 220px; padding: 24px 28px; }
-  .page-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
-  .page-sub { font-size: 12px; color: #888; margin-bottom: 20px; }
-  .card { background: #fff; border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 16px; }
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
-  .badge-active { background: #fef2f2; color: #dc2626; }
-  .badge-res { background: #f0fdf4; color: #16a34a; }
-  .step-line { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; align-items: flex-start; }
-  .step-line:last-child { border: none; }
-  .step-icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
-  .icon-done { background: #dcfce7; color: #16a34a; }
-  .icon-run { background: #dbeafe; color: #2563eb; }
-  .step-content { flex: 1; }
-  .step-title { font-size: 12px; font-weight: 600; }
-  .step-detail { font-size: 11px; color: #888; margin-top: 2px; }
-  .step-time { font-size: 10px; color: #bbb; margin-top: 2px; }
-  .integration-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 12px; }
-  .integration-row:last-child { border: none; }
-  .int-label { color: #555; font-weight: 500; }
-  .int-status { font-size: 11px; font-weight: 600; }
-  .int-ok { color: #00B336; }
-  .int-time { font-size: 10px; color: #bbb; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0F1117; color: #E8EAF0; min-height: 100vh; display: flex; }
+
+.sidebar { width: 220px; background: #13151E; border-right: 1px solid #1E2130; display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; }
+.logo { padding: 22px 20px 18px; border-bottom: 1px solid #1E2130; }
+.logo-mark { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+.logo-mark span { color: #00D448; }
+.logo-sub { font-size: 9px; color: #00D448; text-transform: uppercase; letter-spacing: 2px; margin-top: 3px; }
+.nav { flex: 1; padding: 10px 0; }
+.nav-group { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #3A3F55; padding: 14px 20px 5px; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 20px; font-size: 12px; color: #6B7280; cursor: pointer; border-left: 2px solid transparent; }
+.nav-item.active { color: #fff; border-left-color: #00D448; background: linear-gradient(90deg, rgba(0,212,72,0.12) 0%, transparent 100%); font-weight: 600; }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.nav-item.active .nav-dot { background: #00D448; box-shadow: 0 0 6px #00D448; }
+.sidebar-footer { padding: 14px 20px; border-top: 1px solid #1E2130; font-size: 10px; color: #3A3F55; line-height: 1.6; }
+.sidebar-footer a { color: #00D448; text-decoration: none; }
+.main { flex: 1; padding: 28px 32px; background: #0F1117; }
+
+.page-header { margin-bottom: 6px; }
+.page-title { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
+.page-sub { font-size: 12px; color: #4B5268; margin-top: 3px; margin-bottom: 20px; }
+
+.btn-primary { padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: #00D448; color: #0A0D14; }
+.btn-outline { padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; background: transparent; color: #6B7280; border: 1px solid #1E2130; }
+
+/* Incident cards */
+.inc-card { background: #13151E; border: 1px solid #1E2130; border-radius: 14px; padding: 20px; margin-bottom: 14px; border-left: 4px solid transparent; }
+.inc-card.active { border-left-color: #EF4444; }
+.inc-card.resolved { border-left-color: #00D448; }
+
+.inc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.inc-id { font-size: 11px; font-weight: 700; color: #4B5268; letter-spacing: 0.5px; }
+.inc-title { font-size: 15px; font-weight: 700; color: #E8EAF0; margin: 6px 0 4px; }
+.inc-meta { font-size: 11px; color: #4B5268; display: flex; align-items: center; gap: 8px; }
+
+/* Status badges */
+.badge-active-inc { padding: 3px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; background: rgba(239,68,68,0.15); color: #F87171; border: 1px solid rgba(239,68,68,0.25); }
+.badge-critical { padding: 3px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; background: rgba(239,68,68,0.18); color: #F87171; border: 1px solid rgba(239,68,68,0.3); }
+.badge-high { padding: 3px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; background: rgba(249,115,22,0.15); color: #FB923C; border: 1px solid rgba(249,115,22,0.25); }
+.badge-resolved { padding: 3px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; background: rgba(0,212,72,0.15); color: #00D448; border: 1px solid rgba(0,212,72,0.25); }
+
+/* Two-column layout */
+.inc-body { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; margin-top: 16px; }
+
+/* Timeline */
+.tl-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #4B5268; margin-bottom: 12px; }
+.tl-item { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: flex-start; }
+.tl-item:last-child { border: none; }
+.tl-dot { width: 22px; height: 22px; border-radius: 50%; background: rgba(0,212,72,0.15); border: 1.5px solid #00D448; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #00D448; flex-shrink: 0; margin-top: 1px; }
+.tl-step { font-size: 11px; font-weight: 700; color: #00D448; font-family: 'Courier New', monospace; }
+.tl-detail { font-size: 11px; color: #6B7280; margin-top: 1px; }
+
+/* Integration status */
+.int-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #4B5268; margin-bottom: 12px; }
+.int-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.int-row:last-child { border: none; }
+.int-label { font-size: 12px; color: #9CA3AF; }
+.int-dispatched { font-size: 11px; font-weight: 700; color: #00D448; }
 </style>
 </head>
 <body>
+
 <nav class="sidebar">
-  <div class="logo"><div class="logo-text">R3VP</div><div class="logo-sub">Recovery Validation</div></div>
-  <div class="nav">
-    <div class="nav-section">Resilience</div>
-    <div class="nav-item"><span>&#9632;</span> Dashboard</div>
-    <div class="nav-item"><span>&#9632;</span> Workloads</div>
-    <div class="nav-item"><span>&#9632;</span> Test Runs</div>
-    <div class="nav-section">Threat Intel</div>
-    <div class="nav-item"><span>&#9632;</span> Threat Scanner</div>
-    <div class="nav-item"><span>&#9632;</span> Findings</div>
-    <div class="nav-item active"><span>&#9632;</span> Incidents</div>
-    <div class="nav-section">Integrations</div>
-    <div class="nav-item"><span>&#9632;</span> SOAR / SIEM</div>
-    <div class="nav-item"><span>&#9632;</span> VeeamONE</div>
-    <div class="nav-section">Platform</div>
-    <div class="nav-item"><span>&#9632;</span> Appliances</div>
-    <div class="nav-item"><span>&#9632;</span> Settings</div>
+  <div class="logo">
+    <div class="logo-mark">R3<span>VP</span></div>
+    <div class="logo-sub">Recovery Validation</div>
   </div>
-  <div class="sidebar-footer">Built by <a href="https://www.linkedin.com/in/omarrao/">Omar Rao</a><br>Engineer, Data Resilience &amp; Cybersecurity</div>
+  <div class="nav">
+    <div class="nav-group">Resilience</div>
+    <div class="nav-item"><span class="nav-dot"></span> Dashboard</div>
+    <div class="nav-item"><span class="nav-dot"></span> Workloads</div>
+    <div class="nav-item"><span class="nav-dot"></span> Test Runs</div>
+    <div class="nav-group">Threat Intel</div>
+    <div class="nav-item"><span class="nav-dot"></span> Threat Scanner</div>
+    <div class="nav-item active"><span class="nav-dot"></span> Incidents</div>
+    <div class="nav-group">Integrations</div>
+    <div class="nav-item"><span class="nav-dot"></span> SOAR / SIEM</div>
+    <div class="nav-item"><span class="nav-dot"></span> VeeamONE</div>
+    <div class="nav-group">Platform</div>
+    <div class="nav-item"><span class="nav-dot"></span> Appliances</div>
+    <div class="nav-item"><span class="nav-dot"></span> Settings</div>
+  </div>
+  <div class="sidebar-footer">
+    Built by <a href="https://www.linkedin.com/in/omarrao/" target="_blank">Omar Rao</a><br>
+    Engineer - Data Resilience, Cybersecurity and Privacy
+  </div>
 </nav>
+
 <main class="main">
-  <div class="page-title">Incidents</div>
-  <div class="page-sub">1 active incident &bull; Incident response workflows managed automatically by R3VP</div>
+  <div class="page-header">
+    <div class="page-title">Incidents</div>
+  </div>
+  <div class="page-sub">2 active &nbsp;&#183;&nbsp; 5 resolved</div>
 
   <!-- Active incident -->
-  <div class="card" style="border-left:4px solid #EF4444">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+  <div class="inc-card active">
+    <div class="inc-header">
       <div>
-        <div style="font-size:16px;font-weight:700">INC-0041 - Ransomware Detection: LockBit 3.0</div>
-        <div style="font-size:12px;color:#888;margin-top:3px">sql-prod-01 &bull; Triggered Jun 15, 2026 at 14:32:07 UTC &bull; <span class="badge badge-active">Active</span></div>
+        <div class="inc-id">INC-20240617-001</div>
+        <div class="inc-title">Ransomware indicators detected on dc-02.lab.local</div>
+        <div class="inc-meta">
+          <span>Host: dc-02.lab.local</span>
+          <span>&#183;</span>
+          <span>Started Today 11:28 AM</span>
+          <span>&#183;</span>
+          <span class="badge-critical">CRITICAL</span>
+          <span class="badge-active-inc">active</span>
+        </div>
       </div>
-      <button style="padding:7px 14px;border-radius:7px;border:none;background:#00B336;color:#fff;font-size:12px;font-weight:600;cursor:pointer">Mark Resolved</button>
+      <button class="btn-outline">Mark Resolved</button>
     </div>
 
-    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px">
+    <div class="inc-body">
+      <!-- IR Workflow -->
       <div>
-        <div style="font-size:12px;font-weight:700;margin-bottom:10px">Incident Response Workflow</div>
-        <div class="step-line">
-          <div class="step-icon icon-done">&#10003;</div>
-          <div class="step-content">
-            <div class="step-title">Threat Detected</div>
-            <div class="step-detail">LockBit 3.0 process signature matched on PID 4821 (svchost32.exe)</div>
-            <div class="step-time">14:32:07 UTC &bull; 0 sec</div>
+        <div class="tl-title">IR Workflow</div>
+        <div class="tl-item">
+          <div class="tl-dot">&#10003;</div>
+          <div>
+            <div class="tl-step">threat_detected</div>
+            <div class="tl-detail">WannaCry variant hash matched signature DB</div>
           </div>
         </div>
-        <div class="step-line">
-          <div class="step-icon icon-done">&#10003;</div>
-          <div class="step-content">
-            <div class="step-title">Pre-incident Backup Triggered</div>
-            <div class="step-detail">Veeam B&amp;R instant backup job created for sql-prod-01. Clean restore point saved at 14:32:14 UTC.</div>
-            <div class="step-time">14:32:14 UTC &bull; 7 sec</div>
+        <div class="tl-item">
+          <div class="tl-dot">&#10003;</div>
+          <div>
+            <div class="tl-step">backup_triggered</div>
+            <div class="tl-detail">Emergency backup job VBK-20240617-001 initiated</div>
           </div>
         </div>
-        <div class="step-line">
-          <div class="step-icon icon-done">&#10003;</div>
-          <div class="step-content">
-            <div class="step-title">SOAR Alert Dispatched</div>
-            <div class="step-detail">Incident created in Splunk SOAR. Playbook "RansomwareResponse_v2" triggered automatically.</div>
-            <div class="step-time">14:32:16 UTC &bull; 9 sec</div>
+        <div class="tl-item">
+          <div class="tl-dot">&#10003;</div>
+          <div>
+            <div class="tl-step">soar_dispatched</div>
+            <div class="tl-detail">Splunk SOAR incident SOA-8821 created</div>
           </div>
         </div>
-        <div class="step-line">
-          <div class="step-icon icon-done">&#10003;</div>
-          <div class="step-content">
-            <div class="step-title">SIEM Event Sent</div>
-            <div class="step-detail">CEF event forwarded to Microsoft Sentinel. Alert rule "R3VP-CriticalThreat" correlated.</div>
-            <div class="step-time">14:32:17 UTC &bull; 10 sec</div>
+        <div class="tl-item">
+          <div class="tl-dot">&#10003;</div>
+          <div>
+            <div class="tl-step">siem_dispatched</div>
+            <div class="tl-detail">CEF event sent to Sentinel</div>
           </div>
         </div>
-        <div class="step-line">
-          <div class="step-icon icon-done">&#10003;</div>
-          <div class="step-content">
-            <div class="step-title">VeeamONE Reported</div>
-            <div class="step-detail">Threat event pushed to VeeamONE dashboard. Alert visible in VeeamONE Security section.</div>
-            <div class="step-time">14:32:18 UTC &bull; 11 sec</div>
-          </div>
-        </div>
-        <div class="step-line">
-          <div class="step-icon icon-run" style="animation:pulse 1.5s infinite">&#9679;</div>
-          <div class="step-content">
-            <div class="step-title">SecOps Workflow - Awaiting Response</div>
-            <div class="step-detail">SecOps team notified. Awaiting acknowledgment and containment confirmation.</div>
-            <div class="step-time">14:32:20 UTC &bull; In progress</div>
+        <div class="tl-item">
+          <div class="tl-dot">&#10003;</div>
+          <div>
+            <div class="tl-step">notifications_sent</div>
+            <div class="tl-detail">Email + Slack alerts dispatched</div>
           </div>
         </div>
       </div>
+
+      <!-- Integration Status -->
       <div>
-        <div style="font-size:12px;font-weight:700;margin-bottom:10px">Integration Status</div>
-        <div class="integration-row">
-          <div class="int-label">Splunk SOAR</div>
-          <div><div class="int-status int-ok">Incident Created</div><div class="int-time">INC-2024-06-15-041 &bull; 9 sec ago</div></div>
+        <div class="int-title">Integration Status</div>
+        <div class="int-row">
+          <div class="int-label">Pre-incident Backup</div>
+          <div class="int-dispatched">Dispatched</div>
         </div>
-        <div class="integration-row">
-          <div class="int-label">Microsoft Sentinel</div>
-          <div><div class="int-status int-ok">Event Forwarded</div><div class="int-time">AlertID: a1b2c3d4 &bull; 10 sec ago</div></div>
+        <div class="int-row">
+          <div class="int-label">SOAR Alert</div>
+          <div class="int-dispatched">Dispatched</div>
         </div>
-        <div class="integration-row">
+        <div class="int-row">
+          <div class="int-label">SIEM Event</div>
+          <div class="int-dispatched">Dispatched</div>
+        </div>
+        <div class="int-row">
           <div class="int-label">VeeamONE</div>
-          <div><div class="int-status int-ok">Reported</div><div class="int-time">Event ID: 88821 &bull; 11 sec ago</div></div>
+          <div class="int-dispatched">Dispatched</div>
         </div>
-        <div class="integration-row">
-          <div class="int-label">Email (SecOps)</div>
-          <div><div class="int-status int-ok">Sent</div><div class="int-time">secops@company.com &bull; 12 sec ago</div></div>
+        <div class="int-row">
+          <div class="int-label">Notifications</div>
+          <div class="int-dispatched">Dispatched</div>
         </div>
-        <div style="margin-top:16px;font-size:12px;font-weight:700;margin-bottom:10px">Threat Details</div>
-        <div class="integration-row"><div class="int-label">Threat Family</div><div style="font-size:11px;font-weight:600">LockBit 3.0</div></div>
-        <div class="integration-row"><div class="int-label">Severity</div><div style="font-size:11px;color:#dc2626;font-weight:600">CRITICAL</div></div>
-        <div class="integration-row"><div class="int-label">MITRE ATT&amp;CK</div><div style="font-size:11px">T1486</div></div>
-        <div class="integration-row"><div class="int-label">IOC</div><div style="font-size:11px;font-family:monospace">svchost32.exe / PID 4821</div></div>
-        <div class="integration-row"><div class="int-label">Clean Backup</div><div style="font-size:11px;color:#00B336;font-weight:600">Saved 14:32:14</div></div>
       </div>
     </div>
   </div>
+
+  <!-- Resolved incident -->
+  <div class="inc-card resolved">
+    <div class="inc-header">
+      <div>
+        <div class="inc-id">INC-20240616-003</div>
+        <div class="inc-title">Cobalt Strike beacon detected on hyperv-app-01</div>
+        <div class="inc-meta">
+          <span class="badge-high">HIGH</span>
+          <span class="badge-resolved">resolved</span>
+          <span>&#183;</span>
+          <span>Resolved Yesterday 14:22</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </main>
+
 </body>
 </html>

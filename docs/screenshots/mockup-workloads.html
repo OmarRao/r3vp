@@ -2,107 +2,211 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1440">
-<title>R3VP Workloads</title>
+<meta name="viewport" content="width=1280">
+<title>R3VP - Workloads</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F4F6F8; color: #1A1A2E; }
-  .sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100vh; background: #1A1A2E; display: flex; flex-direction: column; }
-  .logo { padding: 24px 20px 20px; border-bottom: 1px solid #2a2a3e; }
-  .logo-text { font-size: 20px; font-weight: 700; color: #fff; }
-  .logo-sub { font-size: 10px; color: #00B336; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
-  .nav { flex: 1; padding: 16px 0; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 13px; color: #8888aa; cursor: pointer; border-left: 3px solid transparent; }
-  .nav-item.active { color: #fff; border-left-color: #00B336; background: rgba(0,179,54,0.08); }
-  .sidebar-footer { padding: 16px 20px; border-top: 1px solid #2a2a3e; font-size: 11px; color: #555; }
-  .sidebar-footer a { color: #00B336; text-decoration: none; }
-  .main { margin-left: 220px; padding: 28px 32px; }
-  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-  .page-title { font-size: 22px; font-weight: 700; }
-  .page-sub { font-size: 13px; color: #666; margin-top: 2px; }
-  .btn { padding: 9px 18px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
-  .btn-primary { background: #00B336; color: #fff; }
-  .btn-outline { background: #fff; color: #444; border: 1px solid #ddd; }
-  .filters { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
-  .search { padding: 8px 14px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 13px; width: 260px; background: #fff; }
-  .filter-btn { padding: 7px 14px; border-radius: 7px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #ddd; background: #fff; color: #555; }
-  .filter-btn.active { background: #1A1A2E; color: #fff; border-color: #1A1A2E; }
-  .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow: hidden; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: #aaa; font-weight: 600; padding: 14px 16px; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
-  td { padding: 13px 16px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
-  tr:last-child td { border: none; }
-  tr:hover td { background: #fafeff; }
-  .badge { display: inline-block; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; }
-  .badge-pass { background: #dcfce7; color: #16a34a; }
-  .badge-fail { background: #fee2e2; color: #dc2626; }
-  .badge-never { background: #f3f4f6; color: #9ca3af; }
-  .badge-pending { background: #fef9c3; color: #854d0e; }
-  .platform { font-size: 11px; background: #f0f4ff; color: #3B82F6; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
-  .rto-ok { color: #16a34a; font-weight: 600; }
-  .rto-breach { color: #dc2626; font-weight: 600; }
-  .action-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid #e0e0e0; background: #fff; color: #444; }
-  .action-btn:hover { background: #f5f5f5; }
-  .summary-bar { display: flex; gap: 16px; margin-bottom: 20px; }
-  .summary-chip { background: #fff; border-radius: 10px; padding: 14px 20px; flex: 1; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-  .chip-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: #aaa; font-weight: 600; }
-  .chip-val { font-size: 26px; font-weight: 700; margin-top: 4px; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0F1117; color: #E8EAF0; min-height: 100vh; display: flex; }
+
+.sidebar { width: 220px; background: #13151E; border-right: 1px solid #1E2130; display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; }
+.logo { padding: 22px 20px 18px; border-bottom: 1px solid #1E2130; }
+.logo-mark { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+.logo-mark span { color: #00D448; }
+.logo-sub { font-size: 9px; color: #00D448; text-transform: uppercase; letter-spacing: 2px; margin-top: 3px; }
+.nav { flex: 1; padding: 10px 0; }
+.nav-group { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #3A3F55; padding: 14px 20px 5px; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 20px; font-size: 12px; color: #6B7280; cursor: pointer; border-left: 2px solid transparent; }
+.nav-item.active { color: #fff; border-left-color: #00D448; background: linear-gradient(90deg, rgba(0,212,72,0.12) 0%, transparent 100%); font-weight: 600; }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.nav-item.active .nav-dot { background: #00D448; box-shadow: 0 0 6px #00D448; }
+.sidebar-footer { padding: 14px 20px; border-top: 1px solid #1E2130; font-size: 10px; color: #3A3F55; line-height: 1.6; }
+.sidebar-footer a { color: #00D448; text-decoration: none; }
+.main { flex: 1; padding: 28px 32px; background: #0F1117; }
+
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.page-title { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
+.page-sub { font-size: 12px; color: #4B5268; margin-top: 3px; }
+
+.btn-primary { padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: #00D448; color: #0A0D14; }
+.btn-outline { padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; background: transparent; color: #6B7280; border: 1px solid #1E2130; }
+
+/* Filter bar */
+.filter-bar { display: flex; gap: 10px; margin-bottom: 18px; align-items: center; }
+.search-input { padding: 8px 14px; border-radius: 8px; border: 1px solid #1E2130; background: #13151E; color: #E8EAF0; font-size: 12px; width: 240px; outline: none; }
+.search-input::placeholder { color: #3A3F55; }
+.filter-chip { padding: 6px 12px; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid #1E2130; background: transparent; color: #6B7280; }
+.filter-chip.active { background: #00D448; color: #0A0D14; border-color: #00D448; }
+
+/* Table */
+.table-wrap { background: #13151E; border: 1px solid #1E2130; border-radius: 14px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #3A3F55; padding: 10px 20px; text-align: left; background: rgba(255,255,255,0.02); border-bottom: 1px solid #1E2130; }
+td { padding: 11px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #9CA3AF; vertical-align: middle; }
+tr:last-child td { border: none; }
+
+/* Status dots */
+.status-dot { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; }
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.dot-green { background: #00D448; box-shadow: 0 0 5px #00D448; }
+.dot-amber { background: #F59E0B; box-shadow: 0 0 5px #F59E0B; }
+
+/* Provider chips */
+.chip { display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; }
+.chip-vmware { background: rgba(59,130,246,0.18); color: #60A5FA; }
+.chip-hyperv { background: rgba(139,92,246,0.18); color: #A78BFA; }
+.chip-azure { background: rgba(14,165,233,0.18); color: #38BDF8; }
+.chip-aws { background: rgba(249,115,22,0.18); color: #FB923C; }
+.chip-proxmox { background: rgba(245,158,11,0.18); color: #FCD34D; }
+.chip-nutanix { background: rgba(16,185,129,0.18); color: #34D399; }
+.chip-rhv { background: rgba(239,68,68,0.18); color: #F87171; }
+
+.vm-name { color: #E8EAF0; font-weight: 600; }
+.rto-ok { color: #00D448; font-weight: 600; }
+.rto-breach { color: #F87171; font-weight: 600; }
+.passrate-ok { color: #E8EAF0; }
 </style>
 </head>
 <body>
+
 <nav class="sidebar">
-  <div class="logo"><div class="logo-text">R3VP</div><div class="logo-sub">Recovery Validation</div></div>
-  <div class="nav">
-    <div class="nav-item"><span>&#9632;</span> Dashboard</div>
-    <div class="nav-item active"><span>&#9632;</span> Workloads</div>
-    <div class="nav-item"><span>&#9632;</span> Test Runs</div>
-    <div class="nav-item"><span>&#9632;</span> Reports</div>
-    <div class="nav-item"><span>&#9632;</span> Appliances</div>
-    <div class="nav-item"><span>&#9632;</span> Audit Log</div>
-    <div class="nav-item"><span>&#9632;</span> Settings</div>
+  <div class="logo">
+    <div class="logo-mark">R3<span>VP</span></div>
+    <div class="logo-sub">Recovery Validation</div>
   </div>
-  <div class="sidebar-footer">Built by <a href="https://www.linkedin.com/in/omarrao/">Omar Rao</a><br>Engineer, Data Resilience &amp; Cybersecurity</div>
+  <div class="nav">
+    <div class="nav-group">Resilience</div>
+    <div class="nav-item"><span class="nav-dot"></span> Dashboard</div>
+    <div class="nav-item active"><span class="nav-dot"></span> Workloads</div>
+    <div class="nav-item"><span class="nav-dot"></span> Test Runs</div>
+    <div class="nav-group">Threat Intel</div>
+    <div class="nav-item"><span class="nav-dot"></span> Threat Scanner</div>
+    <div class="nav-item"><span class="nav-dot"></span> Incidents</div>
+    <div class="nav-group">Integrations</div>
+    <div class="nav-item"><span class="nav-dot"></span> SOAR / SIEM</div>
+    <div class="nav-item"><span class="nav-dot"></span> VeeamONE</div>
+    <div class="nav-group">Platform</div>
+    <div class="nav-item"><span class="nav-dot"></span> Appliances</div>
+    <div class="nav-item"><span class="nav-dot"></span> Settings</div>
+  </div>
+  <div class="sidebar-footer">
+    Built by <a href="https://www.linkedin.com/in/omarrao/" target="_blank">Omar Rao</a><br>
+    Engineer - Data Resilience, Cybersecurity and Privacy
+  </div>
 </nav>
+
 <main class="main">
   <div class="page-header">
-    <div><div class="page-title">Workloads</div><div class="page-sub">52 discovered via Veeam B&amp;R 12.3 and vCenter 8.0</div></div>
+    <div>
+      <div class="page-title">Workloads</div>
+      <div class="page-sub">52 discovered via Veeam B&amp;R 12.3 and multi-cloud providers</div>
+    </div>
     <div style="display:flex;gap:10px">
-      <button class="btn btn-outline">Export CSV</button>
-      <button class="btn btn-primary">+ Run Test</button>
+      <button class="btn-outline">Export CSV</button>
+      <button class="btn-primary">+ Run Test</button>
     </div>
   </div>
-  <div class="summary-bar">
-    <div class="summary-chip"><div class="chip-label">Total Workloads</div><div class="chip-val" style="color:#1A1A2E">52</div></div>
-    <div class="summary-chip"><div class="chip-label">Protected by Veeam</div><div class="chip-val" style="color:#00B336">47</div></div>
-    <div class="summary-chip"><div class="chip-label">Tested (30d)</div><div class="chip-val" style="color:#3B82F6">40</div></div>
-    <div class="summary-chip"><div class="chip-label">Never Tested</div><div class="chip-val" style="color:#F59E0B">12</div></div>
-    <div class="summary-chip"><div class="chip-label">Failed Last Test</div><div class="chip-val" style="color:#EF4444">3</div></div>
+
+  <div class="filter-bar">
+    <input class="search-input" placeholder="Search workloads..." type="text">
+    <button class="filter-chip active">All</button>
+    <button class="filter-chip">Protected</button>
+    <button class="filter-chip">Attention</button>
+    <button class="filter-chip">Never Tested</button>
+    <button class="filter-chip">VMware</button>
+    <button class="filter-chip">Azure</button>
+    <button class="filter-chip">AWS</button>
   </div>
-  <div class="filters">
-    <input class="search" placeholder="Search workloads..." value="">
-    <button class="filter-btn active">All</button>
-    <button class="filter-btn">Passed</button>
-    <button class="filter-btn">Failed</button>
-    <button class="filter-btn">Never Tested</button>
-    <button class="filter-btn">Unprotected</button>
-  </div>
-  <div class="card">
+
+  <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>Name</th><th>Platform</th><th>OS</th><th>Last Backup</th><th>RTO Target</th><th>Actual RTO</th><th>Last Test</th><th>Status</th><th>Action</th></tr>
+        <tr>
+          <th>Name</th>
+          <th>Provider</th>
+          <th>Status</th>
+          <th>Last Tested</th>
+          <th>RTO Target</th>
+          <th>Actual RTO</th>
+          <th>Pass Rate</th>
+        </tr>
       </thead>
       <tbody>
-        <tr><td><strong>dc-01.prod.local</strong><div style="font-size:11px;color:#aaa">Domain Controller</div></td><td><span class="platform">VMware</span></td><td style="color:#666">Windows 2022</td><td style="color:#555">2h ago</td><td>30 min</td><td class="rto-ok">11 min</td><td style="color:#aaa;font-size:12px">Jun 13, 2:14 AM</td><td><span class="badge badge-pass">Passed</span></td><td><button class="action-btn">Run Test</button></td></tr>
-        <tr><td><strong>sql-prod-01</strong><div style="font-size:11px;color:#aaa">SQL Server 2022</div></td><td><span class="platform">VMware</span></td><td style="color:#666">Windows 2022</td><td style="color:#555">4h ago</td><td>60 min</td><td class="rto-ok">38 min</td><td style="color:#aaa;font-size:12px">Jun 12, 11:42 PM</td><td><span class="badge badge-pass">Passed</span></td><td><button class="action-btn">Run Test</button></td></tr>
-        <tr><td><strong>web-app-cluster</strong><div style="font-size:11px;color:#aaa">IIS / .NET 8</div></td><td><span class="platform">VMware</span></td><td style="color:#666">Windows 2022</td><td style="color:#555">6h ago</td><td>15 min</td><td class="rto-breach">23 min</td><td style="color:#aaa;font-size:12px">Jun 10, 3:00 AM</td><td><span class="badge badge-fail">Failed</span></td><td><button class="action-btn">Run Test</button></td></tr>
-        <tr><td><strong>fs-01.prod.local</strong><div style="font-size:11px;color:#aaa">File Server</div></td><td><span class="platform">VMware</span></td><td style="color:#666">Windows 2022</td><td style="color:#555">1h ago</td><td>120 min</td><td class="rto-ok">18 min</td><td style="color:#aaa;font-size:12px">Jun 14, 10:00 AM</td><td><span class="badge badge-pass">Passed</span></td><td><button class="action-btn">Run Test</button></td></tr>
-        <tr><td><strong>exchange-01</strong><div style="font-size:11px;color:#aaa">Exchange 2019</div></td><td><span class="platform">VMware</span></td><td style="color:#666">Windows 2019</td><td style="color:#555">3h ago</td><td>45 min</td><td style="color:#aaa">--</td><td style="color:#aaa;font-size:12px">Never</td><td><span class="badge badge-never">Never tested</span></td><td><button class="action-btn">Run Test</button></td></tr>
-        <tr><td><strong>linux-web-01</strong><div style="font-size:11px;color:#aaa">Nginx / Node.js</div></td><td><span class="platform">VMware</span></td><td style="color:#666">Ubuntu 22.04</td><td style="color:#555">5h ago</td><td>30 min</td><td class="rto-ok">22 min</td><td style="color:#aaa;font-size:12px">Jun 11, 1:20 AM</td><td><span class="badge badge-pass">Passed</span></td><td><button class="action-btn">Run Test</button></td></tr>
-        <tr><td><strong>backup-proxy-01</strong><div style="font-size:11px;color:#aaa">Veeam Proxy</div></td><td><span class="platform">VMware</span></td><td style="color:#666">Windows 2022</td><td style="color:#555">8h ago</td><td>60 min</td><td style="color:#aaa">--</td><td style="color:#aaa;font-size:12px">Never</td><td><span class="badge badge-never">Never tested</span></td><td><button class="action-btn">Run Test</button></td></tr>
-        <tr><td><strong>db-replica-01</strong><div style="font-size:11px;color:#aaa">PostgreSQL 16</div></td><td><span class="platform">VMware</span></td><td style="color:#666">Ubuntu 22.04</td><td style="color:#555">2h ago</td><td>30 min</td><td class="rto-breach">42 min</td><td style="color:#aaa;font-size:12px">Jun 9, 4:10 AM</td><td><span class="badge badge-fail">Failed</span></td><td><button class="action-btn">Run Test</button></td></tr>
+        <tr>
+          <td class="vm-name">dc-01.prod.local</td>
+          <td><span class="chip chip-vmware">VMware</span></td>
+          <td><span class="status-dot"><span class="dot dot-green"></span><span style="color:#00D448">Protected</span></span></td>
+          <td>Today 09:14</td>
+          <td>15m</td>
+          <td class="rto-ok">11m</td>
+          <td class="passrate-ok">94%</td>
+        </tr>
+        <tr>
+          <td class="vm-name">sql-prod-02</td>
+          <td><span class="chip chip-vmware">VMware</span></td>
+          <td><span class="status-dot"><span class="dot dot-green"></span><span style="color:#00D448">Protected</span></span></td>
+          <td>Today 08:30</td>
+          <td>20m</td>
+          <td class="rto-ok">14m</td>
+          <td class="passrate-ok">88%</td>
+        </tr>
+        <tr>
+          <td class="vm-name">hyperv-app-01</td>
+          <td><span class="chip chip-hyperv">Hyper-V</span></td>
+          <td><span class="status-dot"><span class="dot dot-green"></span><span style="color:#00D448">Protected</span></span></td>
+          <td>Yesterday</td>
+          <td>25m</td>
+          <td class="rto-ok">19m</td>
+          <td class="passrate-ok">81%</td>
+        </tr>
+        <tr>
+          <td class="vm-name">azure-vm-prod-01</td>
+          <td><span class="chip chip-azure">Azure</span></td>
+          <td><span class="status-dot"><span class="dot dot-amber"></span><span style="color:#FCD34D">Attention</span></span></td>
+          <td>Today 10:02</td>
+          <td>25m</td>
+          <td class="rto-breach">31m</td>
+          <td style="color:#FCD34D">73%</td>
+        </tr>
+        <tr>
+          <td class="vm-name">proxmox-vm-03</td>
+          <td><span class="chip chip-proxmox">Proxmox</span></td>
+          <td><span class="status-dot"><span class="dot dot-green"></span><span style="color:#00D448">Protected</span></span></td>
+          <td>Today 07:45</td>
+          <td>20m</td>
+          <td class="rto-ok">17m</td>
+          <td class="passrate-ok">83%</td>
+        </tr>
+        <tr>
+          <td class="vm-name">nutanix-db-01</td>
+          <td><span class="chip chip-nutanix">Nutanix</span></td>
+          <td><span class="status-dot"><span class="dot dot-green"></span><span style="color:#00D448">Protected</span></span></td>
+          <td>2 days ago</td>
+          <td>30m</td>
+          <td class="rto-ok">21m</td>
+          <td class="passrate-ok">78%</td>
+        </tr>
+        <tr>
+          <td class="vm-name">ec2-app-us-east-1a</td>
+          <td><span class="chip chip-aws">AWS</span></td>
+          <td><span class="status-dot"><span class="dot dot-green"></span><span style="color:#00D448">Protected</span></span></td>
+          <td>Yesterday</td>
+          <td>35m</td>
+          <td class="rto-ok">28m</td>
+          <td class="passrate-ok">75%</td>
+        </tr>
+        <tr>
+          <td class="vm-name">rhv-web-01</td>
+          <td><span class="chip chip-rhv">RHV</span></td>
+          <td><span class="status-dot"><span class="dot dot-amber"></span><span style="color:#FCD34D">Attention</span></span></td>
+          <td>3 days ago</td>
+          <td>20m</td>
+          <td class="rto-breach">24m</td>
+          <td style="color:#FCD34D">67%</td>
+        </tr>
       </tbody>
     </table>
   </div>
 </main>
+
 </body>
 </html>
