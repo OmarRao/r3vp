@@ -115,53 +115,47 @@ R3VP Phase 4 adds an active threat detection layer that runs alongside recovery 
 
 ## Screenshots
 
-### Dashboard
+### Recovery Readiness Dashboard
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
-The dashboard shows your overall readiness score, coverage across all workloads, RTO and RPO compliance trends, and a summary table of recently tested VMs.
+The dashboard shows readiness score, workload coverage across all 10 providers, RTO compliance, active threat count, and a recent test runs table. The Provider Coverage widget displays all 10 platforms in a 5x2 grid with color-coded pass rate bars. The Run Validation Test button opens a modal with an inline workflow diagram and configuration form.
+
+### Provider Coverage
+
+![Provider Coverage](docs/screenshots/providers-p6.png)
+
+The providers page uses a tabbed interface with one tab per provider. Each tab shows workload count, test run totals, average RTO, pass rate, a recent test runs table, and protocol and authentication details for that connector. The Veeam B&R version support matrix at the bottom shows which API features are available per Veeam release.
 
 ### Workloads
 
 ![Workloads](docs/screenshots/workloads.png)
 
-The workloads view lists every VM discovered from Veeam and vCenter. You can see last backup time, RTO target vs actual, test status, and trigger a manual test run from here.
+The workloads view lists every VM discovered across all providers. Filter by provider or status. Each row shows last tested date, RTO target vs actual, a pass rate bar, and a quick Test button.
 
 ### Test Run Detail
 
 ![Test Run Detail](docs/screenshots/test-run-detail.png)
 
-Each test run shows the full workflow step timeline with durations, health check results, the restore point used, actual RTO and RPO measurements, and links to evidence artifacts.
+Each test run shows the full 7-step validation workflow with step durations, the restore point selected, actual RTO measurement, health check results, and the captured evidence log.
 
 ### Threat Intelligence Console
 
 ![Console](docs/screenshots/console.png)
 
-The console brings recovery validation and threat intelligence together. Active threat detections appear in a live notification bar at the top. The KPI row shows readiness score, workload coverage, and active threat count side by side. The incident panel shows SOAR/SIEM/VeeamONE dispatch status in real time.
+The console combines recovery validation and threat intelligence in one view. A live alert banner highlights active detections. The KPI row shows readiness score, workload coverage, active threat count, open incidents, and time since last clean backup. Active threat findings, scan status with donut chart, recent test runs, and platform connection status are shown below.
 
 ### Threat Scanner
 
 ![Threat Scanner](docs/screenshots/threat-scanner.png)
 
-The threat scanner shows all findings from the signature database cross-reference, YARA rule matches, and CVE detections. Each finding shows severity, threat family, affected host, MITRE ATT&CK technique, and current status. One-click Investigate launches the incident response workflow.
+The threat scanner shows all findings from signature database cross-reference, YARA rule matches, and CVE detections. Each finding shows severity, threat family, affected host, MITRE ATT&CK technique, and current status.
 
 ### Incident Response
 
 ![Incidents](docs/screenshots/incidents.png)
 
-The incidents page tracks the full automated incident response workflow: threat detection to pre-incident backup to SOAR/SIEM dispatch to SecOps notification. Every step is timestamped and shows dispatch confirmation from each integration.
-
-### Multi-Cloud Provider Coverage
-
-![Providers](docs/screenshots/providers.png)
-
-The providers page uses a tabbed interface with one tab per provider. Each tab shows workload count, test run totals, average RTO, pass rate, recent test run history, and protocol and authentication details for that connector. The Veeam B&R version support matrix at the bottom shows which API features are available per Veeam release.
-
-### Recovery Readiness Dashboard
-
-![Multi-cloud Dashboard](docs/screenshots/multicloud-dashboard.png)
-
-The main dashboard shows all 10 providers in a coverage grid with pass rate bars, a recent test runs table with per-provider chips, and a recovery health panel with bars for every platform. The Run Validation Test button opens a modal with a workflow diagram and configuration form.
+The incidents page tracks the full automated response workflow: threat detection to pre-incident backup to SOAR/SIEM dispatch to SecOps notification. Each active incident card shows a timestamped response timeline and integration dispatch status side by side.
 
 ---
 
