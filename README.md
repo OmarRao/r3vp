@@ -151,17 +151,17 @@ The threat scanner shows all findings from the signature database cross-referenc
 
 The incidents page tracks the full automated incident response workflow: threat detection to pre-incident backup to SOAR/SIEM dispatch to SecOps notification. Every step is timestamped and shows dispatch confirmation from each integration.
 
-### Multi-Cloud Provider Breakdown
+### Multi-Cloud Provider Coverage
 
 ![Providers](docs/screenshots/providers.png)
 
-The providers page shows recovery test coverage and pass rates for every configured cloud platform. Each provider card shows workload count, total test runs, pass rate bar, and average actual RTO. Providers not yet configured show as inactive, prompting connection.
+The providers page uses a tabbed interface with one tab per provider. Each tab shows workload count, test run totals, average RTO, pass rate, recent test run history, and protocol and authentication details for that connector. The Veeam B&R version support matrix at the bottom shows which API features are available per Veeam release.
 
-### Multi-Cloud Dashboard Widget
+### Recovery Readiness Dashboard
 
 ![Multi-cloud Dashboard](docs/screenshots/multicloud-dashboard.png)
 
-The main dashboard gains a Provider Coverage row showing all four providers at a glance. Workload counts and pass rates update in real time as tests complete.
+The main dashboard shows all 10 providers in a coverage grid with pass rate bars, a recent test runs table with per-provider chips, and a recovery health panel with bars for every platform. The Run Validation Test button opens a modal with a workflow diagram and configuration form.
 
 ---
 
