@@ -2,498 +2,858 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1440">
-<title>R3VP - Provider Coverage</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Provider Coverage - R3VP</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0F1117; color: #E8EAF0; min-height: 100vh; display: flex; }
-
-  /* Sidebar */
-  .sidebar { width: 220px; background: #13151E; border-right: 1px solid #1E2130; display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; }
-  .logo { padding: 22px 20px 18px; border-bottom: 1px solid #1E2130; }
-  .logo-mark { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
-  .logo-mark span { color: #00D448; }
-  .logo-sub { font-size: 9px; color: #00D448; text-transform: uppercase; letter-spacing: 2px; margin-top: 3px; }
-  .logo-version { font-size: 9px; color: #3A3F55; margin-top: 2px; }
-  .nav { flex: 1; padding: 10px 0; overflow-y: auto; }
-  .nav-group { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #3A3F55; padding: 14px 20px 5px; }
-  .nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 20px; font-size: 12px; color: #6B7280; cursor: pointer; border-left: 2px solid transparent; transition: all 0.15s; }
-  .nav-item:hover { color: #C0C6D8; background: rgba(255,255,255,0.03); }
-  .nav-item.active { color: #fff; border-left-color: #00D448; background: linear-gradient(90deg, rgba(0,212,72,0.12) 0%, transparent 100%); font-weight: 600; }
-  .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-  .nav-item.active .nav-dot { background: #00D448; box-shadow: 0 0 6px #00D448; }
-  .sidebar-footer { padding: 14px 20px; border-top: 1px solid #1E2130; }
-  .sidebar-footer p { font-size: 10px; color: #3A3F55; line-height: 1.6; }
-  .sidebar-footer a { color: #00D448; text-decoration: none; }
-
-  /* Main */
-  .main { flex: 1; padding: 28px 32px; overflow-y: auto; background: #0F1117; }
-
-  /* Page header */
-  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
-  .page-title { font-size: 24px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
-  .page-sub { font-size: 12px; color: #4B5268; margin-top: 4px; }
-  .header-actions { display: flex; gap: 10px; align-items: center; }
-  .btn { padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; }
-  .btn-primary { background: #00D448; color: #0A0D14; }
-  .btn-outline { background: transparent; color: #6B7280; border: 1px solid #1E2130; }
-
-  /* Summary bar */
-  .summary-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
-  .summary-card { background: #13151E; border: 1px solid #1E2130; border-radius: 12px; padding: 16px 18px; position: relative; overflow: hidden; }
-  .summary-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-  .summary-card.green::before { background: linear-gradient(90deg, #00D448, #00A836); }
-  .summary-card.blue::before { background: linear-gradient(90deg, #3B82F6, #1D4ED8); }
-  .summary-card.amber::before { background: linear-gradient(90deg, #F59E0B, #D97706); }
-  .summary-card.purple::before { background: linear-gradient(90deg, #8B5CF6, #6D28D9); }
-  .summary-card.sky::before { background: linear-gradient(90deg, #0EA5E9, #0284C7); }
-  .summary-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #4B5268; margin-bottom: 8px; }
-  .summary-value { font-size: 28px; font-weight: 800; color: #fff; line-height: 1; letter-spacing: -0.5px; }
-  .summary-delta { font-size: 11px; color: #00D448; margin-top: 4px; }
-
-  /* Provider grid */
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  .section-title { font-size: 13px; font-weight: 700; color: #C0C6D8; text-transform: uppercase; letter-spacing: 1px; }
-  .filter-pills { display: flex; gap: 6px; }
-  .pill { padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid #1E2130; color: #6B7280; background: transparent; }
-  .pill.active { background: rgba(0,212,72,0.12); border-color: rgba(0,212,72,0.3); color: #00D448; }
-
-  .provider-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
-
-  .provider-card { background: #13151E; border: 1px solid #1E2130; border-radius: 14px; padding: 20px; position: relative; overflow: hidden; transition: border-color 0.2s, transform 0.15s; cursor: pointer; }
-  .provider-card:hover { transform: translateY(-1px); }
-  .provider-card::after { content: ''; position: absolute; inset: 0; border-radius: 14px; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
-
-  /* Per-provider accent colors */
-  .pcard-vmware { border-top: 2px solid #3B82F6; }
-  .pcard-vmware:hover { border-color: #3B82F6; }
-  .pcard-hyperv { border-top: 2px solid #8B5CF6; }
-  .pcard-hyperv:hover { border-color: #8B5CF6; }
-  .pcard-azure { border-top: 2px solid #0EA5E9; }
-  .pcard-azure:hover { border-color: #0EA5E9; }
-  .pcard-aws { border-top: 2px solid #F97316; }
-  .pcard-aws:hover { border-color: #F97316; }
-  .pcard-proxmox { border-top: 2px solid #F59E0B; }
-  .pcard-proxmox:hover { border-color: #F59E0B; }
-  .pcard-nutanix { border-top: 2px solid #DC2626; }
-  .pcard-nutanix:hover { border-color: #DC2626; }
-  .pcard-rhv { border-top: 2px solid #EF4444; }
-  .pcard-rhv:hover { border-color: #EF4444; }
-  .pcard-xen { border-top: 2px solid #0D9488; }
-  .pcard-xen:hover { border-color: #0D9488; }
-  .pcard-sangfor { border-top: 2px solid #1D4ED8; }
-  .pcard-sangfor:hover { border-color: #1D4ED8; }
-  .pcard-gcp { border-top: 2px solid #4285F4; }
-  .pcard-gcp:hover { border-color: #4285F4; }
-
-  .card-top { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
-  .provider-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; letter-spacing: 0.5px; }
-  .icon-vmware { background: rgba(59,130,246,0.15); color: #60A5FA; }
-  .icon-hyperv { background: rgba(139,92,246,0.15); color: #A78BFA; }
-  .icon-azure { background: rgba(14,165,233,0.15); color: #38BDF8; }
-  .icon-aws { background: rgba(249,115,22,0.15); color: #FB923C; }
-  .icon-proxmox { background: rgba(245,158,11,0.15); color: #FCD34D; }
-  .icon-nutanix { background: rgba(220,38,38,0.15); color: #F87171; }
-  .icon-rhv { background: rgba(239,68,68,0.15); color: #FCA5A5; }
-  .icon-xen { background: rgba(13,148,136,0.15); color: #2DD4BF; }
-  .icon-sangfor { background: rgba(29,78,216,0.15); color: #93C5FD; }
-  .icon-gcp { background: rgba(66,133,244,0.15); color: #93C5FD; }
-
-  .card-info { flex: 1; min-width: 0; }
-  .card-name { font-size: 14px; font-weight: 700; color: #E8EAF0; }
-  .card-desc { font-size: 11px; color: #4B5268; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .card-badges { display: flex; gap: 6px; margin-left: auto; flex-shrink: 0; }
-  .badge { padding: 3px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; }
-  .badge-active { background: rgba(0,212,72,0.15); color: #00D448; border: 1px solid rgba(0,212,72,0.25); }
-  .badge-warn { background: rgba(245,158,11,0.15); color: #FCD34D; border: 1px solid rgba(245,158,11,0.25); }
-
-  .card-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-  .stat-box { background: rgba(255,255,255,0.03); border: 1px solid #1E2130; border-radius: 8px; padding: 10px 12px; }
-  .stat-val { font-size: 20px; font-weight: 800; color: #fff; line-height: 1; letter-spacing: -0.3px; }
-  .stat-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #3A3F55; margin-top: 4px; }
-
-  .card-bar-wrap { display: flex; align-items: center; gap: 10px; }
-  .bar-track { flex: 1; height: 6px; background: #1E2130; border-radius: 99px; overflow: hidden; }
-  .bar-fill { height: 6px; border-radius: 99px; position: relative; }
-  .bar-fill::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,0.15) 0%, transparent 100%); }
-  .bar-green { background: linear-gradient(90deg, #00D448, #00A836); }
-  .bar-amber { background: linear-gradient(90deg, #F59E0B, #D97706); }
-  .bar-red { background: linear-gradient(90deg, #EF4444, #DC2626); }
-  .bar-blue { background: linear-gradient(90deg, #3B82F6, #1D4ED8); }
-  .bar-teal { background: linear-gradient(90deg, #0D9488, #0F766E); }
-  .rate-text { font-size: 13px; font-weight: 800; width: 38px; text-align: right; flex-shrink: 0; }
-  .rate-green { color: #00D448; }
-  .rate-amber { color: #F59E0B; }
-  .rate-red { color: #EF4444; }
-
-  /* Tables */
-  .table-section { background: #13151E; border: 1px solid #1E2130; border-radius: 14px; overflow: hidden; margin-bottom: 16px; }
-  .table-head { padding: 16px 20px 12px; border-bottom: 1px solid #1E2130; display: flex; align-items: center; justify-content: space-between; }
-  .table-title { font-size: 13px; font-weight: 700; color: #C0C6D8; }
-  .table-sub { font-size: 11px; color: #3A3F55; margin-top: 2px; }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #3A3F55; padding: 10px 20px; text-align: left; background: rgba(255,255,255,0.02); border-bottom: 1px solid #1E2130; }
-  td { padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #9CA3AF; vertical-align: middle; }
-  tr:last-child td { border: none; }
-  tr.highlight td { background: rgba(0,212,72,0.04); }
-  tr.highlight td:first-child { color: #E8EAF0; font-weight: 600; }
-  .check { color: #00D448; font-weight: 700; font-size: 13px; }
-  .cross { color: #2A2E40; font-size: 13px; }
-  .v-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; background: rgba(0,212,72,0.15); color: #00D448; border: 1px solid rgba(0,212,72,0.2); }
-  .v-badge-dim { background: rgba(255,255,255,0.05); color: #4B5268; border: 1px solid #1E2130; }
-  .col-platform { color: #C0C6D8; font-weight: 500; }
-  .col-mono { font-family: 'Courier New', monospace; font-size: 11px; color: #6B7280; }
-  td.col-green { color: #00D448; font-weight: 600; }
-  td.col-amber { color: #F59E0B; font-weight: 600; }
+:root {
+  --bg: #F8FAFC; --surface: #FFFFFF; --border: #E2E8F0; --border-light: #F1F5F9;
+  --text-1: #0F172A; --text-2: #475569; --text-3: #94A3B8;
+  --green: #00B336; --green-bg: #F0FDF4; --green-border: #BBF7D0; --green-text: #15803D;
+  --amber: #D97706; --amber-bg: #FFFBEB; --amber-border: #FDE68A;
+  --red: #DC2626; --red-bg: #FFF1F2; --red-border: #FECACA;
+  --blue: #2563EB; --blue-bg: #EFF6FF; --blue-border: #BFDBFE;
+  --sidebar: #0F172A; --font: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --radius: 10px; --radius-sm: 6px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text-1);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;overflow-y:auto;z-index:100}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo-text{font-size:21px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.logo-text em{color:var(--green);font-style:normal}
+.logo-tag{font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
+.logo-ver{font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px}
+.nav{flex:1;padding:8px 0}
+.nav-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.25);padding:12px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 18px;font-size:12px;color:rgba(255,255,255,0.55);cursor:pointer;border-left:2px solid transparent;transition:all 0.12s;text-decoration:none}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;border-left-color:var(--green);background:rgba(0,179,54,0.12);font-weight:600}
+.sidebar-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,0.07);font-size:10px;color:rgba(255,255,255,0.25);line-height:1.7}
+.sidebar-footer a{color:var(--green);text-decoration:none}
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--sidebar);border:none;border-radius:7px;padding:8px;cursor:pointer;align-items:center;justify-content:center}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.topbar-left{display:flex;flex-direction:column;min-width:0}
+.page-title{font-size:16px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.page-sub{font-size:11px;color:var(--text-3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 28px;background:var(--bg)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all 0.12s;white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:var(--green-text)}
+.btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-size:12px;font-weight:700;color:var(--text-1)}
+.card-link{font-size:11px;color:var(--green);cursor:pointer;white-space:nowrap;font-weight:500}
+.card-body{padding:16px 18px}
+.kpi-grid{display:grid;gap:12px;margin-bottom:20px}
+.kpi-5{grid-template-columns:repeat(5,1fr)}
+.kpi-4{grid-template-columns:repeat(4,1fr)}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3);margin-bottom:6px}
+.kpi-val{font-size:26px;font-weight:800;color:var(--text-1);line-height:1;letter-spacing:-0.5px}
+.kpi-sub{font-size:11px;color:var(--text-3);margin-top:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-green{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border)}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.badge-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.badge-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.badge-gray{background:#F1F5F9;color:#64748B;border:1px solid var(--border)}
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-3);padding:10px 16px;text-align:left;background:#FAFAFA;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 16px;border-bottom:1px solid var(--border-light);color:var(--text-2);font-size:12px;vertical-align:middle}
+tr:last-child td{border:none}
+tr:hover td{background:#FAFAFA}
+.td-name{color:var(--text-1);font-weight:500}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto;background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;padding:0 4px;flex-shrink:0}
+.tabs::-webkit-scrollbar{height:0}
+.tab{padding:11px 14px;font-size:12px;font-weight:500;color:var(--text-2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.12s;flex-shrink:0;user-select:none}
+.tab:hover{color:var(--text-1)}
+.tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:700}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mb16{margin-bottom:16px}
+.mb20{margin-bottom:20px}
+@media(max-width:1024px){.kpi-5{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:768px){
+  .sidebar{position:fixed;left:-220px;top:0;bottom:0;transition:left 0.25s;z-index:100}
+  .sidebar.open{left:0}
+  .sidebar-overlay.open{display:block}
+  .hamburger{display:flex}
+  .main{width:100%}
+  .topbar{padding:0 16px 0 52px;height:52px}
+  .body{padding:14px 16px}
+  .kpi-5,.kpi-4{grid-template-columns:repeat(2,1fr)}
+  .g2{grid-template-columns:1fr}
+  .tbl-wrap{overflow-x:auto}
+  .tabs .tab{padding:9px 10px;font-size:11px}
+}
+@media(max-width:480px){.kpi-5,.kpi-4{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
+<div class="app">
 
-<nav class="sidebar">
-  <div class="logo">
-    <div class="logo-mark">R<span>3</span>VP</div>
-    <div class="logo-sub">Recovery Validation</div>
-    <div class="logo-version">v0.6.0</div>
-  </div>
-  <div class="nav">
-    <div class="nav-group">Resilience</div>
-    <div class="nav-item active"><span class="nav-dot"></span>Provider Coverage</div>
-    <div class="nav-item"><span class="nav-dot"></span>Dashboard</div>
-    <div class="nav-item"><span class="nav-dot"></span>Workloads</div>
-    <div class="nav-item"><span class="nav-dot"></span>Test Runs</div>
-    <div class="nav-item"><span class="nav-dot"></span>Reports</div>
-    <div class="nav-group">Threat Intel</div>
-    <div class="nav-item"><span class="nav-dot"></span>Threat Scanner</div>
-    <div class="nav-item"><span class="nav-dot"></span>Incidents</div>
-    <div class="nav-group">Integrations</div>
-    <div class="nav-item"><span class="nav-dot"></span>SOAR / SIEM</div>
-    <div class="nav-item"><span class="nav-dot"></span>VeeamONE</div>
-    <div class="nav-group">Platform</div>
-    <div class="nav-item"><span class="nav-dot"></span>Appliances</div>
-    <div class="nav-item"><span class="nav-dot"></span>Settings</div>
-  </div>
-  <div class="sidebar-footer">
-    <p>Built by <a href="https://www.linkedin.com/in/omarrao/">Omar Rao</a><br>Engineer, Data Resilience<br>&amp; Cybersecurity</p>
-  </div>
-</nav>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">R<em>3</em>VP</div>
+      <div class="logo-tag">Recovery Readiness</div>
+      <div class="logo-ver">v2.1.0-beta</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Overview</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/></svg>
+        Dashboard
+      </a>
+      <div class="nav-section">Testing</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Test Runs
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Workloads
+      </a>
+      <div class="nav-section">Infrastructure</div>
+      <a class="nav-item active" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="14" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+        Provider Coverage
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1L15 5v6L8 15 1 11V5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        Threat Scanner
+      </a>
+      <div class="nav-section">Compliance</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 8l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+        Evidence Vault
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12L6 4l4 5 2-3 2 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Reports
+      </a>
+      <div class="nav-section">System</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      Built by <a href="mailto:omar.rao@veeam.com">Omar Rao</a><br>
+      Engineer - Data Resilience,<br>
+      Cybersecurity and Privacy<br>
+      <a href="https://www.linkedin.com/in/omarrao/" target="_blank">LinkedIn</a> &nbsp;&middot;&nbsp;
+      <a href="https://omarrao.substack.com/" target="_blank">Substack</a>
+    </div>
+  </aside>
 
-<main class="main">
+  <button class="hamburger" onclick="toggleSidebar()">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 4h14M2 9h14M2 14h14" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+  </button>
+  <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-  <div class="page-header">
-    <div>
-      <div class="page-title">Provider Coverage</div>
-      <div class="page-sub">10 providers active &bull; 89 workloads protected &bull; 172 recovery tests completed</div>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Provider Coverage</div>
+        <div class="page-sub">10 providers configured &middot; 89 workloads &middot; 172 recovery tests</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v10M4 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 13h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Refresh
+        </button>
+        <button class="btn btn-primary">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Add Provider
+        </button>
+      </div>
     </div>
-    <div class="header-actions">
-      <button class="btn btn-outline">Export Report</button>
-      <button class="btn btn-primary">+ Run Recovery Test</button>
-    </div>
-  </div>
 
-  <!-- Summary KPI bar -->
-  <div class="summary-bar">
-    <div class="summary-card green">
-      <div class="summary-label">Providers Active</div>
-      <div class="summary-value">10</div>
-      <div class="summary-delta">All connected</div>
-    </div>
-    <div class="summary-card blue">
-      <div class="summary-label">Total Workloads</div>
-      <div class="summary-value">89</div>
-      <div class="summary-delta">+6 this week</div>
-    </div>
-    <div class="summary-card amber">
-      <div class="summary-label">Recovery Tests</div>
-      <div class="summary-value">172</div>
-      <div class="summary-delta">Last 30 days</div>
-    </div>
-    <div class="summary-card purple">
-      <div class="summary-label">Overall Pass Rate</div>
-      <div class="summary-value">79%</div>
-      <div class="summary-delta">+3% vs last month</div>
-    </div>
-    <div class="summary-card sky">
-      <div class="summary-label">Avg RTO</div>
-      <div class="summary-value">22m</div>
-      <div class="summary-delta">Across all providers</div>
-    </div>
-  </div>
+    <div class="body">
 
-  <!-- Provider grid -->
-  <div class="section-header">
-    <div class="section-title">All Providers</div>
-    <div class="filter-pills">
-      <div class="pill active">All</div>
-      <div class="pill">On-Prem</div>
-      <div class="pill">Cloud</div>
-      <div class="pill">Issues</div>
-    </div>
-  </div>
-
-  <div class="provider-grid">
-
-    <!-- VMware -->
-    <div class="provider-card pcard-vmware">
-      <div class="card-top">
-        <div class="provider-icon icon-vmware">VM</div>
-        <div class="card-info">
-          <div class="card-name">VMware vSphere</div>
-          <div class="card-desc">Veeam B&amp;R 13.0.2 (API v1.2) + vCenter 8.0</div>
+      <!-- Summary KPIs -->
+      <div class="kpi-grid kpi-5 mb20">
+        <div class="kpi-card">
+          <div class="kpi-label">Providers Active</div>
+          <div class="kpi-val">10</div>
+          <div class="kpi-sub">All connected</div>
         </div>
-        <div class="card-badges"><span class="badge badge-active">Active</span></div>
-      </div>
-      <div class="card-stats">
-        <div class="stat-box"><div class="stat-val">34</div><div class="stat-label">Workloads</div></div>
-        <div class="stat-box"><div class="stat-val">91</div><div class="stat-label">Test Runs</div></div>
-        <div class="stat-box"><div class="stat-val">14m</div><div class="stat-label">Avg RTO</div></div>
-      </div>
-      <div class="card-bar-wrap">
-        <div class="bar-track"><div class="bar-fill bar-green" style="width:88%"></div></div>
-        <span class="rate-text rate-green">88%</span>
-      </div>
-    </div>
-
-    <!-- Hyper-V -->
-    <div class="provider-card pcard-hyperv">
-      <div class="card-top">
-        <div class="provider-icon icon-hyperv">HV</div>
-        <div class="card-info">
-          <div class="card-name">Microsoft Hyper-V</div>
-          <div class="card-desc">Windows Server 2022 + WMI connector</div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Workloads</div>
+          <div class="kpi-val">89</div>
+          <div class="kpi-sub">+6 this week</div>
         </div>
-        <div class="card-badges"><span class="badge badge-active">Active</span></div>
-      </div>
-      <div class="card-stats">
-        <div class="stat-box"><div class="stat-val">8</div><div class="stat-label">Workloads</div></div>
-        <div class="stat-box"><div class="stat-val">21</div><div class="stat-label">Test Runs</div></div>
-        <div class="stat-box"><div class="stat-val">19m</div><div class="stat-label">Avg RTO</div></div>
-      </div>
-      <div class="card-bar-wrap">
-        <div class="bar-track"><div class="bar-fill bar-green" style="width:81%"></div></div>
-        <span class="rate-text rate-green">81%</span>
-      </div>
-    </div>
-
-    <!-- Azure -->
-    <div class="provider-card pcard-azure">
-      <div class="card-top">
-        <div class="provider-icon icon-azure">AZ</div>
-        <div class="card-info">
-          <div class="card-name">Azure Backup</div>
-          <div class="card-desc">Recovery Services Vault + Managed Identity</div>
+        <div class="kpi-card">
+          <div class="kpi-label">Recovery Tests</div>
+          <div class="kpi-val">172</div>
+          <div class="kpi-sub">Last 30 days</div>
         </div>
-        <div class="card-badges"><span class="badge badge-warn">Attention</span></div>
-      </div>
-      <div class="card-stats">
-        <div class="stat-box"><div class="stat-val">6</div><div class="stat-label">Workloads</div></div>
-        <div class="stat-box"><div class="stat-val">11</div><div class="stat-label">Test Runs</div></div>
-        <div class="stat-box"><div class="stat-val">22m</div><div class="stat-label">Avg RTO</div></div>
-      </div>
-      <div class="card-bar-wrap">
-        <div class="bar-track"><div class="bar-fill bar-amber" style="width:73%"></div></div>
-        <span class="rate-text rate-amber">73%</span>
-      </div>
-    </div>
-
-    <!-- AWS -->
-    <div class="provider-card pcard-aws">
-      <div class="card-top">
-        <div class="provider-icon icon-aws">AWS</div>
-        <div class="card-info">
-          <div class="card-name">AWS Backup</div>
-          <div class="card-desc">us-east-1 + IAM Instance Profile</div>
+        <div class="kpi-card">
+          <div class="kpi-label">Overall Pass Rate</div>
+          <div class="kpi-val">79%</div>
+          <div class="kpi-sub">+3% vs last month</div>
         </div>
-        <div class="card-badges"><span class="badge badge-active">Active</span></div>
-      </div>
-      <div class="card-stats">
-        <div class="stat-box"><div class="stat-val">4</div><div class="stat-label">Workloads</div></div>
-        <div class="stat-box"><div class="stat-val">4</div><div class="stat-label">Test Runs</div></div>
-        <div class="stat-box"><div class="stat-val">28m</div><div class="stat-label">Avg RTO</div></div>
-      </div>
-      <div class="card-bar-wrap">
-        <div class="bar-track"><div class="bar-fill bar-green" style="width:75%"></div></div>
-        <span class="rate-text rate-green">75%</span>
-      </div>
-    </div>
-
-    <!-- Proxmox -->
-    <div class="provider-card pcard-proxmox">
-      <div class="card-top">
-        <div class="provider-icon icon-proxmox">PVE</div>
-        <div class="card-info">
-          <div class="card-name">Proxmox VE</div>
-          <div class="card-desc">proxmoxer REST API + PBS integration</div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg RTO</div>
+          <div class="kpi-val">22m</div>
+          <div class="kpi-sub">Across all providers</div>
         </div>
-        <div class="card-badges"><span class="badge badge-active">Active</span></div>
       </div>
-      <div class="card-stats">
-        <div class="stat-box"><div class="stat-val">12</div><div class="stat-label">Workloads</div></div>
-        <div class="stat-box"><div class="stat-val">18</div><div class="stat-label">Test Runs</div></div>
-        <div class="stat-box"><div class="stat-val">17m</div><div class="stat-label">Avg RTO</div></div>
-      </div>
-      <div class="card-bar-wrap">
-        <div class="bar-track"><div class="bar-fill bar-green" style="width:83%"></div></div>
-        <span class="rate-text rate-green">83%</span>
-      </div>
-    </div>
 
-    <!-- Nutanix -->
-    <div class="provider-card pcard-nutanix">
-      <div class="card-top">
-        <div class="provider-icon icon-nutanix">NTX</div>
-        <div class="card-info">
-          <div class="card-name">Nutanix AHV</div>
-          <div class="card-desc">Prism Central v3 REST API</div>
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab active" data-tab="vmware" onclick="switchTab('vmware')">VMware</div>
+        <div class="tab" data-tab="hyperv" onclick="switchTab('hyperv')">Hyper-V</div>
+        <div class="tab" data-tab="azure" onclick="switchTab('azure')">Azure</div>
+        <div class="tab" data-tab="aws" onclick="switchTab('aws')">AWS</div>
+        <div class="tab" data-tab="proxmox" onclick="switchTab('proxmox')">Proxmox</div>
+        <div class="tab" data-tab="nutanix" onclick="switchTab('nutanix')">Nutanix</div>
+        <div class="tab" data-tab="rhv" onclick="switchTab('rhv')">RHV</div>
+        <div class="tab" data-tab="xenserver" onclick="switchTab('xenserver')">XenServer</div>
+        <div class="tab" data-tab="sangfor" onclick="switchTab('sangfor')">Sangfor</div>
+        <div class="tab" data-tab="gcp" onclick="switchTab('gcp')">GCP</div>
+      </div>
+
+      <!-- VMware -->
+      <div class="tab-panel active" id="tab-vmware">
+        <div class="card mb20">
+          <div style="padding:20px 24px;display:flex;align-items:center;gap:18px;">
+            <div style="width:52px;height:52px;border-radius:12px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#1D4ED8;flex-shrink:0">VM</div>
+            <div style="flex:1">
+              <div style="font-size:18px;font-weight:700;color:var(--text-1);margin-bottom:2px">VMware vSphere</div>
+              <div style="font-size:12px;color:var(--text-3)">Veeam B&amp;R 13.0.2 (API v1.2) + vCenter 8.0 &middot; pyVmomi connector</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="badge badge-green">Active</span>
+              <button class="btn btn-ghost btn-sm">Configure</button>
+              <button class="btn btn-primary btn-sm">Run Test</button>
+            </div>
+          </div>
         </div>
-        <div class="card-badges"><span class="badge badge-active">Active</span></div>
-      </div>
-      <div class="card-stats">
-        <div class="stat-box"><div class="stat-val">7</div><div class="stat-label">Workloads</div></div>
-        <div class="stat-box"><div class="stat-val">9</div><div class="stat-label">Test Runs</div></div>
-        <div class="stat-box"><div class="stat-val">21m</div><div class="stat-label">Avg RTO</div></div>
-      </div>
-      <div class="card-bar-wrap">
-        <div class="bar-track"><div class="bar-fill bar-green" style="width:78%"></div></div>
-        <span class="rate-text rate-green">78%</span>
-      </div>
-    </div>
-
-    <!-- RHV -->
-    <div class="provider-card pcard-rhv">
-      <div class="card-top">
-        <div class="provider-icon icon-rhv">RHV</div>
-        <div class="card-info">
-          <div class="card-name">RHV / oVirt</div>
-          <div class="card-desc">oVirt Engine Python SDK 4.6</div>
+        <div class="kpi-grid kpi-4 mb20">
+          <div class="kpi-card"><div class="kpi-label">Workloads</div><div class="kpi-val">34</div><div class="kpi-sub">Protected</div></div>
+          <div class="kpi-card"><div class="kpi-label">Test Runs</div><div class="kpi-val">91</div><div class="kpi-sub">Last 30 days</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg RTO</div><div class="kpi-val">14m</div><div class="kpi-sub">vs 15m target</div></div>
+          <div class="kpi-card"><div class="kpi-label">Pass Rate</div><div class="kpi-val" style="color:var(--green-text)">88%</div><div class="kpi-sub">80 of 91 tests</div></div>
         </div>
-        <div class="card-badges"><span class="badge badge-warn">Attention</span></div>
-      </div>
-      <div class="card-stats">
-        <div class="stat-box"><div class="stat-val">5</div><div class="stat-label">Workloads</div></div>
-        <div class="stat-box"><div class="stat-val">6</div><div class="stat-label">Test Runs</div></div>
-        <div class="stat-box"><div class="stat-val">24m</div><div class="stat-label">Avg RTO</div></div>
-      </div>
-      <div class="card-bar-wrap">
-        <div class="bar-track"><div class="bar-fill bar-amber" style="width:67%"></div></div>
-        <span class="rate-text rate-amber">67%</span>
-      </div>
-    </div>
-
-    <!-- XenServer -->
-    <div class="provider-card pcard-xen">
-      <div class="card-top">
-        <div class="provider-icon icon-xen">XEN</div>
-        <div class="card-info">
-          <div class="card-name">XenServer / Citrix Hypervisor</div>
-          <div class="card-desc">XenAPI XML-RPC</div>
+        <div class="g2 mb20">
+          <div>
+            <div class="section-hd"><span class="section-title">Recent Test Runs</span><span class="card-link">View all</span></div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Workload</th><th>Status</th><th>RTO</th><th>Date</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-name">dc-01.prod.local</td><td><span class="badge badge-green">Passed</span></td><td>11m</td><td>Today 09:14</td></tr>
+                  <tr><td class="td-name">sql-prod-02</td><td><span class="badge badge-green">Passed</span></td><td>14m</td><td>Today 08:30</td></tr>
+                  <tr><td class="td-name">exchange-01</td><td><span class="badge badge-red">Failed</span></td><td>18m</td><td>Yesterday</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="section-hd"><span class="section-title">Provider Details</span></div>
+            <div class="card">
+              <div class="card-body">
+                <table style="width:100%">
+                  <tbody>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600;width:45%">Protocol</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Veeam REST API + pyVmomi</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">API Version</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)"><span class="badge badge-green">v1.2 (Veeam 13.0.2)</span></td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Auth</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">OAuth2 password grant</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Instant Recovery</td><td style="padding:7px 0;font-size:12px;color:var(--green-text);font-weight:600">Supported</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Malware Events</td><td style="padding:7px 0;font-size:12px;color:var(--green-text);font-weight:600">Supported (v1.2)</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Credential Store</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">SOPS + age vault</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="card-badges"><span class="badge badge-warn">Attention</span></div>
       </div>
-      <div class="card-stats">
-        <div class="stat-box"><div class="stat-val">3</div><div class="stat-label">Workloads</div></div>
-        <div class="stat-box"><div class="stat-val">3</div><div class="stat-label">Test Runs</div></div>
-        <div class="stat-box"><div class="stat-val">22m</div><div class="stat-label">Avg RTO</div></div>
-      </div>
-      <div class="card-bar-wrap">
-        <div class="bar-track"><div class="bar-fill bar-amber" style="width:67%"></div></div>
-        <span class="rate-text rate-amber">67%</span>
-      </div>
-    </div>
 
-    <!-- Sangfor -->
-    <div class="provider-card pcard-sangfor">
-      <div class="card-top">
-        <div class="provider-icon icon-sangfor">SF</div>
-        <div class="card-info">
-          <div class="card-name">Sangfor HCI</div>
-          <div class="card-desc">Vendor REST API + token auth</div>
+      <!-- Hyper-V -->
+      <div class="tab-panel" id="tab-hyperv">
+        <div class="card mb20">
+          <div style="padding:20px 24px;display:flex;align-items:center;gap:18px;">
+            <div style="width:52px;height:52px;border-radius:12px;background:#F5F3FF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#6D28D9;flex-shrink:0">HV</div>
+            <div style="flex:1">
+              <div style="font-size:18px;font-weight:700;color:var(--text-1);margin-bottom:2px">Microsoft Hyper-V</div>
+              <div style="font-size:12px;color:var(--text-3)">WMI via pywin32 &middot; Windows-only connector &middot; Checkpoint-based snapshots</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="badge badge-green">Active</span>
+              <button class="btn btn-ghost btn-sm">Configure</button>
+              <button class="btn btn-primary btn-sm">Run Test</button>
+            </div>
+          </div>
         </div>
-        <div class="card-badges"><span class="badge badge-warn">Low Data</span></div>
-      </div>
-      <div class="card-stats">
-        <div class="stat-box"><div class="stat-val">4</div><div class="stat-label">Workloads</div></div>
-        <div class="stat-box"><div class="stat-val">2</div><div class="stat-label">Test Runs</div></div>
-        <div class="stat-box"><div class="stat-val">26m</div><div class="stat-label">Avg RTO</div></div>
-      </div>
-      <div class="card-bar-wrap">
-        <div class="bar-track"><div class="bar-fill bar-red" style="width:50%"></div></div>
-        <span class="rate-text rate-red">50%</span>
-      </div>
-    </div>
-
-    <!-- GCP -->
-    <div class="provider-card pcard-gcp">
-      <div class="card-top">
-        <div class="provider-icon icon-gcp">GCP</div>
-        <div class="card-info">
-          <div class="card-name">GCP Compute Engine</div>
-          <div class="card-desc">google-cloud-compute + Application Default Credentials</div>
+        <div class="kpi-grid kpi-4 mb20">
+          <div class="kpi-card"><div class="kpi-label">Workloads</div><div class="kpi-val">8</div><div class="kpi-sub">Protected</div></div>
+          <div class="kpi-card"><div class="kpi-label">Test Runs</div><div class="kpi-val">21</div><div class="kpi-sub">Last 30 days</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg RTO</div><div class="kpi-val">19m</div><div class="kpi-sub">vs 20m target</div></div>
+          <div class="kpi-card"><div class="kpi-label">Pass Rate</div><div class="kpi-val" style="color:var(--green-text)">81%</div><div class="kpi-sub">17 of 21 tests</div></div>
         </div>
-        <div class="card-badges"><span class="badge badge-active">Active</span></div>
+        <div class="g2 mb20">
+          <div>
+            <div class="section-hd"><span class="section-title">Recent Test Runs</span><span class="card-link">View all</span></div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Workload</th><th>Status</th><th>RTO</th><th>Date</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-name">hyperv-app-01</td><td><span class="badge badge-green">Passed</span></td><td>19m</td><td>Today 08:45</td></tr>
+                  <tr><td class="td-name">hyperv-dc-02</td><td><span class="badge badge-green">Passed</span></td><td>17m</td><td>Yesterday</td></tr>
+                  <tr><td class="td-name">hyperv-sql-01</td><td><span class="badge badge-amber">Attention</span></td><td>24m</td><td>2 days ago</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="section-hd"><span class="section-title">Provider Details</span></div>
+            <div class="card">
+              <div class="card-body">
+                <table style="width:100%">
+                  <tbody>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600;width:45%">Protocol</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">WMI (pywin32)</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Auth</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Windows domain credentials</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Snapshot Type</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Checkpoint-based</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Isolation</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Internal switch</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Platform Req.</td><td style="padding:7px 0;font-size:12px;color:var(--amber);font-weight:600">Windows only</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Credential Store</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">SOPS + age vault</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="card-stats">
-        <div class="stat-box"><div class="stat-val">6</div><div class="stat-label">Workloads</div></div>
-        <div class="stat-box"><div class="stat-val">7</div><div class="stat-label">Test Runs</div></div>
-        <div class="stat-box"><div class="stat-val">31m</div><div class="stat-label">Avg RTO</div></div>
+
+      <!-- Azure -->
+      <div class="tab-panel" id="tab-azure">
+        <div class="card mb20">
+          <div style="padding:20px 24px;display:flex;align-items:center;gap:18px;">
+            <div style="width:52px;height:52px;border-radius:12px;background:#E0F2FE;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#0369A1;flex-shrink:0">AZ</div>
+            <div style="flex:1">
+              <div style="font-size:18px;font-weight:700;color:var(--text-1);margin-bottom:2px">Microsoft Azure</div>
+              <div style="font-size:12px;color:var(--text-3)">Azure Backup REST API &middot; Recovery Services Vault &middot; East US</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="badge badge-amber">Warning</span>
+              <button class="btn btn-ghost btn-sm">Configure</button>
+              <button class="btn btn-primary btn-sm">Run Test</button>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-grid kpi-4 mb20">
+          <div class="kpi-card"><div class="kpi-label">Workloads</div><div class="kpi-val">6</div><div class="kpi-sub">Protected</div></div>
+          <div class="kpi-card"><div class="kpi-label">Test Runs</div><div class="kpi-val">11</div><div class="kpi-sub">Last 30 days</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg RTO</div><div class="kpi-val">22m</div><div class="kpi-sub">vs 20m target</div></div>
+          <div class="kpi-card"><div class="kpi-label">Pass Rate</div><div class="kpi-val" style="color:var(--amber)">73%</div><div class="kpi-sub">8 of 11 tests</div></div>
+        </div>
+        <div class="g2 mb20">
+          <div>
+            <div class="section-hd"><span class="section-title">Recent Test Runs</span><span class="card-link">View all</span></div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Workload</th><th>Status</th><th>RTO</th><th>Date</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-name">azure-vm-prod-01</td><td><span class="badge badge-red">Failed</span></td><td>31m</td><td>Today 09:00</td></tr>
+                  <tr><td class="td-name">azure-web-02</td><td><span class="badge badge-green">Passed</span></td><td>18m</td><td>Yesterday</td></tr>
+                  <tr><td class="td-name">azure-db-01</td><td><span class="badge badge-green">Passed</span></td><td>22m</td><td>3 days ago</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="section-hd"><span class="section-title">Provider Details</span></div>
+            <div class="card">
+              <div class="card-body">
+                <table style="width:100%">
+                  <tbody>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600;width:45%">Protocol</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Azure Backup REST API</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Auth</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">DefaultAzureCredential / Managed Identity</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Vault</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Recovery Services Vault</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Region</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">East US</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Instant Recovery</td><td style="padding:7px 0;font-size:12px;color:var(--green-text);font-weight:600">Supported</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Credential Store</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">SOPS + age vault</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="card-bar-wrap">
-        <div class="bar-track"><div class="bar-fill bar-amber" style="width:71%"></div></div>
-        <span class="rate-text rate-amber">71%</span>
+
+      <!-- AWS -->
+      <div class="tab-panel" id="tab-aws">
+        <div class="card mb20">
+          <div style="padding:20px 24px;display:flex;align-items:center;gap:18px;">
+            <div style="width:52px;height:52px;border-radius:12px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#C2410C;flex-shrink:0">AWS</div>
+            <div style="flex:1">
+              <div style="font-size:18px;font-weight:700;color:var(--text-1);margin-bottom:2px">Amazon Web Services</div>
+              <div style="font-size:12px;color:var(--text-3)">AWS Backup boto3 &middot; IAM Instance Profile &middot; us-east-1</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="badge badge-green">Active</span>
+              <button class="btn btn-ghost btn-sm">Configure</button>
+              <button class="btn btn-primary btn-sm">Run Test</button>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-grid kpi-4 mb20">
+          <div class="kpi-card"><div class="kpi-label">Workloads</div><div class="kpi-val">4</div><div class="kpi-sub">Protected</div></div>
+          <div class="kpi-card"><div class="kpi-label">Test Runs</div><div class="kpi-val">4</div><div class="kpi-sub">Last 30 days</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg RTO</div><div class="kpi-val">28m</div><div class="kpi-sub">vs 30m target</div></div>
+          <div class="kpi-card"><div class="kpi-label">Pass Rate</div><div class="kpi-val" style="color:var(--green-text)">75%</div><div class="kpi-sub">3 of 4 tests</div></div>
+        </div>
+        <div class="g2 mb20">
+          <div>
+            <div class="section-hd"><span class="section-title">Recent Test Runs</span><span class="card-link">View all</span></div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Workload</th><th>Status</th><th>RTO</th><th>Date</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-name">aws-ec2-prod-01</td><td><span class="badge badge-green">Passed</span></td><td>27m</td><td>Today 07:30</td></tr>
+                  <tr><td class="td-name">aws-rds-main</td><td><span class="badge badge-red">Failed</span></td><td>35m</td><td>Yesterday</td></tr>
+                  <tr><td class="td-name">aws-ec2-app-02</td><td><span class="badge badge-green">Passed</span></td><td>25m</td><td>3 days ago</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="section-hd"><span class="section-title">Provider Details</span></div>
+            <div class="card">
+              <div class="card-body">
+                <table style="width:100%">
+                  <tbody>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600;width:45%">Protocol</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">AWS Backup boto3</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Auth</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">IAM Instance Profile</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Region</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">us-east-1</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Restore Target</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Isolated subnet</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Instant Recovery</td><td style="padding:7px 0;font-size:12px;color:var(--green-text);font-weight:600">Supported</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Credential Store</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">SOPS + age vault</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-  </div>
-
-  <!-- Veeam version table -->
-  <div class="table-section">
-    <div class="table-head">
-      <div>
-        <div class="table-title">Veeam B&amp;R Version Support</div>
-        <div class="table-sub">Auto-detected via /api/v1/serverInfo at appliance startup</div>
+      <!-- Proxmox -->
+      <div class="tab-panel" id="tab-proxmox">
+        <div class="card mb20">
+          <div style="padding:20px 24px;display:flex;align-items:center;gap:18px;">
+            <div style="width:52px;height:52px;border-radius:12px;background:#FFFBEB;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#92400E;flex-shrink:0">PVE</div>
+            <div style="flex:1">
+              <div style="font-size:18px;font-weight:700;color:var(--text-1);margin-bottom:2px">Proxmox VE</div>
+              <div style="font-size:12px;color:var(--text-3)">proxmoxer REST &middot; pve-01 node &middot; PBS (Proxmox Backup Server)</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="badge badge-green">Active</span>
+              <button class="btn btn-ghost btn-sm">Configure</button>
+              <button class="btn btn-primary btn-sm">Run Test</button>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-grid kpi-4 mb20">
+          <div class="kpi-card"><div class="kpi-label">Workloads</div><div class="kpi-val">12</div><div class="kpi-sub">Protected</div></div>
+          <div class="kpi-card"><div class="kpi-label">Test Runs</div><div class="kpi-val">18</div><div class="kpi-sub">Last 30 days</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg RTO</div><div class="kpi-val">17m</div><div class="kpi-sub">vs 20m target</div></div>
+          <div class="kpi-card"><div class="kpi-label">Pass Rate</div><div class="kpi-val" style="color:var(--green-text)">83%</div><div class="kpi-sub">15 of 18 tests</div></div>
+        </div>
+        <div class="g2 mb20">
+          <div>
+            <div class="section-hd"><span class="section-title">Recent Test Runs</span><span class="card-link">View all</span></div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Workload</th><th>Status</th><th>RTO</th><th>Date</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-name">proxmox-vm-03</td><td><span class="badge badge-green">Passed</span></td><td>17m</td><td>Today 07:00</td></tr>
+                  <tr><td class="td-name">proxmox-db-01</td><td><span class="badge badge-green">Passed</span></td><td>15m</td><td>Yesterday</td></tr>
+                  <tr><td class="td-name">proxmox-web-02</td><td><span class="badge badge-red">Failed</span></td><td>21m</td><td>2 days ago</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="section-hd"><span class="section-title">Provider Details</span></div>
+            <div class="card">
+              <div class="card-body">
+                <table style="width:100%">
+                  <tbody>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600;width:45%">Protocol</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">proxmoxer REST</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Auth</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">user@pam + password</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Node</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">pve-01</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Storage</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">PBS (Proxmox Backup Server)</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Instant Recovery</td><td style="padding:7px 0;font-size:12px;color:var(--green-text);font-weight:600">Supported</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Credential Store</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">SOPS + age vault</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <span class="v-badge">v1.2 Active</span>
-    </div>
-    <table>
-      <thead><tr>
-        <th>Version</th><th>API Version</th><th>Instant Recovery</th><th>Malware Events</th><th>Backup Repos</th><th>Job Control</th>
-      </tr></thead>
-      <tbody>
-        <tr><td class="col-platform">Veeam 10.x</td><td><span class="v-badge-dim badge">v1.0</span></td><td><span class="cross">--</span></td><td><span class="cross">--</span></td><td><span class="cross">--</span></td><td><span class="cross">--</span></td></tr>
-        <tr><td class="col-platform">Veeam 11.x</td><td><span class="v-badge-dim badge">v1.0</span></td><td><span class="check">Yes</span></td><td><span class="cross">--</span></td><td><span class="cross">--</span></td><td><span class="check">Yes</span></td></tr>
-        <tr><td class="col-platform">Veeam 12.x</td><td><span class="v-badge-dim badge">v1.1</span></td><td><span class="check">Yes</span></td><td><span class="cross">--</span></td><td><span class="cross">--</span></td><td><span class="check">Yes</span></td></tr>
-        <tr class="highlight"><td>Veeam 13.0.2+</td><td><span class="v-badge badge">v1.2</span></td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td></tr>
-      </tbody>
-    </table>
-  </div>
 
-  <!-- Extended hypervisor matrix -->
-  <div class="table-section">
-    <div class="table-head">
-      <div>
-        <div class="table-title">Extended Hypervisor Support Matrix (Phase 6)</div>
-        <div class="table-sub">New connectors added in Phase 6 across on-prem and cloud platforms</div>
+      <!-- Nutanix -->
+      <div class="tab-panel" id="tab-nutanix">
+        <div class="card mb20">
+          <div style="padding:20px 24px;display:flex;align-items:center;gap:18px;">
+            <div style="width:52px;height:52px;border-radius:12px;background:#FFF1F2;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#9F1239;flex-shrink:0">NTX</div>
+            <div style="flex:1">
+              <div style="font-size:18px;font-weight:700;color:var(--text-1);margin-bottom:2px">Nutanix AHV</div>
+              <div style="font-size:12px;color:var(--text-3)">Prism Central v3 REST &middot; httpx &middot; Recovery Points API &middot; No SDK dependency</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="badge badge-green">Active</span>
+              <button class="btn btn-ghost btn-sm">Configure</button>
+              <button class="btn btn-primary btn-sm">Run Test</button>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-grid kpi-4 mb20">
+          <div class="kpi-card"><div class="kpi-label">Workloads</div><div class="kpi-val">7</div><div class="kpi-sub">Protected</div></div>
+          <div class="kpi-card"><div class="kpi-label">Test Runs</div><div class="kpi-val">9</div><div class="kpi-sub">Last 30 days</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg RTO</div><div class="kpi-val">21m</div><div class="kpi-sub">vs 20m target</div></div>
+          <div class="kpi-card"><div class="kpi-label">Pass Rate</div><div class="kpi-val" style="color:var(--green-text)">78%</div><div class="kpi-sub">7 of 9 tests</div></div>
+        </div>
+        <div class="g2 mb20">
+          <div>
+            <div class="section-hd"><span class="section-title">Recent Test Runs</span><span class="card-link">View all</span></div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Workload</th><th>Status</th><th>RTO</th><th>Date</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-name">ntx-vm-app-01</td><td><span class="badge badge-green">Passed</span></td><td>20m</td><td>Today 06:15</td></tr>
+                  <tr><td class="td-name">ntx-db-prod</td><td><span class="badge badge-green">Passed</span></td><td>22m</td><td>Yesterday</td></tr>
+                  <tr><td class="td-name">ntx-web-01</td><td><span class="badge badge-red">Failed</span></td><td>29m</td><td>4 days ago</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="section-hd"><span class="section-title">Provider Details</span></div>
+            <div class="card">
+              <div class="card-body">
+                <table style="width:100%">
+                  <tbody>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600;width:45%">Protocol</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Prism Central v3 REST</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Auth</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Basic (httpx)</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">SDK</td><td style="padding:7px 0;font-size:12px;color:var(--green-text);font-weight:600">No SDK dependency</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Recovery API</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Recovery Points API</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Instant Recovery</td><td style="padding:7px 0;font-size:12px;color:var(--green-text);font-weight:600">Supported</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Credential Store</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">SOPS + age vault</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <table>
-      <thead><tr>
-        <th>Platform</th><th>Connector</th><th>Snapshot Support</th><th>Isolated Recovery</th><th>Health Checks</th>
-      </tr></thead>
-      <tbody>
-        <tr><td class="col-platform">Proxmox VE 7 / 8</td><td class="col-mono">proxmoxer REST</td><td class="col-green">Yes</td><td class="col-green">VLAN bridge</td><td class="col-green">Yes</td></tr>
-        <tr><td class="col-platform">Nutanix AHV</td><td class="col-mono">Prism Central v3</td><td class="col-green">Recovery Points</td><td class="col-green">Isolated network</td><td class="col-green">Yes</td></tr>
-        <tr><td class="col-platform">RHV / oVirt 4.5</td><td class="col-mono">oVirt SDK</td><td class="col-green">Preview + Commit</td><td class="col-green">Isolated vNIC</td><td class="col-green">Yes</td></tr>
-        <tr><td class="col-platform">XenServer 8 / Citrix Hypervisor 8.2</td><td class="col-mono">XenAPI XML-RPC</td><td class="col-green">VM clone from snapshot</td><td class="col-green">Isolated network</td><td class="col-green">Yes</td></tr>
-        <tr><td class="col-platform">Sangfor HCI</td><td class="col-mono">Vendor REST API</td><td class="col-amber">Yes</td><td class="col-amber">Isolated vSwitch</td><td class="col-green">Yes</td></tr>
-        <tr><td class="col-platform">GCP Compute Engine</td><td class="col-mono">google-cloud-compute</td><td class="col-green">Disk snapshots</td><td class="col-green">Isolated VPC subnet</td><td class="col-green">Yes</td></tr>
-      </tbody>
-    </table>
-  </div>
 
-  <div style="text-align:center;padding:16px 0;font-size:11px;color:#2A2E40;">
-    Built by <a href="https://www.linkedin.com/in/omarrao/" style="color:#00D448;text-decoration:none;">Omar Rao</a>, Engineer - Data Resilience, Cybersecurity and Privacy
-    &nbsp;&bull;&nbsp; <a href="https://omarrao.substack.com/" style="color:#3A3F55;text-decoration:none;">omarrao.substack.com</a>
-  </div>
+      <!-- RHV -->
+      <div class="tab-panel" id="tab-rhv">
+        <div class="card mb20">
+          <div style="padding:20px 24px;display:flex;align-items:center;gap:18px;">
+            <div style="width:52px;height:52px;border-radius:12px;background:#FEF2F2;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#B91C1C;flex-shrink:0">RHV</div>
+            <div style="flex:1">
+              <div style="font-size:18px;font-weight:700;color:var(--text-1);margin-bottom:2px">Red Hat Virtualization</div>
+              <div style="font-size:12px;color:var(--text-3)">oVirt Engine SDK &middot; admin@internal &middot; Snapshot preview + commit &middot; Manual SDK install required</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="badge badge-amber">Warning</span>
+              <button class="btn btn-ghost btn-sm">Configure</button>
+              <button class="btn btn-primary btn-sm">Run Test</button>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-grid kpi-4 mb20">
+          <div class="kpi-card"><div class="kpi-label">Workloads</div><div class="kpi-val">5</div><div class="kpi-sub">Protected</div></div>
+          <div class="kpi-card"><div class="kpi-label">Test Runs</div><div class="kpi-val">6</div><div class="kpi-sub">Last 30 days</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg RTO</div><div class="kpi-val">24m</div><div class="kpi-sub">vs 20m target</div></div>
+          <div class="kpi-card"><div class="kpi-label">Pass Rate</div><div class="kpi-val" style="color:var(--amber)">67%</div><div class="kpi-sub">4 of 6 tests</div></div>
+        </div>
+        <div class="g2 mb20">
+          <div>
+            <div class="section-hd"><span class="section-title">Recent Test Runs</span><span class="card-link">View all</span></div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Workload</th><th>Status</th><th>RTO</th><th>Date</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-name">rhv-vm-app-01</td><td><span class="badge badge-green">Passed</span></td><td>23m</td><td>Yesterday</td></tr>
+                  <tr><td class="td-name">rhv-db-main</td><td><span class="badge badge-red">Failed</span></td><td>29m</td><td>3 days ago</td></tr>
+                  <tr><td class="td-name">rhv-web-01</td><td><span class="badge badge-green">Passed</span></td><td>21m</td><td>4 days ago</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="section-hd"><span class="section-title">Provider Details</span></div>
+            <div class="card">
+              <div class="card-body">
+                <table style="width:100%">
+                  <tbody>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600;width:45%">Protocol</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">oVirt Engine SDK</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Auth</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">admin@internal</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Snapshot</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Preview + Commit</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">SDK Req.</td><td style="padding:7px 0;font-size:12px;color:var(--amber);font-weight:600">Manual install required</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Instant Recovery</td><td style="padding:7px 0;font-size:12px;color:var(--amber);font-weight:600">Partial</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Credential Store</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">SOPS + age vault</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-</main>
+      <!-- XenServer -->
+      <div class="tab-panel" id="tab-xenserver">
+        <div class="card mb20">
+          <div style="padding:20px 24px;display:flex;align-items:center;gap:18px;">
+            <div style="width:52px;height:52px;border-radius:12px;background:#F0FDFA;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#0F766E;flex-shrink:0">XEN</div>
+            <div style="flex:1">
+              <div style="font-size:18px;font-weight:700;color:var(--text-1);margin-bottom:2px">XenServer / XCP-ng</div>
+              <div style="font-size:12px;color:var(--text-3)">XenAPI XML-RPC &middot; root password &middot; VM clone from snapshot &middot; Manual XenAPI install required</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="badge badge-amber">Warning</span>
+              <button class="btn btn-ghost btn-sm">Configure</button>
+              <button class="btn btn-primary btn-sm">Run Test</button>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-grid kpi-4 mb20">
+          <div class="kpi-card"><div class="kpi-label">Workloads</div><div class="kpi-val">3</div><div class="kpi-sub">Protected</div></div>
+          <div class="kpi-card"><div class="kpi-label">Test Runs</div><div class="kpi-val">3</div><div class="kpi-sub">Last 30 days</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg RTO</div><div class="kpi-val">22m</div><div class="kpi-sub">vs 20m target</div></div>
+          <div class="kpi-card"><div class="kpi-label">Pass Rate</div><div class="kpi-val" style="color:var(--amber)">67%</div><div class="kpi-sub">2 of 3 tests</div></div>
+        </div>
+        <div class="g2 mb20">
+          <div>
+            <div class="section-hd"><span class="section-title">Recent Test Runs</span><span class="card-link">View all</span></div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Workload</th><th>Status</th><th>RTO</th><th>Date</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-name">xen-vm-app-01</td><td><span class="badge badge-green">Passed</span></td><td>20m</td><td>Yesterday</td></tr>
+                  <tr><td class="td-name">xen-db-prod</td><td><span class="badge badge-red">Failed</span></td><td>27m</td><td>3 days ago</td></tr>
+                  <tr><td class="td-name">xen-web-01</td><td><span class="badge badge-green">Passed</span></td><td>19m</td><td>5 days ago</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="section-hd"><span class="section-title">Provider Details</span></div>
+            <div class="card">
+              <div class="card-body">
+                <table style="width:100%">
+                  <tbody>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600;width:45%">Protocol</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">XenAPI XML-RPC</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Auth</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">root password</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Restore</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">VM clone from snapshot</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">SDK Req.</td><td style="padding:7px 0;font-size:12px;color:var(--amber);font-weight:600">Manual XenAPI install</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Instant Recovery</td><td style="padding:7px 0;font-size:12px;color:var(--amber);font-weight:600">Partial</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Credential Store</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">SOPS + age vault</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sangfor -->
+      <div class="tab-panel" id="tab-sangfor">
+        <div class="card mb20">
+          <div style="padding:20px 24px;display:flex;align-items:center;gap:18px;">
+            <div style="width:52px;height:52px;border-radius:12px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#1E40AF;flex-shrink:0">SF</div>
+            <div style="flex:1">
+              <div style="font-size:18px;font-weight:700;color:var(--text-1);margin-bottom:2px">Sangfor HCI</div>
+              <div style="font-size:12px;color:var(--text-3)">Vendor REST API &middot; X-Auth-Token &middot; Requires vendor API spec &middot; Low test coverage</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="badge badge-red">Low Coverage</span>
+              <button class="btn btn-ghost btn-sm">Configure</button>
+              <button class="btn btn-primary btn-sm">Run Test</button>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-grid kpi-4 mb20">
+          <div class="kpi-card"><div class="kpi-label">Workloads</div><div class="kpi-val">4</div><div class="kpi-sub">Protected</div></div>
+          <div class="kpi-card"><div class="kpi-label">Test Runs</div><div class="kpi-val">2</div><div class="kpi-sub">Last 30 days</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg RTO</div><div class="kpi-val">26m</div><div class="kpi-sub">vs 25m target</div></div>
+          <div class="kpi-card"><div class="kpi-label">Pass Rate</div><div class="kpi-val" style="color:var(--red)">50%</div><div class="kpi-sub">1 of 2 tests</div></div>
+        </div>
+        <div class="g2 mb20">
+          <div>
+            <div class="section-hd"><span class="section-title">Recent Test Runs</span><span class="card-link">View all</span></div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Workload</th><th>Status</th><th>RTO</th><th>Date</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-name">sf-vm-app-01</td><td><span class="badge badge-green">Passed</span></td><td>25m</td><td>5 days ago</td></tr>
+                  <tr><td class="td-name">sf-db-prod</td><td><span class="badge badge-red">Failed</span></td><td>31m</td><td>12 days ago</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="section-hd"><span class="section-title">Provider Details</span></div>
+            <div class="card">
+              <div class="card-body">
+                <table style="width:100%">
+                  <tbody>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600;width:45%">Protocol</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Vendor REST API</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Auth</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">X-Auth-Token</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">API Spec</td><td style="padding:7px 0;font-size:12px;color:var(--amber);font-weight:600">Requires vendor spec</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Coverage</td><td style="padding:7px 0;font-size:12px;color:var(--red);font-weight:600">Low (2 runs total)</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Instant Recovery</td><td style="padding:7px 0;font-size:12px;color:var(--amber);font-weight:600">Unverified</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Credential Store</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">SOPS + age vault</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GCP -->
+      <div class="tab-panel" id="tab-gcp">
+        <div class="card mb20">
+          <div style="padding:20px 24px;display:flex;align-items:center;gap:18px;">
+            <div style="width:52px;height:52px;border-radius:12px;background:#FFF7ED;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#C2410C;flex-shrink:0">GCP</div>
+            <div style="flex:1">
+              <div style="font-size:18px;font-weight:700;color:var(--text-1);margin-bottom:2px">Google Cloud Platform</div>
+              <div style="font-size:12px;color:var(--text-3)">google-cloud-compute &middot; Application Default Credentials &middot; prod-project-01 &middot; us-central1-a</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="badge badge-amber">Warning</span>
+              <button class="btn btn-ghost btn-sm">Configure</button>
+              <button class="btn btn-primary btn-sm">Run Test</button>
+            </div>
+          </div>
+        </div>
+        <div class="kpi-grid kpi-4 mb20">
+          <div class="kpi-card"><div class="kpi-label">Workloads</div><div class="kpi-val">6</div><div class="kpi-sub">Protected</div></div>
+          <div class="kpi-card"><div class="kpi-label">Test Runs</div><div class="kpi-val">7</div><div class="kpi-sub">Last 30 days</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg RTO</div><div class="kpi-val">31m</div><div class="kpi-sub">vs 25m target</div></div>
+          <div class="kpi-card"><div class="kpi-label">Pass Rate</div><div class="kpi-val" style="color:var(--amber)">71%</div><div class="kpi-sub">5 of 7 tests</div></div>
+        </div>
+        <div class="g2 mb20">
+          <div>
+            <div class="section-hd"><span class="section-title">Recent Test Runs</span><span class="card-link">View all</span></div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Workload</th><th>Status</th><th>RTO</th><th>Date</th></tr></thead>
+                <tbody>
+                  <tr><td class="td-name">gcp-instance-01</td><td><span class="badge badge-amber">Attention</span></td><td>31m</td><td>Today 06:00</td></tr>
+                  <tr><td class="td-name">gcp-sql-prod</td><td><span class="badge badge-green">Passed</span></td><td>28m</td><td>Yesterday</td></tr>
+                  <tr><td class="td-name">gcp-gke-node-01</td><td><span class="badge badge-red">Failed</span></td><td>38m</td><td>3 days ago</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="section-hd"><span class="section-title">Provider Details</span></div>
+            <div class="card">
+              <div class="card-body">
+                <table style="width:100%">
+                  <tbody>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600;width:45%">Protocol</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">google-cloud-compute</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Auth</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Application Default Credentials</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Project</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">prod-project-01</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Zone</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">us-central1-a</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Snapshot</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">Persistent disk snapshots</td></tr>
+                    <tr><td style="padding:7px 0;font-size:11px;color:var(--text-3);font-weight:600">Credential Store</td><td style="padding:7px 0;font-size:12px;color:var(--text-1)">SOPS + age vault</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Version Support Matrix -->
+      <div class="section-hd" style="margin-top:8px">
+        <span class="section-title">Veeam B&amp;R Version Support Matrix</span>
+      </div>
+      <div class="tbl-wrap mb20">
+        <table>
+          <thead>
+            <tr>
+              <th>Version</th>
+              <th>API Version</th>
+              <th>Instant Recovery</th>
+              <th>Malware Events</th>
+              <th>Backup Repos</th>
+              <th>Job Control</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-name">10.x</td>
+              <td><span class="badge badge-gray">v1.0</span></td>
+              <td style="color:var(--red)">No</td>
+              <td style="color:var(--red)">No</td>
+              <td style="color:var(--red)">No</td>
+              <td style="color:var(--red)">No</td>
+            </tr>
+            <tr>
+              <td class="td-name">11.x</td>
+              <td><span class="badge badge-gray">v1.0</span></td>
+              <td style="color:var(--green-text);font-weight:600">Yes</td>
+              <td style="color:var(--red)">No</td>
+              <td style="color:var(--red)">No</td>
+              <td style="color:var(--green-text);font-weight:600">Yes</td>
+            </tr>
+            <tr>
+              <td class="td-name">12.x</td>
+              <td><span class="badge badge-blue">v1.1</span></td>
+              <td style="color:var(--green-text);font-weight:600">Yes</td>
+              <td style="color:var(--red)">No</td>
+              <td style="color:var(--red)">No</td>
+              <td style="color:var(--green-text);font-weight:600">Yes</td>
+            </tr>
+            <tr style="border-left:3px solid var(--green)">
+              <td class="td-name" style="color:var(--green-text)">13.0.2+</td>
+              <td><span class="badge badge-green">v1.2</span></td>
+              <td style="color:var(--green-text);font-weight:600">Yes</td>
+              <td style="color:var(--green-text);font-weight:600">Yes</td>
+              <td style="color:var(--green-text);font-weight:600">Yes</td>
+              <td style="color:var(--green-text);font-weight:600">Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- /body -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('open');
+}
+function switchTab(tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-tab="'+tabId+'"]').classList.add('active');
+  document.getElementById('tab-'+tabId).classList.add('active');
+}
+</script>
 </body>
 </html>

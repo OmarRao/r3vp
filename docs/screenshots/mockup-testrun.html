@@ -2,213 +2,296 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1280">
-<title>R3VP - Test Run Detail</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R3VP - Test Run TR-20240617-044</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0F1117; color: #E8EAF0; min-height: 100vh; display: flex; }
-
-.sidebar { width: 220px; background: #13151E; border-right: 1px solid #1E2130; display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; }
-.logo { padding: 22px 20px 18px; border-bottom: 1px solid #1E2130; }
-.logo-mark { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
-.logo-mark span { color: #00D448; }
-.logo-sub { font-size: 9px; color: #00D448; text-transform: uppercase; letter-spacing: 2px; margin-top: 3px; }
-.nav { flex: 1; padding: 10px 0; }
-.nav-group { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #3A3F55; padding: 14px 20px 5px; }
-.nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 20px; font-size: 12px; color: #6B7280; cursor: pointer; border-left: 2px solid transparent; }
-.nav-item.active { color: #fff; border-left-color: #00D448; background: linear-gradient(90deg, rgba(0,212,72,0.12) 0%, transparent 100%); font-weight: 600; }
-.nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-.nav-item.active .nav-dot { background: #00D448; box-shadow: 0 0 6px #00D448; }
-.sidebar-footer { padding: 14px 20px; border-top: 1px solid #1E2130; font-size: 10px; color: #3A3F55; line-height: 1.6; }
-.sidebar-footer a { color: #00D448; text-decoration: none; }
-.main { flex: 1; padding: 28px 32px; background: #0F1117; }
-
-/* Page header */
-.breadcrumb { font-size: 11px; color: #3A3F55; margin-bottom: 12px; }
-.breadcrumb a { color: #00D448; text-decoration: none; }
-.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.page-title { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.3px; display: flex; align-items: center; gap: 10px; }
-
-/* Badges */
-.badge-pass { padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 700; background: rgba(0,212,72,0.15); color: #00D448; border: 1px solid rgba(0,212,72,0.25); }
-.chip-vmware { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; background: rgba(59,130,246,0.18); color: #60A5FA; }
-
-/* Info stat cards */
-.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-.stat-card { background: #13151E; border: 1px solid #1E2130; border-radius: 12px; padding: 14px 18px; }
-.stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #4B5268; margin-bottom: 6px; }
-.stat-value { font-size: 22px; font-weight: 800; color: #fff; line-height: 1; }
-.stat-sub { font-size: 11px; color: #3A3F55; margin-top: 3px; }
-
-/* Two-column layout */
-.grid-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 16px; }
-
-/* Cards */
-.card { background: #13151E; border: 1px solid #1E2130; border-radius: 14px; padding: 20px; }
-.card-title { font-size: 13px; font-weight: 700; color: #E8EAF0; margin-bottom: 16px; }
-
-/* Timeline */
-.tl-item { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: flex-start; }
-.tl-item:last-child { border: none; }
-.tl-dot { width: 24px; height: 24px; border-radius: 50%; background: rgba(0,212,72,0.15); border: 1.5px solid #00D448; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #00D448; flex-shrink: 0; margin-top: 2px; }
-.tl-body { flex: 1; }
-.tl-name { font-size: 12px; font-weight: 700; color: #E8EAF0; }
-.tl-detail { font-size: 11px; color: #6B7280; margin-top: 2px; }
-.tl-duration { font-size: 11px; font-weight: 600; color: #4B5268; margin-left: auto; padding-left: 12px; white-space: nowrap; margin-top: 3px; }
-
-/* Evidence */
-.screenshot-placeholder { background: #0F1117; border: 1px solid #1E2130; border-radius: 10px; height: 110px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; margin-bottom: 14px; }
-.screenshot-icon { font-size: 28px; color: #3A3F55; }
-.screenshot-label { font-size: 11px; color: #3A3F55; font-weight: 600; }
-
-/* Log box */
-.log-box { background: #080A0F; border: 1px solid #1E2130; border-radius: 10px; padding: 14px 16px; font-family: 'Courier New', Courier, monospace; font-size: 11px; color: #6B7280; line-height: 1.7; }
-.log-box .ts { color: #3A3F55; }
-.log-box .ok { color: #00D448; }
+:root {
+  --bg:#F8FAFC;--surface:#FFFFFF;--border:#E2E8F0;--border-light:#F1F5F9;
+  --text-1:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --green:#00B336;--green-bg:#F0FDF4;--green-border:#BBF7D0;--green-text:#15803D;
+  --amber:#D97706;--amber-bg:#FFFBEB;--amber-border:#FDE68A;
+  --red:#DC2626;--red-bg:#FFF1F2;--red-border:#FECACA;
+  --blue:#2563EB;--blue-bg:#EFF6FF;--blue-border:#BFDBFE;
+  --purple:#7C3AED;--purple-bg:#F5F3FF;
+  --sidebar:#0F172A;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --radius:10px;--radius-sm:6px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.05);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text-1);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;overflow-y:auto;z-index:100}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo-text{font-size:21px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.logo-text em{color:var(--green);font-style:normal}
+.logo-tag{font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
+.logo-ver{font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px}
+.nav{flex:1;padding:8px 0}
+.nav-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.25);padding:12px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 18px;font-size:12px;color:rgba(255,255,255,0.55);cursor:pointer;border-left:2px solid transparent;text-decoration:none}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;border-left-color:var(--green);background:rgba(0,179,54,0.12);font-weight:600}
+.sidebar-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,0.07);font-size:10px;color:rgba(255,255,255,0.25);line-height:1.7}
+.sidebar-footer a{color:var(--green);text-decoration:none}
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--sidebar);border:none;border-radius:7px;padding:8px;cursor:pointer;align-items:center;justify-content:center}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.topbar-left{display:flex;flex-direction:column;min-width:0}
+.page-title{font-size:16px;font-weight:700;color:var(--text-1)}
+.page-sub{font-size:11px;color:var(--text-3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 28px;background:var(--bg)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);white-space:nowrap}
+.btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-size:12px;font-weight:700;color:var(--text-1)}
+.card-body{padding:16px 18px}
+.kpi-grid{display:grid;gap:12px}
+.kpi-4{grid-template-columns:repeat(4,1fr)}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3);margin-bottom:6px}
+.kpi-val{font-size:26px;font-weight:800;color:var(--text-1);line-height:1;letter-spacing:-0.5px}
+.kpi-sub{font-size:11px;color:var(--text-3);margin-top:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-green{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mb20{margin-bottom:20px}
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-item{display:flex;gap:12px;padding:10px 0;position:relative}
+.tl-item:not(:last-child)::before{content:'';position:absolute;left:10px;top:28px;bottom:0;width:1px;background:var(--border-light)}
+.tl-dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:10px;font-weight:700;z-index:1}
+.tl-dot-green{background:var(--green-bg);color:var(--green-text);border:1.5px solid var(--green-border)}
+.tl-content{flex:1;padding-bottom:8px;border-bottom:1px solid var(--border-light)}
+.tl-item:last-child .tl-content{border:none}
+.tl-title{font-size:12px;font-weight:600;color:var(--text-1);margin-bottom:1px}
+.tl-detail{font-size:11px;color:var(--text-3)}
+.tl-time{font-size:10px;color:var(--text-3);font-weight:600;margin-top:2px}
+.info-table{width:100%}
+.info-table td{padding:6px 0;font-size:12px;border:none}
+.info-table td:first-child{color:var(--text-3);font-weight:600;font-size:11px;width:40%;padding-right:12px}
+.info-table td:last-child{color:var(--text-1)}
+.evidence-img{background:#F8FAFC;border:1px solid var(--border);border-radius:8px;height:160px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px}
+.log-box{background:#0F172A;border-radius:8px;padding:14px 16px;font-family:'Courier New',monospace;font-size:11px;color:#94A3B8;line-height:1.8;overflow-x:auto;height:160px;overflow-y:auto}
+.log-ts{color:#475569}
+.log-ok{color:#00B336}
+.log-info{color:#60A5FA}
+@media(max-width:768px){
+  .sidebar{position:fixed;left:-220px;top:0;bottom:0;transition:left 0.25s;z-index:100}
+  .sidebar.open{left:0}
+  .sidebar-overlay.open{display:block}
+  .hamburger{display:flex}
+  .main{width:100%}
+  .topbar{padding:0 16px 0 52px;height:52px}
+  .body{padding:14px 16px}
+  .kpi-4{grid-template-columns:repeat(2,1fr)}
+  .g2{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">R<em>3</em>VP</div>
+      <div class="logo-tag">Recovery Validation</div>
+      <div class="logo-ver">v0.6.0</div>
+    </div>
+    <div class="nav">
+      <div class="nav-section">Resilience</div>
+      <a class="nav-item" href="#">Dashboard</a>
+      <a class="nav-item" href="#">Provider Coverage</a>
+      <a class="nav-item" href="#">Workloads</a>
+      <a class="nav-item active" href="#">Test Runs</a>
+      <a class="nav-item" href="#">Reports</a>
+      <div class="nav-section">Threat Intel</div>
+      <a class="nav-item" href="#">Threat Scanner</a>
+      <a class="nav-item" href="#">Incidents</a>
+      <div class="nav-section">Integrations</div>
+      <a class="nav-item" href="#">SOAR / SIEM</a>
+      <a class="nav-item" href="#">VeeamONE</a>
+      <div class="nav-section">Platform</div>
+      <a class="nav-item" href="#">Appliances</a>
+      <a class="nav-item" href="#">Settings</a>
+    </div>
+    <div class="sidebar-footer">Built by <a href="https://www.linkedin.com/in/omarrao/">Omar Rao</a><br>Engineer, Data Resilience &amp; Cybersecurity<br><a href="https://omarrao.substack.com/" style="color:rgba(255,255,255,0.2)">omarrao.substack.com</a></div>
+  </nav>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Test Run #TR-20240617-044</div>
+        <div class="page-sub">VMware vSphere &middot; dc-01.prod.local &middot; Started Today 09:03 AM</div>
+      </div>
+      <div class="topbar-right">
+        <span class="badge badge-green" style="font-size:11px;padding:4px 10px">Passed</span>
+        <button class="btn btn-ghost">Download Report</button>
+        <button class="btn btn-ghost">Back to List</button>
+      </div>
+    </div>
+    <div class="body">
+      <!-- KPI row -->
+      <div class="kpi-grid kpi-4 mb20">
+        <div class="kpi-card">
+          <div class="kpi-label">Duration</div>
+          <div class="kpi-val">11m 23s</div>
+          <div class="kpi-sub">Total test time</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">RTO Target</div>
+          <div class="kpi-val">15m</div>
+          <div class="kpi-sub">Configured</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Actual RTO</div>
+          <div class="kpi-val" style="color:var(--green-text)">11m</div>
+          <div class="kpi-sub">Within target</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Result</div>
+          <div class="kpi-val" style="color:var(--green-text)">Passed</div>
+          <div class="kpi-sub">All checks passed</div>
+        </div>
+      </div>
 
-<nav class="sidebar">
-  <div class="logo">
-    <div class="logo-mark">R3<span>VP</span></div>
-    <div class="logo-sub">Recovery Validation</div>
-  </div>
-  <div class="nav">
-    <div class="nav-group">Resilience</div>
-    <div class="nav-item"><span class="nav-dot"></span> Dashboard</div>
-    <div class="nav-item"><span class="nav-dot"></span> Workloads</div>
-    <div class="nav-item active"><span class="nav-dot"></span> Test Runs</div>
-    <div class="nav-group">Threat Intel</div>
-    <div class="nav-item"><span class="nav-dot"></span> Threat Scanner</div>
-    <div class="nav-item"><span class="nav-dot"></span> Incidents</div>
-    <div class="nav-group">Integrations</div>
-    <div class="nav-item"><span class="nav-dot"></span> SOAR / SIEM</div>
-    <div class="nav-item"><span class="nav-dot"></span> VeeamONE</div>
-    <div class="nav-group">Platform</div>
-    <div class="nav-item"><span class="nav-dot"></span> Appliances</div>
-    <div class="nav-item"><span class="nav-dot"></span> Settings</div>
-  </div>
-  <div class="sidebar-footer">
-    Built by <a href="https://www.linkedin.com/in/omarrao/" target="_blank">Omar Rao</a><br>
-    Engineer - Data Resilience, Cybersecurity and Privacy
-  </div>
-</nav>
+      <!-- g2: workflow + config -->
+      <div class="g2 mb20">
+        <div class="card">
+          <div class="card-hd">
+            <span class="card-title">Validation Workflow</span>
+            <span class="badge badge-green">7 / 7 Steps</span>
+          </div>
+          <div class="card-body">
+            <div class="timeline">
+              <div class="tl-item">
+                <div class="tl-dot tl-dot-green">&#10003;</div>
+                <div class="tl-content">
+                  <div class="tl-title">sync_inventory</div>
+                  <div class="tl-detail">Discovered 34 VMs, 1 selected</div>
+                  <div class="tl-time">Completed in 0:12</div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot tl-dot-green">&#10003;</div>
+                <div class="tl-content">
+                  <div class="tl-title">select_restore_point</div>
+                  <div class="tl-detail">2024-06-16 23:00 Veeam backup selected</div>
+                  <div class="tl-time">Completed in 0:08</div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot tl-dot-green">&#10003;</div>
+                <div class="tl-content">
+                  <div class="tl-title">start_instant_recovery</div>
+                  <div class="tl-detail">Session ID: sess-8821ab on 10.99.0.45</div>
+                  <div class="tl-time">Completed in 1:45</div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot tl-dot-green">&#10003;</div>
+                <div class="tl-content">
+                  <div class="tl-title">boot_validation</div>
+                  <div class="tl-detail">OS ping response in 3m 22s</div>
+                  <div class="tl-time">Completed in 3:22</div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot tl-dot-green">&#10003;</div>
+                <div class="tl-content">
+                  <div class="tl-title">app_health_check</div>
+                  <div class="tl-detail">HTTP 200 on port 443 / port 3306</div>
+                  <div class="tl-time">Completed in 2:14</div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot tl-dot-green">&#10003;</div>
+                <div class="tl-content">
+                  <div class="tl-title">evidence_capture</div>
+                  <div class="tl-detail">Screenshot + 1.2MB log bundle collected</div>
+                  <div class="tl-time">Completed in 0:31</div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot tl-dot-green">&#10003;</div>
+                <div class="tl-content">
+                  <div class="tl-title">teardown</div>
+                  <div class="tl-detail">Recovery environment removed, network cleaned up</div>
+                  <div class="tl-time">Completed in 3:31</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">
+            <span class="card-title">Test Configuration</span>
+          </div>
+          <div class="card-body">
+            <table class="info-table">
+              <tr><td>Workload</td><td>dc-01.prod.local</td></tr>
+              <tr><td>Provider</td><td>VMware vSphere</td></tr>
+              <tr><td>Veeam Version</td><td>13.0.2 (API v1.2)</td></tr>
+              <tr><td>Restore Point</td><td>2024-06-16 23:00</td></tr>
+              <tr><td>RTO Target</td><td>15 minutes</td></tr>
+              <tr><td>Test Type</td><td>Full Validation</td></tr>
+              <tr><td>Isolated Network</td><td>r3vp-isolated-01</td></tr>
+              <tr><td>Appliance</td><td>appliance-dc-01</td></tr>
+              <tr><td>Triggered By</td><td>Scheduled (daily 09:00)</td></tr>
+              <tr><td>Session ID</td><td style="font-family:monospace">sess-8821ab</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
 
-<main class="main">
-  <div class="breadcrumb"><a href="#">Test Runs</a> &rsaquo; TR-20240617-044</div>
+      <!-- Evidence section -->
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-title">Evidence Captured</span>
+          <span class="badge badge-green">Verified</span>
+        </div>
+        <div class="card-body">
+          <div class="g2">
+            <div>
+              <div class="evidence-img">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:0.25">
+                  <rect x="3" y="9" width="34" height="25" rx="3" stroke="#475569" stroke-width="2"/>
+                  <circle cx="20" cy="21" r="7" stroke="#475569" stroke-width="2"/>
+                  <circle cx="20" cy="21" r="3" fill="#475569"/>
+                  <path d="M14 9L16 5h8l2 4" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
+                  <circle cx="32" cy="14" r="2" fill="#475569"/>
+                </svg>
+                <div style="font-size:11px;color:var(--text-3);text-align:center">Screenshot captured<br>1440x900 &middot; 09:14:22</div>
+              </div>
+            </div>
+            <div>
+              <div class="log-box">
+<span class="log-ts">[09:03:01]</span> <span class="log-info">Recovery session started: sess-8821ab</span>
+<span class="log-ts">[09:03:45]</span> VM booting, waiting for OS response...
+<span class="log-ts">[09:06:23]</span> <span class="log-ok">Ping OK from 10.99.0.45 (3m 22s)</span>
+<span class="log-ts">[09:08:37]</span> <span class="log-ok">HTTP 200 GET https://10.99.0.45/ (port 443)</span>
+<span class="log-ts">[09:08:38]</span> <span class="log-ok">DB connection OK on port 3306</span>
+<span class="log-ts">[09:09:09]</span> Evidence bundle captured (screenshot + logs)
+<span class="log-ts">[09:09:40]</span> <span class="log-info">Initiating teardown of sess-8821ab</span>
+<span class="log-ts">[09:14:22]</span> <span class="log-ok">Teardown complete. Test PASSED.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-  <div class="page-header">
-    <div class="page-title">
-      Test Run #TR-20240617-044
-      <span class="badge-pass">Passed</span>
-      <span class="chip-vmware">VMware vSphere</span>
     </div>
   </div>
-
-  <!-- Stat cards -->
-  <div class="stat-row">
-    <div class="stat-card">
-      <div class="stat-label">Duration</div>
-      <div class="stat-value">11m 23s</div>
-      <div class="stat-sub">Total wall time</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">RTO Target</div>
-      <div class="stat-value">15m</div>
-      <div class="stat-sub">SLA requirement</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Actual RTO</div>
-      <div class="stat-value" style="color:#00D448">11m</div>
-      <div class="stat-sub">4m under target</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Result</div>
-      <div class="stat-value" style="color:#00D448">Passed</div>
-      <div class="stat-sub">All checks green</div>
-    </div>
-  </div>
-
-  <div class="grid-2">
-    <!-- Timeline -->
-    <div class="card">
-      <div class="card-title">Workflow Timeline</div>
-      <div class="tl-item">
-        <div class="tl-dot">&#10003;</div>
-        <div class="tl-body">
-          <div class="tl-name">Sync inventory</div>
-          <div class="tl-detail">Completed</div>
-        </div>
-        <div class="tl-duration">0:12</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-dot">&#10003;</div>
-        <div class="tl-body">
-          <div class="tl-name">Select restore point</div>
-          <div class="tl-detail">Completed &nbsp;&#183;&nbsp; 2024-06-16 23:00 backup</div>
-        </div>
-        <div class="tl-duration">0:08</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-dot">&#10003;</div>
-        <div class="tl-body">
-          <div class="tl-name">Start instant recovery</div>
-          <div class="tl-detail">Completed &nbsp;&#183;&nbsp; Session ID: sess-8821ab</div>
-        </div>
-        <div class="tl-duration">1:45</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-dot">&#10003;</div>
-        <div class="tl-body">
-          <div class="tl-name">Boot validation</div>
-          <div class="tl-detail">Completed &nbsp;&#183;&nbsp; OS responded ping in 3m 22s</div>
-        </div>
-        <div class="tl-duration">3:22</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-dot">&#10003;</div>
-        <div class="tl-body">
-          <div class="tl-name">App health check</div>
-          <div class="tl-detail">Completed &nbsp;&#183;&nbsp; HTTP 200 on port 443</div>
-        </div>
-        <div class="tl-duration">2:14</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-dot">&#10003;</div>
-        <div class="tl-body">
-          <div class="tl-name">Evidence capture</div>
-          <div class="tl-detail">Completed &nbsp;&#183;&nbsp; Screenshot + logs collected</div>
-        </div>
-        <div class="tl-duration">0:31</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-dot">&#10003;</div>
-        <div class="tl-body">
-          <div class="tl-name">Teardown</div>
-          <div class="tl-detail">Completed &nbsp;&#183;&nbsp; Recovery environment removed</div>
-        </div>
-        <div class="tl-duration">3:31</div>
-      </div>
-    </div>
-
-    <!-- Evidence -->
-    <div class="card">
-      <div class="card-title">Evidence</div>
-      <div class="screenshot-placeholder">
-        <div class="screenshot-icon">&#128247;</div>
-        <div class="screenshot-label">Screenshot captured</div>
-      </div>
-      <div class="log-box">
-        <span class="ts">[11:28:01]</span> Recovery session started: <span class="ok">sess-8821ab</span><br>
-        <span class="ts">[11:28:45]</span> VM booted, waiting for OS...<br>
-        <span class="ts">[11:31:23]</span> Ping response received from <span class="ok">10.99.0.45</span><br>
-        <span class="ts">[11:31:24]</span> HTTP health check: GET https://10.99.0.45/ <span class="ok">-&gt; 200 OK</span><br>
-        <span class="ts">[11:31:55]</span> Evidence captured, initiating teardown
-      </div>
-    </div>
-  </div>
-</main>
-
+</div>
+<script>
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('open');
+}
+</script>
 </body>
 </html>

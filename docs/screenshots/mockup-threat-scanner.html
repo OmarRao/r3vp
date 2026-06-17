@@ -2,221 +2,302 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1280">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>R3VP - Threat Scanner</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0F1117; color: #E8EAF0; min-height: 100vh; display: flex; }
-
-.sidebar { width: 220px; background: #13151E; border-right: 1px solid #1E2130; display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; }
-.logo { padding: 22px 20px 18px; border-bottom: 1px solid #1E2130; }
-.logo-mark { font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
-.logo-mark span { color: #00D448; }
-.logo-sub { font-size: 9px; color: #00D448; text-transform: uppercase; letter-spacing: 2px; margin-top: 3px; }
-.nav { flex: 1; padding: 10px 0; }
-.nav-group { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #3A3F55; padding: 14px 20px 5px; }
-.nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 20px; font-size: 12px; color: #6B7280; cursor: pointer; border-left: 2px solid transparent; }
-.nav-item.active { color: #fff; border-left-color: #00D448; background: linear-gradient(90deg, rgba(0,212,72,0.12) 0%, transparent 100%); font-weight: 600; }
-.nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
-.nav-item.active .nav-dot { background: #00D448; box-shadow: 0 0 6px #00D448; }
-.sidebar-footer { padding: 14px 20px; border-top: 1px solid #1E2130; font-size: 10px; color: #3A3F55; line-height: 1.6; }
-.sidebar-footer a { color: #00D448; text-decoration: none; }
-.main { flex: 1; padding: 28px 32px; background: #0F1117; }
-
-.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.page-title { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
-
-.btn-primary { padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; background: #00D448; color: #0A0D14; }
-.btn-outline { padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; background: transparent; color: #6B7280; border: 1px solid #1E2130; }
-
-/* KPI cards */
-.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 14px; }
-.kpi-card { background: #13151E; border: 1px solid #1E2130; border-radius: 12px; padding: 16px 18px; position: relative; overflow: hidden; }
-.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-.kpi-card.red::before { background: linear-gradient(90deg, #EF4444, #DC2626); }
-.kpi-card.amber::before { background: linear-gradient(90deg, #F59E0B, #D97706); }
-.kpi-card.purple::before { background: linear-gradient(90deg, #8B5CF6, #6D28D9); }
-.kpi-card.blue::before { background: linear-gradient(90deg, #3B82F6, #1D4ED8); }
-.kpi-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #4B5268; margin-bottom: 8px; }
-.kpi-value { font-size: 28px; font-weight: 800; line-height: 1; letter-spacing: -0.5px; }
-.kpi-sub { font-size: 11px; color: #3A3F55; margin-top: 4px; }
-
-/* Scan info bar */
-.scan-bar { background: #13151E; border: 1px solid #1E2130; border-radius: 10px; padding: 10px 16px; margin-bottom: 16px; font-size: 11px; color: #4B5268; display: flex; align-items: center; gap: 6px; }
-.scan-bar strong { color: #6B7280; }
-
-/* Table */
-.table-wrap { background: #13151E; border: 1px solid #1E2130; border-radius: 14px; overflow: hidden; }
-.table-header { padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1E2130; }
-.table-title { font-size: 13px; font-weight: 700; color: #E8EAF0; }
-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-th { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #3A3F55; padding: 10px 20px; text-align: left; background: rgba(255,255,255,0.02); border-bottom: 1px solid #1E2130; }
-td { padding: 11px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #9CA3AF; vertical-align: middle; }
-tr:last-child td { border: none; }
-
-/* Severity badges */
-.sev { display: inline-block; padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; }
-.sev-high { background: rgba(249,115,22,0.18); color: #FB923C; }
-.sev-med { background: rgba(245,158,11,0.18); color: #FCD34D; }
-.sev-low { background: rgba(0,212,72,0.15); color: #00D448; }
-
-/* Status badges */
-.badge-investigating { padding: 3px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; background: rgba(59,130,246,0.15); color: #60A5FA; border: 1px solid rgba(59,130,246,0.25); }
-.badge-active { padding: 3px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; background: rgba(239,68,68,0.15); color: #F87171; border: 1px solid rgba(239,68,68,0.25); }
-.badge-resolved { padding: 3px 9px; border-radius: 99px; font-size: 10px; font-weight: 700; background: rgba(0,212,72,0.15); color: #00D448; border: 1px solid rgba(0,212,72,0.25); }
-
-/* Type tag */
-.type-tag { display: inline-block; padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: 700; background: rgba(107,114,128,0.18); color: #9CA3AF; }
-
-.host-cell { color: #E8EAF0; font-weight: 500; }
-.ioc-cell { font-family: 'Courier New', Courier, monospace; font-size: 11px; color: #6B7280; }
-.mitre-cell { font-size: 11px; color: #4B5268; }
+:root {
+  --bg:#F8FAFC;--surface:#FFFFFF;--border:#E2E8F0;--border-light:#F1F5F9;
+  --text-1:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --green:#00B336;--green-bg:#F0FDF4;--green-border:#BBF7D0;--green-text:#15803D;
+  --amber:#D97706;--amber-bg:#FFFBEB;--amber-border:#FDE68A;
+  --red:#DC2626;--red-bg:#FFF1F2;--red-border:#FECACA;
+  --blue:#2563EB;--blue-bg:#EFF6FF;--blue-border:#BFDBFE;
+  --purple:#7C3AED;--purple-bg:#F5F3FF;
+  --sidebar:#0F172A;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --radius:10px;--radius-sm:6px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.05);
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text-1);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;overflow-y:auto;z-index:100}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo-text{font-size:21px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.logo-text em{color:var(--green);font-style:normal}
+.logo-tag{font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
+.logo-ver{font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px}
+.nav{flex:1;padding:8px 0}
+.nav-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.25);padding:12px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 18px;font-size:12px;color:rgba(255,255,255,0.55);cursor:pointer;border-left:2px solid transparent;text-decoration:none}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;border-left-color:var(--green);background:rgba(0,179,54,0.12);font-weight:600}
+.sidebar-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,0.07);font-size:10px;color:rgba(255,255,255,0.25);line-height:1.7}
+.sidebar-footer a{color:var(--green);text-decoration:none}
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--sidebar);border:none;border-radius:7px;padding:8px;cursor:pointer;align-items:center;justify-content:center}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.topbar-left{display:flex;flex-direction:column;min-width:0}
+.page-title{font-size:16px;font-weight:700;color:var(--text-1)}
+.page-sub{font-size:11px;color:var(--text-3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 28px;background:var(--bg)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff}
+.btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.card-body{padding:16px 18px}
+.kpi-grid{display:grid;gap:12px;margin-bottom:20px}
+.kpi-4{grid-template-columns:repeat(4,1fr)}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3);margin-bottom:6px}
+.kpi-val{font-size:26px;font-weight:800;color:var(--text-1);line-height:1;letter-spacing:-0.5px}
+.kpi-sub{font-size:11px;color:var(--text-3);margin-top:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-green{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border)}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.badge-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.badge-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.badge-purple{background:var(--purple-bg);color:var(--purple);border:1px solid #DDD6FE}
+.badge-gray{background:#F1F5F9;color:#64748B;border:1px solid var(--border)}
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-3);padding:10px 16px;text-align:left;background:#FAFAFA;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 16px;border-bottom:1px solid var(--border-light);color:var(--text-2);font-size:12px;vertical-align:middle}
+tr:last-child td{border:none}
+tr:hover td{background:#FAFAFA}
+.td-name{color:var(--text-1);font-weight:500}
+.mb20{margin-bottom:20px}
+.sev-critical{background:#FFF1F2;color:#9F1239;border:1px solid #FECDD3;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px}
+.sev-high{background:#FFF7ED;color:#9A3412;border:1px solid #FED7AA;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px}
+.sev-medium{background:#FFFBEB;color:#92400E;border:1px solid #FDE68A;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px}
+.sev-low{background:#F0FDF4;color:#15803D;border:1px solid #BBF7D0;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px}
+.type-tag{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600}
+.type-ransomware{background:#FFF1F2;color:#DC2626}
+.type-apt{background:#F5F3FF;color:#7C3AED}
+.type-malware{background:#FFF7ED;color:#D97706}
+.type-cve{background:#EFF6FF;color:#2563EB}
+.scan-info-row{display:flex;align-items:center;gap:0;flex-wrap:wrap}
+.scan-info-item{padding:0 20px;border-right:1px solid var(--border)}
+.scan-info-item:first-child{padding-left:0}
+.scan-info-item:last-child{border:none}
+.scan-info-label{font-size:10px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:2px}
+.scan-info-val{font-size:12px;color:var(--text-1);font-weight:600}
+@media(max-width:768px){
+  .sidebar{position:fixed;left:-220px;top:0;bottom:0;transition:left 0.25s;z-index:100}
+  .sidebar.open{left:0}
+  .sidebar-overlay.open{display:block}
+  .hamburger{display:flex}
+  .main{width:100%}
+  .topbar{padding:0 16px 0 52px;height:52px}
+  .body{padding:14px 16px}
+  .kpi-4{grid-template-columns:repeat(2,1fr)}
+  .tbl-wrap{overflow-x:auto}
+}
 </style>
 </head>
 <body>
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">R<em>3</em>VP</div>
+      <div class="logo-tag">Recovery Validation</div>
+      <div class="logo-ver">v0.6.0</div>
+    </div>
+    <div class="nav">
+      <div class="nav-section">Resilience</div>
+      <a class="nav-item" href="#">Dashboard</a>
+      <a class="nav-item" href="#">Provider Coverage</a>
+      <a class="nav-item" href="#">Workloads</a>
+      <a class="nav-item" href="#">Test Runs</a>
+      <a class="nav-item" href="#">Reports</a>
+      <div class="nav-section">Threat Intel</div>
+      <a class="nav-item active" href="#">Threat Scanner</a>
+      <a class="nav-item" href="#">Incidents</a>
+      <div class="nav-section">Integrations</div>
+      <a class="nav-item" href="#">SOAR / SIEM</a>
+      <a class="nav-item" href="#">VeeamONE</a>
+      <div class="nav-section">Platform</div>
+      <a class="nav-item" href="#">Appliances</a>
+      <a class="nav-item" href="#">Settings</a>
+    </div>
+    <div class="sidebar-footer">Built by <a href="https://www.linkedin.com/in/omarrao/">Omar Rao</a><br>Engineer, Data Resilience &amp; Cybersecurity<br><a href="https://omarrao.substack.com/" style="color:rgba(255,255,255,0.2)">omarrao.substack.com</a></div>
+  </nav>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Threat Scanner</div>
+        <div class="page-sub">Last scan: Today 11:30 AM &middot; 4,847 signatures &middot; 12 YARA rules &middot; Status: Mostly clean</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost">View History</button>
+        <button class="btn btn-primary">Run Scan Now</button>
+      </div>
+    </div>
+    <div class="body">
+      <!-- KPI row -->
+      <div class="kpi-grid kpi-4">
+        <div class="kpi-card">
+          <div class="kpi-label">Critical</div>
+          <div class="kpi-val" style="color:var(--green-text)">0</div>
+          <div class="kpi-sub">No critical threats</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">High</div>
+          <div class="kpi-val" style="color:var(--amber)">2</div>
+          <div class="kpi-sub">2 under investigation</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Active</div>
+          <div class="kpi-val" style="color:var(--red)">2</div>
+          <div class="kpi-sub">Require action</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Findings</div>
+          <div class="kpi-val">7</div>
+          <div class="kpi-sub">Last 30 days</div>
+        </div>
+      </div>
 
-<nav class="sidebar">
-  <div class="logo">
-    <div class="logo-mark">R3<span>VP</span></div>
-    <div class="logo-sub">Recovery Validation</div>
-  </div>
-  <div class="nav">
-    <div class="nav-group">Resilience</div>
-    <div class="nav-item"><span class="nav-dot"></span> Dashboard</div>
-    <div class="nav-item"><span class="nav-dot"></span> Workloads</div>
-    <div class="nav-item"><span class="nav-dot"></span> Test Runs</div>
-    <div class="nav-group">Threat Intel</div>
-    <div class="nav-item active"><span class="nav-dot"></span> Threat Scanner</div>
-    <div class="nav-item"><span class="nav-dot"></span> Incidents</div>
-    <div class="nav-group">Integrations</div>
-    <div class="nav-item"><span class="nav-dot"></span> SOAR / SIEM</div>
-    <div class="nav-item"><span class="nav-dot"></span> VeeamONE</div>
-    <div class="nav-group">Platform</div>
-    <div class="nav-item"><span class="nav-dot"></span> Appliances</div>
-    <div class="nav-item"><span class="nav-dot"></span> Settings</div>
-  </div>
-  <div class="sidebar-footer">
-    Built by <a href="https://www.linkedin.com/in/omarrao/" target="_blank">Omar Rao</a><br>
-    Engineer - Data Resilience, Cybersecurity and Privacy
-  </div>
-</nav>
+      <!-- Scan info bar -->
+      <div class="card mb20">
+        <div class="card-body">
+          <div class="scan-info-row">
+            <div class="scan-info-item">
+              <div class="scan-info-label">Last Scan</div>
+              <div class="scan-info-val">Today 11:30 AM</div>
+            </div>
+            <div class="scan-info-item">
+              <div class="scan-info-label">Signatures</div>
+              <div class="scan-info-val">4,847</div>
+            </div>
+            <div class="scan-info-item">
+              <div class="scan-info-label">YARA Rules</div>
+              <div class="scan-info-val">12 active</div>
+            </div>
+            <div class="scan-info-item">
+              <div class="scan-info-label">Hosts Scanned</div>
+              <div class="scan-info-val">89</div>
+            </div>
+            <div class="scan-info-item">
+              <div class="scan-info-label">Environment</div>
+              <div class="scan-info-val"><span class="badge badge-green">Mostly Clean</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-<main class="main">
-  <div class="page-header">
-    <div>
-      <div class="page-title">Threat Scanner</div>
-    </div>
-    <div style="display:flex;gap:10px">
-      <button class="btn-outline">Export Findings</button>
-      <button class="btn-primary">Run Full Scan Now</button>
+      <!-- Findings table -->
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Severity</th>
+              <th>Threat Name</th>
+              <th>Type</th>
+              <th>Host</th>
+              <th>Indicator</th>
+              <th>MITRE</th>
+              <th>Detected</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="sev-critical">Critical</span></td>
+              <td class="td-name">WannaCry variant</td>
+              <td><span class="type-tag type-ransomware">ransomware</span></td>
+              <td>dc-02.lab.local</td>
+              <td style="font-family:monospace;font-size:11px">hash:4d9bce2a...</td>
+              <td><span class="badge badge-blue">T1486</span></td>
+              <td>Today 11:28</td>
+              <td><span class="badge badge-purple">Investigating</span></td>
+              <td><button class="btn btn-ghost btn-sm">Details</button></td>
+            </tr>
+            <tr>
+              <td><span class="sev-high">High</span></td>
+              <td class="td-name">Cobalt Strike beacon</td>
+              <td><span class="type-tag type-apt">APT</span></td>
+              <td>hyperv-app-01</td>
+              <td style="font-family:monospace;font-size:11px">process:svchost.exe</td>
+              <td><span class="badge badge-blue">T1055</span></td>
+              <td>Today 09:14</td>
+              <td><span class="badge badge-red">Active</span></td>
+              <td><button class="btn btn-ghost btn-sm">Details</button></td>
+            </tr>
+            <tr>
+              <td><span class="sev-high">High</span></td>
+              <td class="td-name">Mimikatz pattern</td>
+              <td><span class="type-tag type-malware">malware</span></td>
+              <td>proxmox-vm-03</td>
+              <td style="font-family:monospace;font-size:11px">file:lsass.dmp</td>
+              <td><span class="badge badge-blue">T1003</span></td>
+              <td>Yesterday</td>
+              <td><span class="badge badge-amber">Investigating</span></td>
+              <td><button class="btn btn-ghost btn-sm">Details</button></td>
+            </tr>
+            <tr>
+              <td><span class="sev-medium">Medium</span></td>
+              <td class="td-name">CVE-2024-1234</td>
+              <td><span class="type-tag type-cve">cve</span></td>
+              <td>sql-prod-02</td>
+              <td style="font-family:monospace;font-size:11px">port:445</td>
+              <td><span class="badge badge-blue">T1210</span></td>
+              <td>2 days ago</td>
+              <td><span class="badge badge-green">Resolved</span></td>
+              <td><button class="btn btn-ghost btn-sm">Details</button></td>
+            </tr>
+            <tr>
+              <td><span class="sev-medium">Medium</span></td>
+              <td class="td-name">Suspicious PowerShell</td>
+              <td><span class="type-tag type-malware">malware</span></td>
+              <td>azure-vm-prod-01</td>
+              <td style="font-family:monospace;font-size:11px">cmdline:bypass</td>
+              <td><span class="badge badge-blue">T1059</span></td>
+              <td>3 days ago</td>
+              <td><span class="badge badge-green">Resolved</span></td>
+              <td><button class="btn btn-ghost btn-sm">Details</button></td>
+            </tr>
+            <tr>
+              <td><span class="sev-low">Low</span></td>
+              <td class="td-name">Port scan detected</td>
+              <td><span class="type-tag type-malware">malware</span></td>
+              <td>dc-01.prod.local</td>
+              <td style="font-family:monospace;font-size:11px">network:syn-flood</td>
+              <td><span class="badge badge-blue">T1046</span></td>
+              <td>4 days ago</td>
+              <td><span class="badge badge-green">Resolved</span></td>
+              <td><button class="btn btn-ghost btn-sm">Details</button></td>
+            </tr>
+            <tr>
+              <td><span class="sev-low">Low</span></td>
+              <td class="td-name">Weak encryption</td>
+              <td><span class="type-tag type-cve">cve</span></td>
+              <td>gcp-instance-01</td>
+              <td style="font-family:monospace;font-size:11px">crypto:RC4</td>
+              <td><span class="badge badge-blue">T1573</span></td>
+              <td>5 days ago</td>
+              <td><span class="badge badge-green">Resolved</span></td>
+              <td><button class="btn btn-ghost btn-sm">Details</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-
-  <!-- KPI row -->
-  <div class="kpi-row">
-    <div class="kpi-card red">
-      <div class="kpi-label">Critical</div>
-      <div class="kpi-value" style="color:#F87171">0</div>
-      <div class="kpi-sub">No critical findings</div>
-    </div>
-    <div class="kpi-card amber">
-      <div class="kpi-label">High</div>
-      <div class="kpi-value" style="color:#FCD34D">2</div>
-      <div class="kpi-sub">Require attention</div>
-    </div>
-    <div class="kpi-card purple">
-      <div class="kpi-label">Active</div>
-      <div class="kpi-value" style="color:#A78BFA">2</div>
-      <div class="kpi-sub">Under investigation</div>
-    </div>
-    <div class="kpi-card blue">
-      <div class="kpi-label">Total Findings</div>
-      <div class="kpi-value" style="color:#60A5FA">7</div>
-      <div class="kpi-sub">All time</div>
-    </div>
-  </div>
-
-  <!-- Scan info bar -->
-  <div class="scan-bar">
-    <strong>Last scan:</strong> Today 11:30 AM
-    &nbsp;&#183;&nbsp; 4,847 signatures checked
-    &nbsp;&#183;&nbsp; 12 YARA rules
-    &nbsp;&#183;&nbsp; Environment: mostly clean
-  </div>
-
-  <!-- Findings table -->
-  <div class="table-wrap">
-    <div class="table-header">
-      <div class="table-title">Findings</div>
-    </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Severity</th>
-          <th>Threat</th>
-          <th>Type</th>
-          <th>Host</th>
-          <th>Indicator</th>
-          <th>MITRE</th>
-          <th>Detected</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><span class="sev sev-high">HIGH</span></td>
-          <td style="color:#E8EAF0;font-weight:600">WannaCry variant</td>
-          <td><span class="type-tag">ransomware</span></td>
-          <td class="host-cell">dc-02.lab.local</td>
-          <td class="ioc-cell">hash:4d9bce...</td>
-          <td class="mitre-cell">T1486</td>
-          <td style="color:#6B7280;font-size:11px">Today 11:28</td>
-          <td><span class="badge-investigating">investigating</span></td>
-        </tr>
-        <tr>
-          <td><span class="sev sev-high">HIGH</span></td>
-          <td style="color:#E8EAF0;font-weight:600">Cobalt Strike beacon</td>
-          <td><span class="type-tag">apt</span></td>
-          <td class="host-cell">hyperv-app-01</td>
-          <td class="ioc-cell">process:svchost.exe</td>
-          <td class="mitre-cell">T1055</td>
-          <td style="color:#6B7280;font-size:11px">Today 09:14</td>
-          <td><span class="badge-active">active</span></td>
-        </tr>
-        <tr>
-          <td><span class="sev sev-med">MEDIUM</span></td>
-          <td style="color:#E8EAF0;font-weight:600">Mimikatz pattern</td>
-          <td><span class="type-tag">malware</span></td>
-          <td class="host-cell">proxmox-vm-03</td>
-          <td class="ioc-cell">file:lsass.dmp</td>
-          <td class="mitre-cell">T1003</td>
-          <td style="color:#6B7280;font-size:11px">Yesterday</td>
-          <td><span class="badge-resolved">resolved</span></td>
-        </tr>
-        <tr>
-          <td><span class="sev sev-med">MEDIUM</span></td>
-          <td style="color:#E8EAF0;font-weight:600">CVE-2024-1234</td>
-          <td><span class="type-tag">cve</span></td>
-          <td class="host-cell">sql-prod-02</td>
-          <td class="ioc-cell">port:445</td>
-          <td class="mitre-cell">T1210</td>
-          <td style="color:#6B7280;font-size:11px">2 days ago</td>
-          <td><span class="badge-resolved">resolved</span></td>
-        </tr>
-        <tr>
-          <td><span class="sev sev-low">LOW</span></td>
-          <td style="color:#E8EAF0;font-weight:600">Suspicious PowerShell</td>
-          <td><span class="type-tag">malware</span></td>
-          <td class="host-cell">azure-vm-prod-01</td>
-          <td class="ioc-cell">cmdline:...</td>
-          <td class="mitre-cell">T1059</td>
-          <td style="color:#6B7280;font-size:11px">3 days ago</td>
-          <td><span class="badge-resolved">resolved</span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</main>
-
+</div>
+<script>
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('open');
+}
+</script>
 </body>
 </html>
