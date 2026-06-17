@@ -61,6 +61,44 @@ class ApplianceSettings(BaseSettings):
     # Hyper-V settings
     hyperv_host: str = "localhost"
 
+    # Proxmox
+    proxmox_host: str = ""
+    proxmox_user: str = "root@pam"
+    proxmox_password: SecretStr = SecretStr("")
+    proxmox_verify_ssl: bool = True
+    proxmox_node: str = "pve"
+
+    # Nutanix Prism Central
+    nutanix_prism_host: str = ""
+    nutanix_username: str = "admin"
+    nutanix_password: SecretStr = SecretStr("")
+    nutanix_verify_ssl: bool = False
+
+    # RHV / oVirt
+    rhv_url: str = ""
+    rhv_username: str = "admin@internal"
+    rhv_password: SecretStr = SecretStr("")
+    rhv_ca_file: str = ""
+
+    # XenServer / Citrix Hypervisor
+    xenserver_host: str = ""
+    xenserver_username: str = "root"
+    xenserver_password: SecretStr = SecretStr("")
+
+    # Sangfor HCI
+    sangfor_host: str = ""
+    sangfor_username: str = "admin"
+    sangfor_password: SecretStr = SecretStr("")
+    sangfor_verify_ssl: bool = False
+
+    # GCP
+    gcp_project_id: str = ""
+    gcp_zone: str = "us-central1-a"
+    gcp_backup_vault: str = ""
+    gcp_target_network: str = ""
+    gcp_target_subnetwork: str = ""
+    gcp_service_account_json: str = ""
+
     # Threat intelligence settings
     threat_db_path: str = "/opt/r3vp/data/threat.db"
     threat_scan_paths: str = "/tmp,/var/tmp"       # comma-separated

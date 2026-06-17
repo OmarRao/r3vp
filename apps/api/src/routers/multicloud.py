@@ -20,7 +20,18 @@ from src.models.test_run import TestRun
 
 router = APIRouter(prefix="/v1/multicloud", tags=["multicloud"])
 
-PROVIDERS = ["vmware", "hyperv", "azure", "aws"]
+PROVIDERS = [
+    "vmware",
+    "hyperv",
+    "azure",
+    "aws",
+    "proxmox",
+    "nutanix",
+    "rhv",
+    "xenserver",
+    "sangfor",
+    "gcp",
+]
 
 
 @router.get("/provider-summary")

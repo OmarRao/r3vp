@@ -279,9 +279,57 @@ async def detect_provider_vms(inp: SyncInventoryInput) -> list[dict]:
             for item in items
         ]
 
+    elif provider == "proxmox":
+        import asyncio
+        from src.connectors.proxmox.client import ProxmoxClient
+        client = ProxmoxClient()
+        if await asyncio.to_thread(client.connect):
+            vms = await asyncio.to_thread(client.list_vms)
+            return [{"name": v.name, "provider": "proxmox", "status": v.status} for v in vms]
+
+    elif provider == "nutanix":
+        from src.connectors.nutanix.client import NutanixClient
+        client = NutanixClient()
+        if await client.connect():
+            vms = await client.list_vms()
+            return [{"name": v.name, "provider": "nutanix", "status": v.power_state} for v in vms]
+
+    elif provider == "rhv":
+        import asyncio
+        from src.connectors.rhv.client import RHVClient
+        client = RHVClient()
+        if await asyncio.to_thread(client.connect):
+            vms = await asyncio.to_thread(client.list_vms)
+            return [{"name": v.name, "provider": "rhv", "status": v.status} for v in vms]
+
+    elif provider == "xenserver":
+        import asyncio
+        from src.connectors.xenserver.client import XenServerClient
+        client = XenServerClient()
+        if await asyncio.to_thread(client.connect):
+            vms = await asyncio.to_thread(client.list_vms)
+            return [{"name": v.name_label, "provider": "xenserver", "status": v.power_state} for v in vms]
+
+    elif provider == "sangfor":
+        from src.connectors.sangfor.client import SangforClient
+        client = SangforClient()
+        if await client.connect():
+            vms = await client.list_vms()
+            return [{"name": v.name, "provider": "sangfor", "status": v.status} for v in vms]
+
+    elif provider == "gcp":
+        import asyncio
+        from src.connectors.gcp_backup.client import GCPBackupClient
+        client = GCPBackupClient()
+        if await asyncio.to_thread(client.connect):
+            instances = await asyncio.to_thread(client.list_instances)
+            return [{"name": i.name, "provider": "gcp", "status": i.status} for i in instances]
+
     else:
         # Default: vmware -- existing behavior is handled by the existing sync_inventory activity
-        return []
+        pass
+
+    return []
 
 
 @activity.defn
