@@ -21,6 +21,10 @@ dependencies = [
     "azure-identity>=1.16",
     "azure-mgmt-recoveryservicesbackup>=9.0",
     "msal>=1.28",
+    "proxmoxer>=2.0",
+    "requests>=2.31",
+    "google-cloud-compute>=1.14",
+    "google-auth>=2.28",
 ]
 
 [project.optional-dependencies]

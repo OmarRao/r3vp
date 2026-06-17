@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1440">
+<title>R3VP Provider Coverage - Phase 6</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F4F6F8; color: #1A1A2E; }
+  .sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100vh; background: #1A1A2E; display: flex; flex-direction: column; }
+  .logo { padding: 24px 20px 16px; border-bottom: 1px solid #2a2a3e; }
+  .logo-text { font-size: 20px; font-weight: 700; color: #fff; }
+  .logo-sub { font-size: 10px; color: #00B336; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
+  .nav { flex: 1; padding: 12px 0; }
+  .nav-section { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #444; padding: 12px 20px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 9px 20px; font-size: 12px; color: #8888aa; cursor: pointer; border-left: 3px solid transparent; }
+  .nav-item.active { color: #fff; border-left-color: #00B336; background: rgba(0,179,54,0.08); }
+  .sidebar-footer { padding: 14px 20px; border-top: 1px solid #2a2a3e; font-size: 10px; color: #555; }
+  .sidebar-footer a { color: #00B336; text-decoration: none; }
+  .main { margin-left: 220px; padding: 24px 28px; }
+  .page-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .page-sub { font-size: 12px; color: #888; margin-bottom: 20px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { background: #fff; border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border-left: 4px solid; }
+  .card-vmware    { border-color: #3B82F6; }
+  .card-hyperv    { border-color: #8B5CF6; }
+  .card-azure     { border-color: #0EA5E9; }
+  .card-aws       { border-color: #F97316; }
+  .card-proxmox   { border-color: #F59E0B; }
+  .card-nutanix   { border-color: #991B1B; }
+  .card-rhv       { border-color: #DC2626; }
+  .card-xenserver { border-color: #0D9488; }
+  .card-sangfor   { border-color: #1D4ED8; }
+  .card-gcp       { border-color: #4285F4; }
+
+  .provider-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .icon-vmware    { background: #EFF6FF; color: #1D4ED8; }
+  .icon-hyperv    { background: #F5F3FF; color: #6D28D9; }
+  .icon-azure     { background: #E0F2FE; color: #0369A1; }
+  .icon-aws       { background: #FFF7ED; color: #C2410C; }
+  .icon-proxmox   { background: #FFFBEB; color: #B45309; }
+  .icon-nutanix   { background: #FEF2F2; color: #991B1B; }
+  .icon-rhv       { background: #FEF2F2; color: #DC2626; }
+  .icon-xenserver { background: #F0FDFA; color: #0D9488; }
+  .icon-sangfor   { background: #EFF6FF; color: #1D4ED8; }
+  .icon-gcp       { background: #EFF6FF; color: #4285F4; }
+
+  .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 10px 0; }
+  .stat-val { font-size: 20px; font-weight: 700; }
+  .stat-label { font-size: 10px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; }
+  .bar-bg { background: #F3F4F6; border-radius: 99px; height: 7px; flex: 1; }
+  .bar-fill { height: 7px; border-radius: 99px; }
+  .bar-green  { background: #00B336; }
+  .bar-amber  { background: #F59E0B; }
+  .bar-red    { background: #EF4444; }
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 10px; font-weight: 600; }
+  .badge-active { background: #dcfce7; color: #16a34a; }
+
+  .table-section { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-top: 16px; }
+  .table-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+  .vtable { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .vtable th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #aaa; padding: 6px 10px; background: #fafafa; border-bottom: 1px solid #f0f0f0; }
+  .vtable td { padding: 8px 10px; border-bottom: 1px solid #f5f5f5; }
+  .check { color: #00B336; font-weight: 700; }
+  .cross { color: #D1D5DB; }
+  .hl { background: #f0fff4; }
+</style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="logo"><div class="logo-text">R3VP</div><div class="logo-sub">Recovery Validation</div></div>
+  <div class="nav">
+    <div class="nav-section">Resilience</div>
+    <div class="nav-item active">&#9632; Provider Coverage</div>
+    <div class="nav-item">&#9632; Dashboard</div>
+    <div class="nav-item">&#9632; Workloads</div>
+    <div class="nav-item">&#9632; Test Runs</div>
+    <div class="nav-section">Threat Intel</div>
+    <div class="nav-item">&#9632; Threat Scanner</div>
+    <div class="nav-item">&#9632; Incidents</div>
+    <div class="nav-section">Integrations</div>
+    <div class="nav-item">&#9632; SOAR / SIEM</div>
+    <div class="nav-item">&#9632; VeeamONE</div>
+    <div class="nav-section">Platform</div>
+    <div class="nav-item">&#9632; Appliances</div>
+    <div class="nav-item">&#9632; Settings</div>
+  </div>
+  <div class="sidebar-footer">Built by <a href="https://www.linkedin.com/in/omarrao/">Omar Rao</a><br>Engineer, Data Resilience &amp; Cybersecurity</div>
+</nav>
+
+<main class="main">
+  <div class="page-title">Provider Coverage</div>
+  <div class="page-sub">10 providers configured &bull; 89 workloads &bull; 172 recovery tests</div>
+
+  <div class="grid">
+
+    <!-- VMware -->
+    <div class="card card-vmware">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="provider-icon icon-vmware">VM</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:700">VMware vSphere</div>
+            <span class="badge badge-active">Active</span>
+          </div>
+          <div style="font-size:10px;color:#888;margin-top:2px">Veeam B&amp;R 13.0.2 (API v1.2) + vCenter 8.0</div>
+          <div class="stat-row">
+            <div><div class="stat-val">34</div><div class="stat-label">Workloads</div></div>
+            <div><div class="stat-val">91</div><div class="stat-label">Test Runs</div></div>
+            <div><div class="stat-val">14m</div><div class="stat-label">Avg RTO</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+            <div class="bar-bg"><div class="bar-fill bar-green" style="width:88%"></div></div>
+            <span style="font-size:11px;font-weight:700;color:#00B336">88%</span>
+          </div>
+          <div style="font-size:10px;color:#aaa;margin-top:3px">Pass rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hyper-V -->
+    <div class="card card-hyperv">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="provider-icon icon-hyperv">HV</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:700">Microsoft Hyper-V</div>
+            <span class="badge badge-active">Active</span>
+          </div>
+          <div style="font-size:10px;color:#888;margin-top:2px">Windows Server 2022 + WMI connector</div>
+          <div class="stat-row">
+            <div><div class="stat-val">8</div><div class="stat-label">Workloads</div></div>
+            <div><div class="stat-val">21</div><div class="stat-label">Test Runs</div></div>
+            <div><div class="stat-val">19m</div><div class="stat-label">Avg RTO</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+            <div class="bar-bg"><div class="bar-fill bar-green" style="width:81%"></div></div>
+            <span style="font-size:11px;font-weight:700;color:#00B336">81%</span>
+          </div>
+          <div style="font-size:10px;color:#aaa;margin-top:3px">Pass rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Azure -->
+    <div class="card card-azure">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="provider-icon icon-azure">AZ</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:700">Azure Backup</div>
+            <span class="badge badge-active">Active</span>
+          </div>
+          <div style="font-size:10px;color:#888;margin-top:2px">Recovery Services Vault + Managed Identity</div>
+          <div class="stat-row">
+            <div><div class="stat-val">6</div><div class="stat-label">Workloads</div></div>
+            <div><div class="stat-val">11</div><div class="stat-label">Test Runs</div></div>
+            <div><div class="stat-val">22m</div><div class="stat-label">Avg RTO</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+            <div class="bar-bg"><div class="bar-fill bar-amber" style="width:73%"></div></div>
+            <span style="font-size:11px;font-weight:700;color:#F59E0B">73%</span>
+          </div>
+          <div style="font-size:10px;color:#aaa;margin-top:3px">Pass rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AWS -->
+    <div class="card card-aws">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="provider-icon icon-aws">AWS</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:700">AWS Backup</div>
+            <span class="badge badge-active">Active</span>
+          </div>
+          <div style="font-size:10px;color:#888;margin-top:2px">us-east-1 + IAM Instance Profile</div>
+          <div class="stat-row">
+            <div><div class="stat-val">4</div><div class="stat-label">Workloads</div></div>
+            <div><div class="stat-val">4</div><div class="stat-label">Test Runs</div></div>
+            <div><div class="stat-val">28m</div><div class="stat-label">Avg RTO</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+            <div class="bar-bg"><div class="bar-fill bar-green" style="width:75%"></div></div>
+            <span style="font-size:11px;font-weight:700;color:#00B336">75%</span>
+          </div>
+          <div style="font-size:10px;color:#aaa;margin-top:3px">Pass rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Proxmox -->
+    <div class="card card-proxmox">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="provider-icon icon-proxmox">PVE</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:700">Proxmox VE</div>
+            <span class="badge badge-active">Active</span>
+          </div>
+          <div style="font-size:10px;color:#888;margin-top:2px">proxmoxer REST API + PBS integration</div>
+          <div class="stat-row">
+            <div><div class="stat-val">12</div><div class="stat-label">Workloads</div></div>
+            <div><div class="stat-val">18</div><div class="stat-label">Test Runs</div></div>
+            <div><div class="stat-val">17m</div><div class="stat-label">Avg RTO</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+            <div class="bar-bg"><div class="bar-fill bar-green" style="width:83%"></div></div>
+            <span style="font-size:11px;font-weight:700;color:#00B336">83%</span>
+          </div>
+          <div style="font-size:10px;color:#aaa;margin-top:3px">Pass rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nutanix -->
+    <div class="card card-nutanix">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="provider-icon icon-nutanix">NTX</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:700">Nutanix AHV</div>
+            <span class="badge badge-active">Active</span>
+          </div>
+          <div style="font-size:10px;color:#888;margin-top:2px">Prism Central v3 REST API</div>
+          <div class="stat-row">
+            <div><div class="stat-val">7</div><div class="stat-label">Workloads</div></div>
+            <div><div class="stat-val">9</div><div class="stat-label">Test Runs</div></div>
+            <div><div class="stat-val">21m</div><div class="stat-label">Avg RTO</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+            <div class="bar-bg"><div class="bar-fill bar-amber" style="width:78%"></div></div>
+            <span style="font-size:11px;font-weight:700;color:#F59E0B">78%</span>
+          </div>
+          <div style="font-size:10px;color:#aaa;margin-top:3px">Pass rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RHV -->
+    <div class="card card-rhv">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="provider-icon icon-rhv">RHV</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:700">RHV / oVirt</div>
+            <span class="badge badge-active">Active</span>
+          </div>
+          <div style="font-size:10px;color:#888;margin-top:2px">oVirt Engine Python SDK 4.6</div>
+          <div class="stat-row">
+            <div><div class="stat-val">5</div><div class="stat-label">Workloads</div></div>
+            <div><div class="stat-val">6</div><div class="stat-label">Test Runs</div></div>
+            <div><div class="stat-val">24m</div><div class="stat-label">Avg RTO</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+            <div class="bar-bg"><div class="bar-fill bar-amber" style="width:67%"></div></div>
+            <span style="font-size:11px;font-weight:700;color:#F59E0B">67%</span>
+          </div>
+          <div style="font-size:10px;color:#aaa;margin-top:3px">Pass rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- XenServer -->
+    <div class="card card-xenserver">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="provider-icon icon-xenserver">XEN</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:700">XenServer / Citrix Hypervisor</div>
+            <span class="badge badge-active">Active</span>
+          </div>
+          <div style="font-size:10px;color:#888;margin-top:2px">XenAPI XML-RPC</div>
+          <div class="stat-row">
+            <div><div class="stat-val">3</div><div class="stat-label">Workloads</div></div>
+            <div><div class="stat-val">3</div><div class="stat-label">Test Runs</div></div>
+            <div><div class="stat-val">22m</div><div class="stat-label">Avg RTO</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+            <div class="bar-bg"><div class="bar-fill bar-amber" style="width:67%"></div></div>
+            <span style="font-size:11px;font-weight:700;color:#F59E0B">67%</span>
+          </div>
+          <div style="font-size:10px;color:#aaa;margin-top:3px">Pass rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sangfor -->
+    <div class="card card-sangfor">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="provider-icon icon-sangfor">SF</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:700">Sangfor HCI</div>
+            <span class="badge badge-active">Active</span>
+          </div>
+          <div style="font-size:10px;color:#888;margin-top:2px">Vendor REST API + token auth</div>
+          <div class="stat-row">
+            <div><div class="stat-val">4</div><div class="stat-label">Workloads</div></div>
+            <div><div class="stat-val">2</div><div class="stat-label">Test Runs</div></div>
+            <div><div class="stat-val">26m</div><div class="stat-label">Avg RTO</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+            <div class="bar-bg"><div class="bar-fill bar-red" style="width:50%"></div></div>
+            <span style="font-size:11px;font-weight:700;color:#EF4444">50%</span>
+          </div>
+          <div style="font-size:10px;color:#aaa;margin-top:3px">Pass rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GCP -->
+    <div class="card card-gcp">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="provider-icon icon-gcp">GCP</div>
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;font-weight:700">GCP Compute Engine</div>
+            <span class="badge badge-active">Active</span>
+          </div>
+          <div style="font-size:10px;color:#888;margin-top:2px">google-cloud-compute + Application Default Credentials</div>
+          <div class="stat-row">
+            <div><div class="stat-val">6</div><div class="stat-label">Workloads</div></div>
+            <div><div class="stat-val">7</div><div class="stat-label">Test Runs</div></div>
+            <div><div class="stat-val">31m</div><div class="stat-label">Avg RTO</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+            <div class="bar-bg"><div class="bar-fill bar-amber" style="width:71%"></div></div>
+            <span style="font-size:11px;font-weight:700;color:#F59E0B">71%</span>
+          </div>
+          <div style="font-size:10px;color:#aaa;margin-top:3px">Pass rate</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Veeam version table -->
+  <div class="table-section">
+    <div class="table-title">Veeam B&amp;R Version Support</div>
+    <table class="vtable">
+      <thead>
+        <tr><th>Version</th><th>API Version</th><th>Instant Recovery</th><th>Malware Events</th><th>Backup Repos</th><th>Job Control</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Veeam 10.x</td><td>v1.0</td><td><span class="cross">--</span></td><td><span class="cross">--</span></td><td><span class="cross">--</span></td><td><span class="cross">--</span></td></tr>
+        <tr><td>Veeam 11.x</td><td>v1.0</td><td><span class="check">Yes</span></td><td><span class="cross">--</span></td><td><span class="cross">--</span></td><td><span class="check">Yes</span></td></tr>
+        <tr><td>Veeam 12.x</td><td>v1.1</td><td><span class="check">Yes</span></td><td><span class="cross">--</span></td><td><span class="cross">--</span></td><td><span class="check">Yes</span></td></tr>
+        <tr class="hl"><td><strong>Veeam 13.0.2+</strong></td><td><strong>v1.2</strong></td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td><td><span class="check">Yes</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Extended hypervisor support matrix -->
+  <div class="table-section">
+    <div class="table-title">Extended Hypervisor Support Matrix (Phase 6)</div>
+    <table class="vtable">
+      <thead>
+        <tr><th>Platform</th><th>Connector</th><th>Snapshot Support</th><th>Isolated Recovery</th><th>Health Checks</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Proxmox VE 7 / 8</td><td>proxmoxer REST</td><td><span class="check">Yes</span></td><td>VLAN bridge</td><td><span class="check">Yes</span></td></tr>
+        <tr><td>Nutanix AHV</td><td>Prism Central v3</td><td>Recovery Points</td><td>Isolated network</td><td><span class="check">Yes</span></td></tr>
+        <tr><td>RHV / oVirt 4.5</td><td>oVirt SDK</td><td>Preview + Commit</td><td>Isolated vNIC</td><td><span class="check">Yes</span></td></tr>
+        <tr><td>XenServer 8 / Citrix Hypervisor 8.2</td><td>XenAPI XML-RPC</td><td>VM clone from snapshot</td><td>Isolated network</td><td><span class="check">Yes</span></td></tr>
+        <tr><td>Sangfor HCI</td><td>Vendor REST API</td><td><span class="check">Yes</span></td><td>Isolated vSwitch</td><td><span class="check">Yes</span></td></tr>
+        <tr><td>GCP Compute Engine</td><td>google-cloud-compute</td><td>Disk snapshots</td><td>Isolated VPC subnet</td><td><span class="check">Yes</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:20px;font-size:11px;color:#aaa;padding-bottom:20px">
+    Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy |
+    <a href="https://www.linkedin.com/in/omarrao/" style="color:#00B336;text-decoration:none">linkedin.com/in/omarrao</a>
+  </div>
+</main>
+</body>
+</html>

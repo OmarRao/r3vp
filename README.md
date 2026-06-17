@@ -7,7 +7,7 @@
 
 Most organizations assume their backups work. R3VP proves it.
 
-R3VP is an automated recovery validation platform that connects to your Veeam Backup and Replication environment and VMware vCenter, spins up isolated recovery tests on a schedule, measures real RTO and RPO numbers, and reports results to a cloud portal. Phase 5 extends coverage to VMware, Hyper-V, Azure, and AWS so every workload gets validated regardless of where it lives. No more manual DR drills. No more guessing whether you can actually recover within your SLA window.
+R3VP is an automated recovery validation platform that connects to your Veeam Backup and Replication environment and VMware vCenter, spins up isolated recovery tests on a schedule, measures real RTO and RPO numbers, and reports results to a cloud portal. Phase 5 extended coverage to VMware, Hyper-V, Azure, and AWS. Phase 6 adds Proxmox, Nutanix, RHV, XenServer, Sangfor, and Google Cloud, bringing total provider coverage to 10 platforms so every workload gets validated regardless of where it lives. No more manual DR drills. No more guessing whether you can actually recover within your SLA window.
 
 ---
 
@@ -50,6 +50,41 @@ R3VP supports four infrastructure providers:
 - **AWS Backup** (Phase 5): Vault and EC2 recovery point inventory. Test restores run to an isolated VPC subnet with no internet gateway.
 
 The provider is configured per appliance via the `R3VP_PROVIDER` environment variable. All four providers use the same Temporal workflow engine, the same health check module, and the same portal for results.
+
+### Extended Hypervisor and Cloud Coverage (Phase 6)
+
+Phase 6 adds six more connectors, bringing total coverage to 10 infrastructure providers.
+
+| Provider | Protocol | Status |
+|----------|----------|--------|
+| VMware vSphere + Veeam B&R | Veeam REST API v1.2 + pyVmomi | Active (Phase 1) |
+| Microsoft Hyper-V | WMI (pywin32) | Active (Phase 5) |
+| Azure Backup | azure-mgmt-recoveryservicesbackup + Managed Identity | Active (Phase 5) |
+| AWS Backup | boto3 + IAM Instance Profile | Active (Phase 5) |
+| Proxmox VE | proxmoxer REST API + PBS integration | Phase 6 |
+| Nutanix AHV | Prism Central v3 REST API | Phase 6 |
+| RHV / oVirt | oVirt Engine Python SDK | Phase 6 |
+| XenServer / Citrix Hypervisor | XenAPI XML-RPC | Phase 6 |
+| Sangfor HCI | Vendor REST API with token auth | Phase 6 |
+| GCP Compute Engine | google-cloud-compute + Application Default Credentials | Phase 6 |
+
+**New dependencies added in Phase 6:**
+
+```toml
+# apps/appliance/pyproject.toml (optional extras)
+proxmoxer>=2.0
+google-cloud-compute>=1.14
+google-auth>=2.28
+# ovirt-engine-sdk-python>=4.6 (Linux only, for RHV/oVirt)
+```
+
+**Providers page (Phase 6):**
+
+![Providers Phase 6](docs/screenshots/providers-p6.png)
+
+The providers page shows a 10-provider card grid with workload counts, test run history, average RTO, and pass rate bars for all configured platforms. An extended hypervisor support matrix below the Veeam version table covers snapshot capabilities and isolation method for each new platform.
+
+See [docs/phases/phase-6.md](docs/phases/phase-6.md) for full connector reference, auth requirements, environment variables, and database migration details.
 
 ### Veeam B&R Version Support
 

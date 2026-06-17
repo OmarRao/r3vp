@@ -24,10 +24,16 @@ export default function DashboardPage() {
   });
 
   const providerLabels: Record<string, string> = {
-    vmware: "VMware",
-    hyperv: "Hyper-V",
-    azure: "Azure",
-    aws: "AWS",
+    vmware:    "VMware",
+    hyperv:    "Hyper-V",
+    azure:     "Azure",
+    aws:       "AWS",
+    proxmox:   "Proxmox",
+    nutanix:   "Nutanix",
+    rhv:       "RHV",
+    xenserver: "XenServer",
+    sangfor:   "Sangfor",
+    gcp:       "GCP",
   };
 
   return (
@@ -83,7 +89,7 @@ export default function DashboardPage() {
             View breakdown &rarr;
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {providerSummary.map((p) => (
             <div key={p.provider} className="bg-gray-50 rounded-lg p-3 text-center">
               <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">

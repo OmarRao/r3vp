@@ -7,7 +7,26 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
-## [Unreleased] - Phase 5: Multi-Cloud and Hyper-V Support
+## [Unreleased] - Phase 6: Extended Hypervisors and Google Cloud
+
+### Added
+- Proxmox VE connector: proxmoxer REST API, PBS backup integration, snapshot create/restore
+- Nutanix AHV connector: Prism Central v3 REST API, recovery point management
+- RHV / oVirt connector: oVirt Engine Python SDK, snapshot preview and commit
+- XenServer / Citrix Hypervisor connector: XenAPI XML-RPC, VM clone from snapshot
+- Sangfor HCI connector: vendor REST API, token auth, snapshot restore
+- GCP Backup connector: google-cloud-compute, Application Default Credentials, instance restore from snapshot
+- Provider routing in Temporal activities extended from 4 to 10 providers
+- Workload model: provider_cluster field for cluster/pool/zone metadata
+- Alembic migration 0007 for provider_cluster column
+- Portal /dashboard/providers: 10-provider card grid, extended hypervisor support matrix
+- Portal dashboard: 10-provider coverage widget
+- R3VP_PROVIDER env var now accepts: vmware, hyperv, azure, aws, proxmox, nutanix, rhv, xenserver, sangfor, gcp
+- New pyproject.toml dependencies: proxmoxer>=2.0, google-cloud-compute>=1.14, google-auth>=2.28
+
+---
+
+## [0.5.0] - Phase 5 - 2026-06-17
 
 ### Added
 - Veeam B&R 13.0.2 support: API version v1.2 with auto-detection via serverInfo
