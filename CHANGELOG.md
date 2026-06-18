@@ -7,6 +7,21 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Phase 7: Compliance and Reporting
+
+### Added
+- Compliance PDF reports for SOC 2 Type II, ISO/IEC 27001:2022, NIST CSF 2.0, and cyber insurance
+- Framework control mapping: CC7.5/CC9.1/A1.3 (SOC 2), A.8.13/A.8.14/A.5.29/A.5.30 (ISO 27001), RC.RP-01/02/05 (NIST CSF)
+- SHA-256 signed PDF reports with digest stored in compliance_reports table and returned in X-SHA256 header
+- ComplianceReport model and Alembic migration 0008
+- Hash-chained audit trail in appliance (apps/appliance/src/audit/chain.py) using SHA-256 chain over SQLite
+- Audit chain verify endpoint to confirm tamper-evidence on demand
+- Report history endpoint listing all generated reports per org with summary metrics
+- Jinja2 HTML template for compliance PDF rendering via weasyprint
+- Portal /dashboard/reports page: framework selector, date range picker, generate button, history table, audit trail preview
+
+---
+
 ## [Unreleased] - Phase 6: Extended Hypervisors and Google Cloud
 
 ### Added
