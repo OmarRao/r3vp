@@ -82,6 +82,38 @@ google-auth>=2.28
 
 ![Providers Phase 6](docs/screenshots/providers-p6.png)
 
+The providers page shows a 10-provider tabbed interface
+
+### Compliance and Reporting (Phase 7)
+
+Phase 7 adds enterprise-grade compliance evidence generation. Every recovery test run produces audit data that maps to security control frameworks required by InfoSec teams, auditors, and cyber insurance underwriters.
+
+**Supported frameworks:**
+
+| Framework | Controls Covered |
+|---|---|
+| SOC 2 Type II | CC7.5 (Recovery Testing), CC9.1 (Risk Mitigation), A1.3 (Availability Recovery) |
+| ISO/IEC 27001:2022 | A.8.13 (Backup), A.8.14 (Redundancy), A.5.29 (Security During Disruption), A.5.30 (ICT Readiness) |
+| NIST CSF 2.0 | RC.RP-01 (Plan Execution), RC.RP-02 (Recovery Actions), RC.RP-05 (Backup Integrity) |
+| Cyber Insurance | Full evidence bundle: workload inventory, RTO measurements, pass/fail history |
+| Monthly Summary | All workloads, trend analysis, pass rate and RTO compliance over the period |
+
+**Hash-chained audit trail:**
+
+The appliance maintains a local SQLite audit log where each entry is chained to the previous using SHA-256. The chain formula is:
+
+```
+entry_hash = SHA-256(prev_hash + timestamp + event_type + json(payload))
+```
+
+Any modification, insertion, or deletion of a record breaks the chain and is detected by the `/audit/chain/verify` endpoint. The audit trail covers test run steps, health check results, evidence capture, and threat detections.
+
+**PDF reports:**
+
+Generated PDFs include a cryptographic signature block with a SHA-256 digest of the PDF bytes. The digest is stored in PostgreSQL and returned in the `X-SHA256` response header. Recipients can verify the report has not been altered since generation.
+
+![Compliance Reports](docs/screenshots/reports.png)
+
 The providers page shows a 10-provider card grid with workload counts, test run history, average RTO, and pass rate bars for all configured platforms. An extended hypervisor support matrix below the Veeam version table covers snapshot capabilities and isolation method for each new platform.
 
 See [docs/phases/phase-6.md](docs/phases/phase-6.md) for full connector reference, auth requirements, environment variables, and database migration details.
@@ -156,6 +188,12 @@ The threat scanner shows all findings from signature database cross-reference, Y
 ![Incidents](docs/screenshots/incidents.png)
 
 The incidents page tracks the full automated response workflow: threat detection to pre-incident backup to SOAR/SIEM dispatch to SecOps notification. Each active incident card shows a timestamped response timeline and integration dispatch status side by side.
+
+### Compliance Reports
+
+![Compliance Reports](docs/screenshots/reports.png)
+
+The reports page lets auditors generate signed PDF evidence for SOC 2 Type II, ISO 27001:2022, NIST CSF 2.0, cyber insurance, and monthly summaries. Reports are SHA-256 signed at generation time. The audit trail panel shows the hash-chained log with chain integrity status.
 
 ---
 

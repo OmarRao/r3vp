@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>R3VP Compliance Report</title>
+<style>
+  @page { size: A4; margin: 2cm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; font-size: 11pt; color: #1A1A2E; line-height: 1.5; }
+  .header { border-bottom: 3px solid #00B336; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .logo { font-size: 24pt; font-weight: 800; color: #0F172A; letter-spacing: -1px; }
+  .logo span { color: #00B336; }
+  .header-meta { text-align: right; font-size: 9pt; color: #64748B; }
+  h1 { font-size: 18pt; font-weight: 700; color: #0F172A; margin-bottom: 4pt; }
+  h2 { font-size: 13pt; font-weight: 700; color: #0F172A; margin: 20pt 0 8pt; border-bottom: 1px solid #E2E8F0; padding-bottom: 4pt; }
+  h3 { font-size: 11pt; font-weight: 600; color: #334155; margin-bottom: 6pt; }
+  .subtitle { font-size: 10pt; color: #64748B; margin-bottom: 20pt; }
+  .kpi-row { display: flex; gap: 12pt; margin-bottom: 20pt; }
+  .kpi { flex: 1; background: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 6pt; padding: 12pt; }
+  .kpi-label { font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5pt; color: #94A3B8; margin-bottom: 4pt; }
+  .kpi-value { font-size: 22pt; font-weight: 800; color: #0F172A; line-height: 1; }
+  .kpi-value.green { color: #15803D; }
+  .kpi-value.amber { color: #D97706; }
+  .kpi-value.red { color: #DC2626; }
+  .controls-table { width: 100%; border-collapse: collapse; margin-bottom: 16pt; }
+  .controls-table th { font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4pt; color: #64748B; padding: 7pt 10pt; background: #F1F5F9; border-bottom: 1pt solid #E2E8F0; text-align: left; }
+  .controls-table td { padding: 8pt 10pt; border-bottom: 1pt solid #F1F5F9; font-size: 10pt; vertical-align: top; }
+  .controls-table tr:last-child td { border: none; }
+  .pass { color: #15803D; font-weight: 700; }
+  .fail { color: #DC2626; font-weight: 700; }
+  .runs-table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  .runs-table th { font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3pt; color: #64748B; padding: 6pt 8pt; background: #F1F5F9; border-bottom: 1pt solid #E2E8F0; text-align: left; }
+  .runs-table td { padding: 6pt 8pt; border-bottom: 1pt solid #F8FAFC; }
+  .runs-table tr:last-child td { border: none; }
+  .badge-pass { background: #F0FDF4; color: #15803D; border: 0.5pt solid #BBF7D0; padding: 1pt 6pt; border-radius: 99pt; font-size: 8pt; font-weight: 700; }
+  .badge-fail { background: #FFF1F2; color: #DC2626; border: 0.5pt solid #FECACA; padding: 1pt 6pt; border-radius: 99pt; font-size: 8pt; font-weight: 700; }
+  .badge-warn { background: #FFFBEB; color: #D97706; border: 0.5pt solid #FDE68A; padding: 1pt 6pt; border-radius: 99pt; font-size: 8pt; font-weight: 700; }
+  .signature-block { margin-top: 24pt; padding: 14pt; background: #F8FAFC; border: 1pt solid #E2E8F0; border-radius: 6pt; }
+  .sig-title { font-size: 9pt; font-weight: 700; color: #475569; margin-bottom: 6pt; }
+  .sig-row { display: flex; gap: 20pt; font-size: 8pt; color: #64748B; }
+  .sig-item strong { color: #0F172A; display: block; font-size: 9pt; }
+  .footer { margin-top: 20pt; padding-top: 10pt; border-top: 1pt solid #E2E8F0; font-size: 8pt; color: #94A3B8; display: flex; justify-content: space-between; }
+  .section-note { font-size: 9pt; color: #64748B; margin-bottom: 10pt; line-height: 1.5; }
+  .framework-badge { display: inline-block; background: #EFF6FF; color: #1D4ED8; border: 0.5pt solid #BFDBFE; padding: 2pt 8pt; border-radius: 4pt; font-size: 9pt; font-weight: 700; margin-bottom: 8pt; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="logo">R<span>3</span>VP</div>
+    <div style="font-size:9pt;color:#64748B;margin-top:2pt">Recovery Validation Platform</div>
+  </div>
+  <div class="header-meta">
+    <div style="font-weight:700;color:#0F172A;font-size:11pt">Compliance Report</div>
+    <div>Generated: {{ generated_at }}</div>
+    <div>Period: {{ from_date }} to {{ to_date }}</div>
+    <div>Organization: {{ org_name }}</div>
+  </div>
+</div>
+
+<h1>
+  {% if report_type == "soc2" %}SOC 2 Type II - Recovery Validation Evidence
+  {% elif report_type == "iso27001" %}ISO/IEC 27001:2022 - Business Continuity Evidence
+  {% elif report_type == "nist_csf" %}NIST CSF 2.0 - Recover Function Evidence
+  {% elif report_type == "monthly_summary" %}Monthly Readiness Summary
+  {% endif %}
+</h1>
+<div class="subtitle">{{ org_name }} &middot; {{ from_date }} to {{ to_date }}</div>
+
+{% if report_type != "monthly_summary" %}
+<div class="framework-badge">
+  {% if report_type == "soc2" %}SOC 2 Type II - CC7.5, CC9.1, A1.3
+  {% elif report_type == "iso27001" %}ISO 27001:2022 - A.8.13, A.8.14, A.5.29, A.5.30
+  {% elif report_type == "nist_csf" %}NIST CSF 2.0 - RC.RP-01, RC.RP-02, RC.RP-05
+  {% endif %}
+</div>
+{% endif %}
+
+<h2>Executive Summary</h2>
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="kpi-label">Total Test Runs</div>
+    <div class="kpi-value">{{ total_runs }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Pass Rate</div>
+    <div class="kpi-value {% if pass_rate >= 90 %}green{% elif pass_rate >= 75 %}amber{% else %}red{% endif %}">{{ pass_rate }}%</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">RTO Compliance</div>
+    <div class="kpi-value {% if rto_compliance >= 90 %}green{% elif rto_compliance >= 75 %}amber{% else %}red{% endif %}">{{ rto_compliance }}%</div>
+  </div>
+  {% if controls %}
+  <div class="kpi">
+    <div class="kpi-label">Controls Passing</div>
+    <div class="kpi-value {% if controls_passing == controls|length %}green{% else %}amber{% endif %}">{{ controls_passing }}/{{ controls|length }}</div>
+  </div>
+  {% endif %}
+</div>
+
+{% if controls %}
+<h2>Compliance Control Assessment</h2>
+<div class="section-note">
+  Each control below maps directly to recovery validation test results collected during the reporting period.
+  Pass status is determined from measured RTO compliance and test pass rate thresholds.
+</div>
+<table class="controls-table">
+  <thead>
+    <tr><th>Control ID</th><th>Control Title</th><th>Assessment</th><th>Evidence</th></tr>
+  </thead>
+  <tbody>
+    {% for ctrl in controls %}
+    <tr>
+      <td style="font-weight:700;font-family:monospace">{{ ctrl.id }}</td>
+      <td>{{ ctrl.title }}</td>
+      <td>{% if ctrl.passing %}<span class="pass">PASS</span>{% else %}<span class="fail">FAIL</span>{% endif %}</td>
+      <td style="font-size:9pt;color:#64748B">{{ total_runs }} test runs, {{ pass_rate }}% pass rate, {{ rto_compliance }}% RTO compliance</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<h2>Recovery Test Results</h2>
+<table class="runs-table">
+  <thead>
+    <tr><th>Workload</th><th>Provider</th><th>Test Date</th><th>RTO Target</th><th>RTO Actual</th><th>RTO OK</th><th>Result</th></tr>
+  </thead>
+  <tbody>
+    {% for row in workload_rows %}
+    <tr>
+      <td style="font-weight:500">{{ row.workload_name }}</td>
+      <td>{{ row.provider }}</td>
+      <td>{{ row.test_date }}</td>
+      <td>{{ row.rto_target or '-' }}m</td>
+      <td>{{ row.rto_actual or '-' }}m</td>
+      <td>{% if row.rto_ok %}<span class="pass">Yes</span>{% else %}<span class="fail">No</span>{% endif %}</td>
+      <td>{% if row.status == 'passed' %}<span class="badge-pass">Passed</span>{% elif row.status == 'failed' %}<span class="badge-fail">Failed</span>{% else %}<span class="badge-warn">{{ row.status }}</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+    {% if not workload_rows %}
+    <tr><td colspan="7" style="text-align:center;color:#94A3B8;padding:16pt">No test runs found for this period</td></tr>
+    {% endif %}
+  </tbody>
+</table>
+
+<h2>Report Signature</h2>
+<div class="signature-block">
+  <div class="sig-title">Cryptographic Integrity</div>
+  <div class="sig-row">
+    <div class="sig-item"><strong>Generated By</strong>R3VP v0.7.0</div>
+    <div class="sig-item"><strong>Generated At</strong>{{ generated_at }}</div>
+    <div class="sig-item"><strong>Organization</strong>{{ org_name }}</div>
+    <div class="sig-item"><strong>Audit Trail</strong>Hash-chained, tamper-evident</div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>R3VP - Recovery Validation Platform &middot; Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy</span>
+  <span>https://omarrao.substack.com/</span>
+</div>
+
+</body>
+</html>
