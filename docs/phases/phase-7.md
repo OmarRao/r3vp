@@ -161,6 +161,119 @@ New page at `/dashboard/reports`:
 - Report history table with download and view actions
 - Audit trail preview with chain integrity status
 
+New page at `/dashboard/reports/schedule`:
+- List of active delivery schedules with cron expression, recipients, last/next run, enable/disable toggle
+- New Schedule form: name, framework, cadence (monthly/quarterly/weekly), coverage period, delivery channel and destination
+- Delivery log showing per-recipient delivery status
+
+Evidence vault view per org:
+- Bundle history with SHA-256, file count, size, and download action
+- Generate Bundle form with date range, framework, and include checkboxes
+- Bundle contents tree showing manifest.json, report PDF, audit_chain.json, workloads/<name>/ subdirectories
+
+---
+
+## Scheduled Report Delivery
+
+`ReportSchedule` model fields:
+
+| Field | Type | Description |
+|---|---|---|
+| id | UUID | Primary key |
+| org_id | UUID | Owning org |
+| name | VARCHAR(200) | Human label |
+| report_type | VARCHAR(50) | soc2, iso27001, nist_csf, monthly_summary, cyber_insurance |
+| cron | VARCHAR(100) | Standard 5-field cron expression |
+| period_days | INTEGER | How many days back the report covers |
+| recipients | JSONB | List of {type, destination} objects |
+| enabled | BOOLEAN | Pause/resume without deleting |
+| last_run_at | TIMESTAMPTZ | When delivery last ran |
+| next_run_at | TIMESTAMPTZ | Computed next fire time |
+
+**Temporal workflow:** `ReportScheduleWorkflow` in `apps/appliance/src/workflows/report_schedule_workflow.py`
+
+1. `fetch_schedule_config` activity: fetches schedule from API, computes from/to dates
+2. `generate_and_deliver_report` activity: POSTs to `/compliance/generate`, then calls `deliver_report()` for each recipient
+
+**Delivery channels:** email (SMTP), Slack (incoming webhook), Teams (MessageCard webhook). Configured via `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` environment variables.
+
+**Schedule API:**
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/v1/report-schedules` | List org schedules |
+| POST | `/api/v1/report-schedules` | Create schedule |
+| PATCH | `/api/v1/report-schedules/{id}/toggle` | Enable or disable |
+| DELETE | `/api/v1/report-schedules/{id}` | Delete |
+
+---
+
+## Evidence Vault
+
+Each bundle is a deflate-compressed ZIP containing:
+
+```
+r3vp-evidence-<framework>-<from>-<to>.zip
+├── manifest.json          SHA-256 of every file
+├── r3vp-<framework>-....pdf
+├── audit_chain.json       full hash chain export
+└── workloads/
+    ├── <workload-name>/
+    │   ├── summary.json   RTO target vs actual, provider, status
+    │   ├── steps.json     7-step workflow with durations
+    │   └── health_checks.json
+    └── ...
+```
+
+The entire ZIP is SHA-256 hashed after assembly. The digest is returned in the `X-SHA256` response header and stored in the `evidence_bundles` table. Recipients can verify the bundle has not been modified by recomputing the digest.
+
+**API:**
+
+```
+POST /api/v1/reports/evidence-bundle
+  ?from_date=2026-05-01
+  &to_date=2026-05-31
+  &framework=soc2
+```
+
+Response: `application/zip` with headers:
+- `Content-Disposition: attachment; filename="r3vp-evidence-soc2-2026-05-01-2026-05-31.zip"`
+- `X-SHA256: <hex>`
+- `X-File-Count: <n>`
+
+---
+
+## Database Migration 0009
+
+```sql
+CREATE TABLE report_schedules (
+    id            UUID PRIMARY KEY,
+    org_id        UUID NOT NULL,
+    name          VARCHAR(200) NOT NULL,
+    report_type   VARCHAR(50) NOT NULL,
+    cron          VARCHAR(100) NOT NULL,
+    period_days   INTEGER DEFAULT 30,
+    recipients    JSONB DEFAULT '[]',
+    enabled       BOOLEAN DEFAULT true,
+    last_run_at   TIMESTAMPTZ,
+    next_run_at   TIMESTAMPTZ,
+    created_at    TIMESTAMPTZ DEFAULT now(),
+    created_by    UUID REFERENCES users(id)
+);
+
+CREATE TABLE evidence_bundles (
+    id          UUID PRIMARY KEY,
+    org_id      UUID NOT NULL,
+    report_id   UUID REFERENCES compliance_reports(id),
+    from_date   VARCHAR(10) NOT NULL,
+    to_date     VARCHAR(10) NOT NULL,
+    created_at  TIMESTAMPTZ DEFAULT now(),
+    sha256      VARCHAR(64),
+    file_count  INTEGER DEFAULT 0,
+    size_bytes  INTEGER DEFAULT 0
+);
+```
+
 ---
 
 *Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy*
