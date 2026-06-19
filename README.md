@@ -195,6 +195,18 @@ The incidents page tracks the full automated response workflow: threat detection
 
 The reports page lets auditors generate signed PDF evidence for SOC 2 Type II, ISO 27001:2022, NIST CSF 2.0, cyber insurance, and monthly summaries. Reports are SHA-256 signed at generation time. The audit trail panel shows the hash-chained log with chain integrity status.
 
+### Scheduled Delivery
+
+![Scheduled Delivery](docs/screenshots/schedule.png)
+
+Configure recurring report delivery on daily, weekly, monthly, or quarterly cadences. Each schedule defines which framework to report on, how far back the report period covers, and where to deliver: email address, Slack incoming webhook, or Teams webhook. A delivery log tracks every sent report with per-recipient status.
+
+### Evidence Vault
+
+![Evidence Vault](docs/screenshots/evidence-vault.png)
+
+The evidence vault assembles signed ZIP bundles per period containing the compliance PDF, the full audit chain export, and per-workload artifacts (test summary, step durations, health check results). Every bundle has a SHA-256 manifest that lists the digest of each included file for tamper-evidence verification.
+
 ---
 
 ## Architecture

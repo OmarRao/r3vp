@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R3VP - Evidence Vault</title>
+<style>
+:root {
+  --bg:#F8FAFC;--surface:#FFFFFF;--border:#E2E8F0;--border-light:#F1F5F9;
+  --text-1:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --green:#00B336;--green-bg:#F0FDF4;--green-border:#BBF7D0;--green-text:#15803D;
+  --amber:#D97706;--amber-bg:#FFFBEB;--amber-border:#FDE68A;
+  --red:#DC2626;--red-bg:#FFF1F2;--red-border:#FECACA;
+  --blue:#2563EB;--blue-bg:#EFF6FF;--blue-border:#BFDBFE;
+  --purple:#7C3AED;--purple-bg:#F5F3FF;
+  --sidebar:#0F172A;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --radius:10px;--radius-sm:6px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.05);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text-1);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;overflow-y:auto;z-index:100}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo-text{font-size:21px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.logo-text em{color:var(--green);font-style:normal}
+.logo-tag{font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
+.logo-ver{font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px}
+.nav{flex:1;padding:8px 0}
+.nav-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.25);padding:12px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 18px;font-size:12px;color:rgba(255,255,255,0.55);cursor:pointer;border-left:2px solid transparent;text-decoration:none}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;border-left-color:var(--green);background:rgba(0,179,54,0.12);font-weight:600}
+.sidebar-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,0.07);font-size:10px;color:rgba(255,255,255,0.25);line-height:1.7}
+.sidebar-footer a{color:var(--green);text-decoration:none}
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--sidebar);border:none;border-radius:7px;padding:8px;cursor:pointer;align-items:center;justify-content:center}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.topbar-left{display:flex;flex-direction:column;min-width:0}
+.page-title{font-size:16px;font-weight:700;color:var(--text-1)}
+.page-sub{font-size:11px;color:var(--text-3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 28px;background:var(--bg)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff}
+.btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.card-title{font-size:12px;font-weight:700;color:var(--text-1)}
+.card-body{padding:16px 18px}
+.kpi-grid{display:grid;gap:12px;margin-bottom:20px}
+.kpi-4{grid-template-columns:repeat(4,1fr)}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3);margin-bottom:6px}
+.kpi-val{font-size:26px;font-weight:800;color:var(--text-1);line-height:1;letter-spacing:-0.5px}
+.kpi-sub{font-size:11px;color:var(--text-3);margin-top:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-green{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border)}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.badge-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.badge-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.badge-gray{background:#F1F5F9;color:#64748B;border:1px solid var(--border)}
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-3);padding:10px 16px;text-align:left;background:#FAFAFA;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 16px;border-bottom:1px solid var(--border-light);color:var(--text-2);font-size:12px;vertical-align:middle}
+tr:last-child td{border:none}
+tr:hover td{background:#FAFAFA}
+.mb20{margin-bottom:20px}
+.mb16{margin-bottom:16px}
+.val-green{color:var(--green-text);font-weight:700}
+.audit-hash{font-family:monospace;font-size:11px;color:var(--text-3)}
+@media(max-width:768px){
+  .sidebar{position:fixed;left:-220px;top:0;bottom:0;transition:left 0.25s;z-index:100}
+  .sidebar.open{left:0}
+  .sidebar-overlay.open{display:block}
+  .hamburger{display:flex}
+  .main{width:100%}
+  .topbar{padding:0 16px 0 52px;height:52px}
+  .body{padding:14px 16px}
+  .kpi-4{grid-template-columns:repeat(2,1fr)}
+  .tbl-wrap{overflow-x:auto}
+}
+</style>
+</head>
+<body>
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">R<em>3</em>VP</div>
+      <div class="logo-tag">Recovery Validation</div>
+      <div class="logo-ver">v0.7.0</div>
+    </div>
+    <div class="nav">
+      <div class="nav-section">Resilience</div>
+      <a class="nav-item" href="#">Dashboard</a>
+      <a class="nav-item" href="#">Provider Coverage</a>
+      <a class="nav-item" href="#">Workloads</a>
+      <a class="nav-item" href="#">Test Runs</a>
+      <a class="nav-item active" href="#">Reports</a>
+      <div class="nav-section">Threat Intel</div>
+      <a class="nav-item" href="#">Threat Scanner</a>
+      <a class="nav-item" href="#">Incidents</a>
+      <div class="nav-section">Integrations</div>
+      <a class="nav-item" href="#">SOAR / SIEM</a>
+      <a class="nav-item" href="#">VeeamONE</a>
+      <div class="nav-section">Platform</div>
+      <a class="nav-item" href="#">Appliances</a>
+      <a class="nav-item" href="#">Settings</a>
+    </div>
+    <div class="sidebar-footer">Built by <a href="https://www.linkedin.com/in/omarrao/">Omar Rao</a><br>Engineer, Data Resilience &amp; Cybersecurity<br><a href="https://omarrao.substack.com/" style="color:rgba(255,255,255,0.2)">omarrao.substack.com</a></div>
+  </nav>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Evidence Vault</div>
+        <div class="page-sub">Signed ZIP bundles with PDF, audit chain, and per-workload artifacts</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost">Verify Bundle</button>
+        <button class="btn btn-primary">Generate Bundle</button>
+      </div>
+    </div>
+    <div class="body">
+
+      <!-- KPI row -->
+      <div class="kpi-grid kpi-4">
+        <div class="kpi-card">
+          <div class="kpi-label">Bundles Created</div>
+          <div class="kpi-val">18</div>
+          <div class="kpi-sub">Last 90 days</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Artifacts</div>
+          <div class="kpi-val">847</div>
+          <div class="kpi-sub">Across all bundles</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg Bundle Size</div>
+          <div class="kpi-val">2.4 MB</div>
+          <div class="kpi-sub">Per bundle</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Chain Verified</div>
+          <div class="kpi-val" style="color:var(--green-text)">100%</div>
+          <div class="kpi-sub">All bundles intact</div>
+        </div>
+      </div>
+
+      <!-- Generate section -->
+      <div class="card mb20">
+        <div class="card-hd">
+          <span class="card-title">Generate Evidence Bundle</span>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:14px;align-items:end;margin-bottom:14px">
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--text-2);display:block;margin-bottom:4px">From</label>
+              <input type="date" value="2026-05-01" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;font-size:12px;color:var(--text-1);outline:none;font-family:var(--font);width:100%">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--text-2);display:block;margin-bottom:4px">To</label>
+              <input type="date" value="2026-05-31" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;font-size:12px;color:var(--text-1);outline:none;font-family:var(--font);width:100%">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--text-2);display:block;margin-bottom:4px">Framework</label>
+              <select style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;font-size:12px;color:var(--text-1);outline:none;font-family:var(--font);background:var(--surface)">
+                <option>General Evidence</option>
+                <option>SOC 2</option>
+                <option>ISO 27001</option>
+                <option>NIST CSF</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:20px;margin-bottom:14px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer">
+              <input type="checkbox" checked style="accent-color:var(--green)"> Compliance PDF
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer">
+              <input type="checkbox" checked style="accent-color:var(--green)"> Audit Chain
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer">
+              <input type="checkbox" checked style="accent-color:var(--green)"> Health Check Logs
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer">
+              <input type="checkbox" checked style="accent-color:var(--green)"> Test Run Steps
+            </label>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <button class="btn btn-primary">Generate Bundle</button>
+            <span style="font-size:11px;color:var(--text-3)">Bundle will be SHA-256 signed. Manifest lists every included file with its individual digest.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bundle History table -->
+      <div class="tbl-wrap mb20">
+        <div class="card-hd">
+          <span class="card-title">Bundle History</span>
+          <span style="font-size:11px;color:var(--text-3)">5 bundles</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Bundle ID</th>
+              <th>Period</th>
+              <th>Framework</th>
+              <th>Files</th>
+              <th>Size</th>
+              <th>SHA-256</th>
+              <th>Generated</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:700;color:var(--text-1);font-family:monospace;font-size:11px">EVB-001</td>
+              <td>May 2026</td>
+              <td><span class="badge badge-blue">SOC 2</span></td>
+              <td>34 files</td>
+              <td>3.1 MB</td>
+              <td class="audit-hash">3f8a2b...</td>
+              <td>Jun 1</td>
+              <td style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">Download</button><button class="btn btn-ghost btn-sm">Verify</button></td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-1);font-family:monospace;font-size:11px">EVB-002</td>
+              <td>May 2026</td>
+              <td><span class="badge badge-blue">ISO 27001</span></td>
+              <td>34 files</td>
+              <td>3.1 MB</td>
+              <td class="audit-hash">1e7c9d...</td>
+              <td>Jun 1</td>
+              <td style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">Download</button><button class="btn btn-ghost btn-sm">Verify</button></td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-1);font-family:monospace;font-size:11px">EVB-003</td>
+              <td>Apr 2026</td>
+              <td><span class="badge badge-gray">General</span></td>
+              <td>28 files</td>
+              <td>2.4 MB</td>
+              <td class="audit-hash">9a2f1c...</td>
+              <td>May 1</td>
+              <td style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">Download</button><button class="btn btn-ghost btn-sm">Verify</button></td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-1);font-family:monospace;font-size:11px">EVB-004</td>
+              <td>Apr 2026</td>
+              <td><span class="badge badge-blue">NIST CSF</span></td>
+              <td>28 files</td>
+              <td>2.4 MB</td>
+              <td class="audit-hash">7b3d8e...</td>
+              <td>May 1</td>
+              <td style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">Download</button><button class="btn btn-ghost btn-sm">Verify</button></td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-1);font-family:monospace;font-size:11px">EVB-005</td>
+              <td>Mar 2026</td>
+              <td><span class="badge badge-gray">General</span></td>
+              <td>21 files</td>
+              <td>1.8 MB</td>
+              <td class="audit-hash">4f9a2c...</td>
+              <td>Apr 1</td>
+              <td style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">Download</button><button class="btn btn-ghost btn-sm">Verify</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bundle structure card -->
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-title">Bundle Contents Structure</span>
+        </div>
+        <div class="card-body">
+          <pre style="background:#F8FAFC;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-size:11px;font-family:monospace;color:var(--text-2);line-height:1.7;overflow-x:auto;white-space:pre">r3vp-evidence-soc2-2026-05-01-2026-05-31.zip
+&#9500;&#9472;&#9472; manifest.json          (SHA-256 of every file inside)
+&#9500;&#9472;&#9472; r3vp-soc2-....pdf      (signed compliance PDF)
+&#9500;&#9472;&#9472; audit_chain.json       (full hash-chained audit log export)
+&#9492;&#9472;&#9472; workloads/
+    &#9500;&#9472;&#9472; dc-01.prod.local/
+    &#9474;   &#9500;&#9472;&#9472; summary.json   (test metadata, RTO target vs actual)
+    &#9474;   &#9500;&#9472;&#9472; steps.json     (7-step workflow with durations)
+    &#9474;   &#9492;&#9472;&#9472; health_checks.json
+    &#9500;&#9472;&#9472; sql-prod-02/
+    &#9474;   &#9492;&#9472;&#9472; ...
+    &#9492;&#9472;&#9472; [one folder per workload tested in the period]</pre>
+          <p style="font-size:11px;color:var(--text-3);margin-top:12px">The manifest.json file contains the SHA-256 digest of every file in the bundle. Verify integrity by recomputing each digest and comparing to the manifest.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('open');
+}
+</script>
+</body>
+</html>

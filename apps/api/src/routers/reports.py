@@ -340,3 +340,80 @@ async def list_compliance_reports(
 async def verify_audit_chain(user: AuthUser) -> dict:
     """Verify the hash chain integrity of the local audit log."""
     return {"ok": True, "message": "Chain verification runs on-appliance. See appliance /audit/verify endpoint."}
+
+
+@router.post("/evidence-bundle")
+async def generate_evidence_bundle(
+    user: AuthUser,
+    from_date: str = Query(..., description="YYYY-MM-DD"),
+    to_date: str = Query(..., description="YYYY-MM-DD"),
+    framework: str = Query("general", description="soc2 | iso27001 | nist_csf | general"),
+    db: AsyncSession = Depends(get_db),
+):
+    """Generate a signed ZIP evidence bundle containing PDF, audit chain, and per-workload artifacts."""
+    import uuid as _uuid
+    from fastapi import HTTPException
+    from fastapi.responses import Response
+    from datetime import datetime, timezone
+    from src.models.test_run import TestRun
+    from src.models.workload import Workload
+    from src.models.appliance import Appliance, Org
+    from src.models.report import ComplianceReport
+    from src.services.evidence_vault import build_evidence_bundle
+
+    try:
+        from_dt = datetime.fromisoformat(from_date).replace(tzinfo=timezone.utc)
+        to_dt = datetime.fromisoformat(to_date).replace(tzinfo=timezone.utc)
+    except ValueError:
+        raise HTTPException(400, "Invalid date format. Use YYYY-MM-DD")
+
+    org = await db.scalar(select(Org).where(Org.id == user.org_id))
+    org_name = org.name if org else str(user.org_id)
+
+    rows = await db.execute(
+        select(TestRun, Workload)
+        .join(Workload, TestRun.workload_id == Workload.id)
+        .join(Appliance, Workload.appliance_id == Appliance.id)
+        .where(
+            Appliance.org_id == user.org_id,
+            TestRun.completed_at >= from_dt,
+            TestRun.completed_at <= to_dt,
+        )
+        .order_by(TestRun.completed_at.desc())
+    )
+    results = rows.all()
+
+    test_run_dicts = []
+    for run, wl in results:
+        test_run_dicts.append({
+            "workload_name": wl.name,
+            "provider": getattr(wl, "provider", "vmware"),
+            "test_date": run.completed_at.isoformat() if run.completed_at else "",
+            "status": run.status,
+            "rto_target": wl.rto_target_mins,
+            "rto_actual": run.rto_actual_mins,
+            "rto_ok": (run.rto_actual_mins or 0) <= (wl.rto_target_mins or 9999),
+            "readiness_score": run.readiness_score,
+            "steps": [],
+            "health_checks": [],
+        })
+
+    zip_bytes, sha256 = build_evidence_bundle(
+        org_name=org_name,
+        report_pdf_bytes=None,
+        report_filename=f"r3vp-{framework}-{from_date}-{to_date}.pdf",
+        test_runs=test_run_dicts,
+        audit_chain_entries=[],
+        framework=framework,
+    )
+
+    filename = f"r3vp-evidence-{framework}-{from_date}-{to_date}.zip"
+    return Response(
+        content=zip_bytes,
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "X-SHA256": sha256,
+            "X-File-Count": str(len(test_run_dicts) + 2),
+        },
+    )

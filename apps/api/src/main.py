@@ -5,7 +5,7 @@ import structlog
 from temporalio.client import Client, TLSConfig
 
 from src.config import settings
-from src.routers import appliances, workloads, test_runs, readiness, evidence, audit, notifications, users, portal_appliances, reports
+from src.routers import appliances, workloads, test_runs, readiness, evidence, audit, notifications, users, portal_appliances, reports, report_schedules
 from src.routers.threat_intel import router as threat_intel_router
 from src.routers.multicloud import router as multicloud_router
 
@@ -83,6 +83,7 @@ app.include_router(notifications.router, prefix="/v1/notifications", tags=["Noti
 app.include_router(users.router, prefix="/v1/users", tags=["Users"])
 app.include_router(portal_appliances.router, prefix="/v1/portal/appliances", tags=["Portal Appliances"])
 app.include_router(reports.router, prefix="/v1/reports", tags=["Reports"])
+app.include_router(report_schedules.router, prefix="/v1/report-schedules", tags=["report-schedules"])
 app.include_router(threat_intel_router)
 app.include_router(multicloud_router)
 

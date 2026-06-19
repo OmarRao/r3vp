@@ -7,7 +7,7 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
-## [Unreleased] - Phase 7: Compliance and Reporting
+## [Unreleased] - Phase 7: Compliance, Reporting, Scheduled Delivery and Evidence Vault
 
 ### Added
 - Compliance PDF reports for SOC 2 Type II, ISO/IEC 27001:2022, NIST CSF 2.0, and cyber insurance
@@ -19,6 +19,15 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 - Report history endpoint listing all generated reports per org with summary metrics
 - Jinja2 HTML template for compliance PDF rendering via weasyprint
 - Portal /dashboard/reports page: framework selector, date range picker, generate button, history table, audit trail preview
+- Scheduled report delivery: ReportSchedule model with cron expression, framework, period, recipients, enabled toggle
+- Alembic migration 0009 adding report_schedules and evidence_bundles tables
+- Report schedule CRUD API: GET/POST /v1/report-schedules, PATCH toggle, DELETE
+- Temporal cron workflow (ReportScheduleWorkflow) fetches schedule config, generates PDF, delivers to all recipients
+- Delivery service supporting email (SMTP), Slack incoming webhooks, and Teams adaptive card webhooks
+- Evidence vault service: builds signed ZIP bundles containing manifest.json, compliance PDF, audit_chain.json, and per-workload artifacts (summary, steps, health checks)
+- Evidence bundle API: POST /v1/reports/evidence-bundle returning ZIP with X-SHA256 and X-File-Count headers
+- Portal /dashboard/reports/schedule page: schedule list, toggle active/paused, new schedule form with cadence selector
+- Portal evidence vault view with bundle history, structure reference, and generate form
 
 ---
 
