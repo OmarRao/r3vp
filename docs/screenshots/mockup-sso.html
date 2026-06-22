@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R3VP - Single Sign-On</title>
+<style>
+:root {
+  --bg:#F8FAFC;--surface:#FFFFFF;--border:#E2E8F0;--border-light:#F1F5F9;
+  --text-1:#0F172A;--text-2:#475569;--text-3:#94A3B8;
+  --green:#00B336;--green-bg:#F0FDF4;--green-border:#BBF7D0;--green-text:#15803D;
+  --amber:#D97706;--amber-bg:#FFFBEB;--amber-border:#FDE68A;
+  --red:#DC2626;--red-bg:#FFF1F2;--red-border:#FECACA;
+  --blue:#2563EB;--blue-bg:#EFF6FF;--blue-border:#BFDBFE;
+  --sidebar:#0F172A;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --radius:10px;--radius-sm:6px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.05);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text-1);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;overflow-y:auto;z-index:100}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo-text{font-size:21px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.logo-text em{color:var(--green);font-style:normal}
+.logo-tag{font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
+.logo-ver{font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px}
+.nav{flex:1;padding:8px 0}
+.nav-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.25);padding:12px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 18px;font-size:12px;color:rgba(255,255,255,0.55);cursor:pointer;border-left:2px solid transparent;text-decoration:none}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;border-left-color:var(--green);background:rgba(0,179,54,0.12);font-weight:600}
+.sidebar-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,0.07);font-size:10px;color:rgba(255,255,255,0.25);line-height:1.7}
+.sidebar-footer a{color:var(--green);text-decoration:none}
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--sidebar);border:none;border-radius:7px;padding:8px;cursor:pointer;align-items:center;justify-content:center}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.topbar-left{display:flex;flex-direction:column;min-width:0}
+.page-title{font-size:16px;font-weight:700;color:var(--text-1)}
+.page-sub{font-size:11px;color:var(--text-3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 28px;background:var(--bg)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff}
+.btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.card-title{font-size:12px;font-weight:700;color:var(--text-1)}
+.card-body{padding:16px 18px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-green{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border)}
+.badge-gray{background:#F1F5F9;color:#64748B;border:1px solid var(--border)}
+.mb20{margin-bottom:20px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;font-weight:600;color:var(--text-2);display:block;margin-bottom:5px}
+.form-input,.form-select,.form-textarea{width:100%;border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;font-size:12px;color:var(--text-1);outline:none;font-family:var(--font);background:var(--surface)}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--green)}
+.form-textarea{font-family:monospace;resize:vertical}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.provider-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.provider-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:border-color 0.15s}
+.provider-card:hover{border-color:var(--green)}
+.provider-card.active{border-color:var(--green);background:var(--green-bg)}
+.provider-name{font-size:12px;font-weight:700;color:var(--text-1);margin-bottom:3px}
+.provider-desc{font-size:10px;color:var(--text-3)}
+.provider-sm-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.provider-sm{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;cursor:pointer;transition:border-color 0.15s}
+.provider-sm:hover{border-color:var(--green)}
+.provider-sm-name{font-size:11px;font-weight:600;color:var(--text-2)}
+.attr-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;font-size:12px}
+.attr-label{width:130px;color:var(--text-3);font-size:11px;flex-shrink:0}
+.attr-val{font-family:monospace;background:#F1F5F9;padding:3px 8px;border-radius:4px;font-size:11px;color:var(--text-1)}
+.meta-box{background:#F8FAFC;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-family:monospace;font-size:11px;color:var(--text-2);line-height:2}
+.meta-key{color:var(--text-3);display:inline-block;min-width:140px}
+.status-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--green);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.status-info{display:flex;align-items:center;gap:12px}
+.status-label{font-size:12px;font-weight:600;color:var(--text-1)}
+.status-provider{font-size:11px;color:var(--text-3);margin-top:2px}
+@media(max-width:768px){
+  .sidebar{position:fixed;left:-220px;top:0;bottom:0;transition:left 0.25s;z-index:100}
+  .sidebar.open{left:0}
+  .sidebar-overlay.open{display:block}
+  .hamburger{display:flex}
+  .main{width:100%}
+  .topbar{padding:0 16px 0 52px;height:52px}
+  .body{padding:14px 16px}
+  .provider-row{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">R<em>3</em>VP</div>
+      <div class="logo-tag">Recovery Validation</div>
+      <div class="logo-ver">v0.7.0</div>
+    </div>
+    <div class="nav">
+      <div class="nav-section">Resilience</div>
+      <a class="nav-item" href="#">Dashboard</a>
+      <a class="nav-item" href="#">Provider Coverage</a>
+      <a class="nav-item" href="#">Workloads</a>
+      <a class="nav-item" href="#">Test Runs</a>
+      <a class="nav-item" href="#">Reports</a>
+      <div class="nav-section">Threat Intel</div>
+      <a class="nav-item" href="#">Threat Scanner</a>
+      <a class="nav-item" href="#">Incidents</a>
+      <div class="nav-section">Integrations</div>
+      <a class="nav-item" href="#">SOAR / SIEM</a>
+      <a class="nav-item" href="#">VeeamONE</a>
+      <div class="nav-section">Platform</div>
+      <a class="nav-item" href="#">Appliances</a>
+      <a class="nav-item active" href="#">Settings</a>
+    </div>
+    <div class="sidebar-footer">Built by <a href="https://www.linkedin.com/in/omarrao/">Omar Rao</a><br>Engineer, Data Resilience &amp; Cybersecurity<br><a href="https://omarrao.substack.com/" style="color:rgba(255,255,255,0.2)">omarrao.substack.com</a></div>
+  </nav>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Single Sign-On</div>
+        <div class="page-sub">Configure SAML 2.0 SSO for your organization</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost">Documentation</button>
+      </div>
+    </div>
+    <div class="body">
+
+      <!-- Status card -->
+      <div class="status-card">
+        <div class="status-info">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
+              <span class="status-label">SSO Active</span>
+              <span class="badge badge-green">Active</span>
+            </div>
+            <div class="status-provider">Provider: Okta &nbsp;&middot;&nbsp; Last login via SSO: Today 09:14</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost">Disable SSO</button>
+      </div>
+
+      <!-- Provider cards -->
+      <div class="provider-row">
+        <div class="provider-card active">
+          <div class="provider-name">Okta</div>
+          <div class="provider-desc">Configure via SAML 2.0 metadata URL</div>
+        </div>
+        <div class="provider-card">
+          <div class="provider-name">Azure AD</div>
+          <div class="provider-desc">Integrate with Microsoft Entra ID</div>
+        </div>
+        <div class="provider-card">
+          <div class="provider-name">Generic SAML</div>
+          <div class="provider-desc">Any SAML 2.0 compliant identity provider</div>
+        </div>
+      </div>
+      <div class="provider-sm-row">
+        <div class="provider-sm">
+          <div class="provider-sm-name">Google Workspace</div>
+        </div>
+        <div class="provider-sm">
+          <div class="provider-sm-name">Ping Identity</div>
+        </div>
+      </div>
+
+      <!-- Configuration form -->
+      <div class="card mb20">
+        <div class="card-hd">
+          <span class="card-title">SAML Configuration (Okta)</span>
+        </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Entity ID / Issuer</label>
+              <input class="form-input" type="text" value="https://acmecorp.okta.com/exk8f2xyz">
+            </div>
+            <div class="form-group">
+              <label class="form-label">SSO URL</label>
+              <input class="form-input" type="text" value="https://acmecorp.okta.com/app/r3vp/sso/saml">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">IdP Certificate</label>
+            <textarea class="form-textarea" rows="3">-----BEGIN CERTIFICATE-----
+MIICpDCCAYwCCQD...truncated...
+-----END CERTIFICATE-----</textarea>
+          </div>
+          <div style="margin-top:6px">
+            <div class="form-label" style="margin-bottom:10px">Attribute Mapping</div>
+            <div class="attr-row">
+              <span class="attr-label">Email attribute</span>
+              <span class="attr-val">user.email</span>
+            </div>
+            <div class="attr-row">
+              <span class="attr-label">First name</span>
+              <span class="attr-val">user.firstName</span>
+            </div>
+            <div class="attr-row" style="margin-bottom:0">
+              <span class="attr-label">Role attribute</span>
+              <span class="attr-val">user.r3vpRole</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:20px">
+            <button class="btn btn-primary">Save Configuration</button>
+            <button class="btn btn-ghost">Test Connection</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SP Metadata card -->
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-title">Service Provider Metadata (give these to your IdP)</span>
+        </div>
+        <div class="card-body">
+          <div class="meta-box">
+            <div><span class="meta-key">SP Entity ID:</span> https://app.r3vp.io/saml/metadata</div>
+            <div><span class="meta-key">ACS URL:</span> https://app.r3vp.io/saml/acs</div>
+            <div><span class="meta-key">SLO URL:</span> https://app.r3vp.io/saml/slo</div>
+            <div><span class="meta-key">Name ID Format:</span> urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</div>
+          </div>
+          <div style="margin-top:14px">
+            <button class="btn btn-ghost">Download SP Metadata XML</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('open');
+}
+</script>
+</body>
+</html>

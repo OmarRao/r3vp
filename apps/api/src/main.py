@@ -5,7 +5,7 @@ import structlog
 from temporalio.client import Client, TLSConfig
 
 from src.config import settings
-from src.routers import appliances, workloads, test_runs, readiness, evidence, audit, notifications, users, portal_appliances, reports, report_schedules
+from src.routers import appliances, workloads, test_runs, readiness, evidence, audit, notifications, users, portal_appliances, reports, report_schedules, team, api_keys, sso
 from src.routers.threat_intel import router as threat_intel_router
 from src.routers.multicloud import router as multicloud_router
 
@@ -86,6 +86,9 @@ app.include_router(reports.router, prefix="/v1/reports", tags=["Reports"])
 app.include_router(report_schedules.router, prefix="/v1/report-schedules", tags=["report-schedules"])
 app.include_router(threat_intel_router)
 app.include_router(multicloud_router)
+app.include_router(team.router, prefix="/v1/team", tags=["team"])
+app.include_router(api_keys.router, prefix="/v1/api-keys", tags=["api-keys"])
+app.include_router(sso.router, prefix="/v1/sso", tags=["sso"])
 
 
 @app.get("/health")

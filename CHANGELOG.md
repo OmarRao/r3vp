@@ -7,6 +7,22 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Phase 8: Multi-tenancy and RBAC
+
+### Added
+- Granular RBAC with 24 named permissions and five built-in system roles: owner, admin, operator, auditor, viewer
+- Role, OrgMember, OrgInvite, ApiKey, and SsoConfig models
+- Alembic migration 0010 adding roles, org_members, org_invites, api_keys, and sso_configs tables with system role seed data
+- Permission registry (apps/api/src/services/rbac.py) with require_permission() enforcement helper
+- Team management API: invite by email with 7-day expiring token, list members, change role, deactivate member
+- API key management: scoped service account keys, SHA-256 hash stored (raw value shown once), revocation
+- SAML 2.0 SSO configuration: Okta, Azure AD, Google Workspace, Ping Identity, generic SAML; cert + attribute mapping stored per org
+- Portal /dashboard/settings/team page: member table with role badges, pending invites, invite form
+- Portal API keys page: active keys with prefix and scopes, create form with grouped scope checkboxes
+- Portal SSO settings page: provider card selector, config form, SP metadata display
+
+---
+
 ## [Unreleased] - Phase 7: Compliance, Reporting, Scheduled Delivery and Evidence Vault
 
 ### Added

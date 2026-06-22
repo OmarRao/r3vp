@@ -207,6 +207,24 @@ Configure recurring report delivery on daily, weekly, monthly, or quarterly cade
 
 The evidence vault assembles signed ZIP bundles per period containing the compliance PDF, the full audit chain export, and per-workload artifacts (test summary, step durations, health check results). Every bundle has a SHA-256 manifest that lists the digest of each included file for tamper-evidence verification.
 
+### Team Management
+
+![Team Management](docs/screenshots/team.png)
+
+Team management gives org admins full control over who can access R3VP and what they can do. Five built-in roles (owner, admin, operator, auditor, viewer) cover every enterprise access pattern. External auditors can be invited with read-only access to reports and evidence without touching workload configuration. The role permissions reference table shows exactly which capabilities each role carries.
+
+### API Keys
+
+![API Keys](docs/screenshots/api-keys.png)
+
+Service account API keys let CI/CD pipelines, GRC tools, and SIEM connectors access R3VP programmatically. Each key is scoped to a specific set of permissions and the raw key value is shown only once at creation. Keys can be set to expire and are revoked immediately on demand.
+
+### Single Sign-On
+
+![SSO](docs/screenshots/sso.png)
+
+SAML 2.0 SSO integrates R3VP with Okta, Microsoft Entra ID, Google Workspace, Ping Identity, and any generic SAML 2.0 provider. Org owners configure the IdP certificate and attribute mapping, then share the SP metadata with their identity provider. SSO can be toggled without losing the configuration.
+
 ---
 
 ## Architecture
