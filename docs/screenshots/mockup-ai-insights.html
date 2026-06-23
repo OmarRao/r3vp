@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>R3VP - AI Insights</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{background:#F8FAFC;display:flex}
+.sidebar{width:220px;min-height:100vh;background:#0F172A;position:fixed;left:0;top:0;display:flex;flex-direction:column;z-index:100}
+.sidebar-logo{padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar-logo .brand{color:#fff;font-size:15px;font-weight:800;letter-spacing:0.5px}
+.sidebar-logo .sub{color:#00B336;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.nav-section{padding:10px 0}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 20px;color:rgba(255,255,255,0.6);font-size:13px;font-weight:500;cursor:pointer}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;background:rgba(0,179,54,0.18);border-left:3px solid #00B336;padding-left:17px}
+.nav-item .icon{width:16px;text-align:center;font-size:14px}
+.nav-sub{padding-left:45px;font-size:12px;color:rgba(255,255,255,0.45);display:block;padding-top:4px;padding-bottom:4px;cursor:pointer}
+.topbar{position:fixed;top:0;left:220px;right:0;height:56px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;padding:0 28px;z-index:90}
+.topbar-left .page-title{font-size:15px;font-weight:700;color:#0F172A}
+.topbar-left .page-sub{font-size:12px;color:#94A3B8;margin-top:1px}
+.body{margin-left:220px;margin-top:56px;padding:28px;min-height:calc(100vh - 56px);background:#F8FAFC;width:calc(100% - 220px)}
+.inner{max-width:1000px;margin:0 auto}
+.card{background:#fff;border:1px solid #E2E8F0;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:20px}
+.card-hd{padding:14px 20px;border-bottom:1px solid #F1F5F9;font-size:13px;font-weight:700;color:#0F172A}
+.card-body{padding:20px}
+.nl-input{display:flex;gap:10px;margin-bottom:12px}
+.nl-input input{flex:1;border:1px solid #E2E8F0;border-radius:6px;padding:10px 14px;font-size:14px;outline:none;color:#0F172A}
+.nl-input input::placeholder{color:#94A3B8}
+.btn-primary{background:#00B336;color:#fff;border:none;border-radius:6px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12px;color:#475569;border:1px solid #E2E8F0;border-radius:99px;padding:4px 12px;cursor:pointer;background:#fff}
+.chip:hover{border-color:#00B336;color:#00B336}
+.answer-box{margin-top:14px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:14px 16px}
+.answer-label{font-size:11px;font-weight:700;color:#16A34A;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.answer-text{font-size:13px;color:#1E293B}
+.tbl{width:100%;border-collapse:collapse}
+.tbl thead tr{background:#F8FAFC;border-bottom:1px solid #F1F5F9}
+.tbl th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#94A3B8;padding:10px 20px;text-align:left}
+.tbl td{font-size:13px;color:#334155;padding:11px 20px;border-bottom:1px solid #F8FAFC}
+.tbl tr:last-child td{border-bottom:none}
+.badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;border:1px solid transparent}
+.badge.red{background:#FEF2F2;color:#DC2626;border-color:#FECACA}
+.badge.amber{background:#FFFBEB;color:#D97706;border-color:#FDE68A}
+.badge.green{background:#F0FDF4;color:#16A34A;border-color:#BBF7D0}
+.badge.blue{background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE}
+.pred-layout{display:grid;grid-template-columns:220px 1fr;gap:24px;padding:20px}
+.pred-stat{margin-bottom:12px}
+.pred-stat-label{font-size:11px;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.pred-stat-val{font-size:18px;font-weight:700;color:#0F172A;margin-top:2px}
+.pred-stat-val.amber{color:#D97706}
+.pred-stat-val.red{color:#EF4444}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">R3VP</div>
+    <div class="sub">Recovery Platform</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-item active"><span class="icon">&#9632;</span> Dashboard</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Workloads</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Test Runs</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Threat Scanner</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Incidents</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Reports</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Providers</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Console</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Settings</div>
+    <span class="nav-sub">Team</span>
+    <span class="nav-sub">API Keys</span>
+    <span class="nav-sub">SSO</span>
+    <span class="nav-sub">Integrations</span>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="page-title">AI Insights</div>
+    <div class="page-sub">Predictive analytics, anomaly detection, and natural language queries</div>
+  </div>
+</div>
+
+<div class="body">
+<div class="inner">
+
+  <!-- NL Query -->
+  <div class="card">
+    <div class="card-body">
+      <div class="nl-input">
+        <input type="text" value="How many workloads are being tested?" readonly/>
+        <button class="btn-primary">Ask</button>
+      </div>
+      <div class="chips">
+        <span class="chip">Which workloads are at risk?</span>
+        <span class="chip">How many RTO breaches this quarter?</span>
+        <span class="chip">What is our worst performing provider?</span>
+        <span class="chip">Which workloads have not been tested recently?</span>
+      </div>
+      <div class="answer-box">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">There are 47 workloads in total, of which 44 have been tested. 2 workloads breached their RTO target this quarter.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Risk Ranking -->
+  <div class="card">
+    <div class="card-hd">Workload Risk Ranking <span style="font-size:11px;font-weight:400;color:#94A3B8;margin-left:6px">Scored by test recency, RTO ratio, and failure rate</span></div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Workload</th>
+          <th>Provider</th>
+          <th>Risk Score</th>
+          <th>Risk Level</th>
+          <th>Reasons</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:#94A3B8">#1</td>
+          <td style="font-weight:600">sql-prod-02</td>
+          <td>AWS</td>
+          <td style="font-weight:700">70</td>
+          <td><span class="badge red">HIGH</span></td>
+          <td style="font-size:12px;color:#64748B">RTO at 106% of target (95m vs 90m), fail rate 50%</td>
+        </tr>
+        <tr>
+          <td style="color:#94A3B8">#2</td>
+          <td style="font-weight:600">db-prod-03</td>
+          <td>VMware</td>
+          <td style="font-weight:700">55</td>
+          <td><span class="badge red">HIGH</span></td>
+          <td style="font-size:12px;color:#64748B">RTO at 87% of target (52m vs 60m), fail rate 33%</td>
+        </tr>
+        <tr>
+          <td style="color:#94A3B8">#3</td>
+          <td style="font-weight:600">auth-svc-01</td>
+          <td>Azure</td>
+          <td style="font-weight:700">45</td>
+          <td><span class="badge amber">MEDIUM</span></td>
+          <td style="font-size:12px;color:#64748B">Not tested in 45 days</td>
+        </tr>
+        <tr>
+          <td style="color:#94A3B8">#4</td>
+          <td style="font-weight:600">erp-prod-01</td>
+          <td>VMware</td>
+          <td style="font-weight:700">38</td>
+          <td><span class="badge amber">MEDIUM</span></td>
+          <td style="font-size:12px;color:#64748B">Fail rate 33%</td>
+        </tr>
+        <tr>
+          <td style="color:#94A3B8">#5</td>
+          <td style="font-weight:600">dc-01.prod</td>
+          <td>Hyper-V</td>
+          <td style="font-weight:700">5</td>
+          <td><span class="badge green">LOW</span></td>
+          <td style="font-size:12px;color:#64748B">-</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- RTO Prediction -->
+  <div class="card">
+    <div class="card-hd">RTO Trend Prediction: db-prod-03</div>
+    <div class="pred-layout">
+      <div>
+        <div class="pred-stat">
+          <div class="pred-stat-label">Current RTO</div>
+          <div class="pred-stat-val amber">52 min</div>
+        </div>
+        <div class="pred-stat">
+          <div class="pred-stat-label">Target</div>
+          <div class="pred-stat-val">60 min</div>
+        </div>
+        <div class="pred-stat">
+          <div class="pred-stat-label">Trend</div>
+          <div class="pred-stat-val red">&#9650; Degrading</div>
+        </div>
+        <div class="pred-stat">
+          <div class="pred-stat-label">Predicted Next</div>
+          <div class="pred-stat-val amber">58 min</div>
+        </div>
+        <div class="pred-stat">
+          <div class="pred-stat-label">Breach Risk</div>
+          <div class="pred-stat-val red">HIGH</div>
+        </div>
+        <div class="pred-stat">
+          <div class="pred-stat-label">Breach in</div>
+          <div class="pred-stat-val" style="color:#DC2626">~2 tests</div>
+        </div>
+      </div>
+      <div>
+        <svg viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:200px">
+          <!-- Grid lines -->
+          <line x1="50" y1="20" x2="500" y2="20" stroke="#F1F5F9" stroke-width="1"/>
+          <line x1="50" y1="60" x2="500" y2="60" stroke="#F1F5F9" stroke-width="1"/>
+          <line x1="50" y1="100" x2="500" y2="100" stroke="#F1F5F9" stroke-width="1"/>
+          <line x1="50" y1="140" x2="500" y2="140" stroke="#F1F5F9" stroke-width="1"/>
+          <line x1="50" y1="180" x2="500" y2="180" stroke="#F1F5F9" stroke-width="1"/>
+          <!-- Y axis labels (10 min = 8px) -->
+          <text x="44" y="23" text-anchor="end" font-size="9" fill="#94A3B8">80</text>
+          <text x="44" y="63" text-anchor="end" font-size="9" fill="#94A3B8">70</text>
+          <text x="44" y="103" text-anchor="end" font-size="9" fill="#94A3B8">60</text>
+          <text x="44" y="143" text-anchor="end" font-size="9" fill="#94A3B8">50</text>
+          <text x="44" y="183" text-anchor="end" font-size="9" fill="#94A3B8">40</text>
+          <!-- Target line at 60 min = y100 -->
+          <line x1="50" y1="100" x2="500" y2="100" stroke="#CBD5E1" stroke-width="1.5" stroke-dasharray="5,4"/>
+          <text x="505" y="103" font-size="9" fill="#94A3B8">Target</text>
+          <!-- X axis labels: tests 1-8 -->
+          <!-- x positions: 50 + (i-1)*65, i=1..6 actual, i=7..8 projected -->
+          <!-- Test 1: x=80, Test 2: x=145, Test 3: x=210, Test 4: x=275, Test 5: x=340, Test 6: x=405, Proj7: x=440, Proj8: x=475 -->
+          <!-- Y: value 28 -> y=180-(28-40)*4=180+48=228... let's map: y = 180 - (val - 40) * 4, so 40->180, 80->20 -->
+          <!-- val 28: y=180-(28-30)*3.25=180+6.5=186.5->~180, 64->180-(64-30)*3.25=180-110.5=69.5 -->
+          <!-- Better: y = 200 - val * 2 : 28->144, 31->138, 35->130, 38->124, 44->112, 52->96, 58->84, 64->72 -->
+          <!-- Data points: (80,144),(145,138),(210,130),(275,124),(340,112),(405,96) -->
+          <!-- Projected: (440,84),(475,72) -->
+          <polyline points="80,144 145,138 210,130 275,124 340,112 405,96" fill="none" stroke="#00B336" stroke-width="2.5" stroke-linejoin="round"/>
+          <polyline points="405,96 440,84 475,72" fill="none" stroke="#EF4444" stroke-width="2" stroke-dasharray="6,4"/>
+          <!-- Dots actual -->
+          <circle cx="80" cy="144" r="4" fill="#00B336"/>
+          <circle cx="145" cy="138" r="4" fill="#00B336"/>
+          <circle cx="210" cy="130" r="4" fill="#00B336"/>
+          <circle cx="275" cy="124" r="4" fill="#00B336"/>
+          <circle cx="340" cy="112" r="4" fill="#00B336"/>
+          <circle cx="405" cy="96" r="4" fill="#00B336"/>
+          <!-- Dots projected -->
+          <circle cx="440" cy="84" r="4" fill="#EF4444" fill-opacity="0.7"/>
+          <circle cx="475" cy="72" r="4" fill="#EF4444" fill-opacity="0.7"/>
+          <!-- X labels -->
+          <text x="80" y="198" text-anchor="middle" font-size="9" fill="#94A3B8">T1</text>
+          <text x="145" y="198" text-anchor="middle" font-size="9" fill="#94A3B8">T2</text>
+          <text x="210" y="198" text-anchor="middle" font-size="9" fill="#94A3B8">T3</text>
+          <text x="275" y="198" text-anchor="middle" font-size="9" fill="#94A3B8">T4</text>
+          <text x="340" y="198" text-anchor="middle" font-size="9" fill="#94A3B8">T5</text>
+          <text x="405" y="198" text-anchor="middle" font-size="9" fill="#94A3B8">T6</text>
+          <text x="440" y="198" text-anchor="middle" font-size="9" fill="#EF4444">T7</text>
+          <text x="475" y="198" text-anchor="middle" font-size="9" fill="#EF4444">T8</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Anomaly Detection -->
+  <div class="card">
+    <div class="card-hd">Anomaly Detection <span style="font-size:11px;font-weight:400;color:#94A3B8;margin-left:6px">Statistical outliers (z-score &gt; 2) in recovery test results</span></div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Workload</th>
+          <th>Test Date</th>
+          <th>RTO Actual</th>
+          <th>Anomaly Type</th>
+          <th>Z-Score</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:600">sql-prod-02</td>
+          <td style="color:#64748B">Jun 15</td>
+          <td style="font-weight:600">95 min</td>
+          <td><span class="badge red">SPIKE</span></td>
+          <td style="color:#EF4444;font-weight:600">+2.8</td>
+          <td><span style="font-size:12px;color:#00B336;cursor:pointer">Investigate</span></td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">gcp-prod-01</td>
+          <td style="color:#64748B">Jun 10</td>
+          <td style="font-weight:600">4 min</td>
+          <td><span class="badge blue">DROP</span></td>
+          <td style="color:#1D4ED8;font-weight:600">-2.1</td>
+          <td><span style="font-size:12px;color:#00B336;cursor:pointer">Review</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="font-size:11px;color:#94A3B8;text-align:right;padding:4px 0 16px">Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy</div>
+</div>
+</div>
+
+</body>
+</html>

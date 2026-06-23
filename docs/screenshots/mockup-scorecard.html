@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>R3VP - CISO Scorecard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{background:#F8FAFC;display:flex}
+/* Sidebar */
+.sidebar{width:220px;min-height:100vh;background:#0F172A;position:fixed;left:0;top:0;display:flex;flex-direction:column;z-index:100}
+.sidebar-logo{padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar-logo .brand{color:#fff;font-size:15px;font-weight:800;letter-spacing:0.5px}
+.sidebar-logo .sub{color:#00B336;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.nav-section{padding:10px 0}
+.nav-label{color:rgba(255,255,255,0.3);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:8px 20px 4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 20px;color:rgba(255,255,255,0.6);font-size:13px;font-weight:500;text-decoration:none;cursor:pointer;transition:all 0.15s}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;background:rgba(0,179,54,0.18);border-left:3px solid #00B336;padding-left:17px}
+.nav-item .icon{width:16px;text-align:center;font-size:14px}
+.nav-sub{padding-left:45px;font-size:12px;color:rgba(255,255,255,0.45);display:block;padding-top:4px;padding-bottom:4px;cursor:pointer}
+.nav-sub:hover{color:rgba(255,255,255,0.75)}
+.nav-sub.active-sub{color:#00B336}
+/* Topbar */
+.topbar{position:fixed;top:0;left:220px;right:0;height:56px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:90}
+.topbar-left .page-title{font-size:15px;font-weight:700;color:#0F172A}
+.topbar-left .page-sub{font-size:12px;color:#94A3B8;margin-top:1px}
+.topbar-right{display:flex;gap:10px;align-items:center}
+.btn-primary{background:#00B336;color:#fff;border:none;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-ghost{background:#fff;color:#475569;border:1px solid #E2E8F0;border-radius:6px;padding:7px 16px;font-size:13px;font-weight:500;cursor:pointer}
+/* Body */
+.body{margin-left:220px;margin-top:56px;padding:28px;min-height:calc(100vh - 56px);background:#F8FAFC;width:calc(100% - 220px)}
+.inner{max-width:1000px;margin:0 auto}
+/* Cards */
+.card{background:#fff;border:1px solid #E2E8F0;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:20px}
+.card-hd{padding:14px 20px;border-bottom:1px solid #F1F5F9;font-size:13px;font-weight:700;color:#0F172A}
+.card-body{padding:20px}
+/* Score Hero */
+.score-hero{border-left:5px solid #00B336}
+.score-hero .card-body{text-align:center;padding:36px 40px}
+.big-score{font-size:72px;font-weight:800;color:#00B336;line-height:1}
+.score-label{font-size:18px;font-weight:700;color:#0F172A;margin-top:10px}
+.score-sub{font-size:13px;color:#64748B;margin-top:6px}
+.progress-wrap{max-width:480px;margin:18px auto 0;background:#F1F5F9;border-radius:99px;height:10px}
+.progress-fill{height:10px;background:#00B336;border-radius:99px}
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi-card{background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.kpi-label{font-size:11px;color:#94A3B8;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.kpi-val{font-size:26px;font-weight:800;color:#0F172A;margin-top:6px}
+.kpi-val.green{color:#00B336}
+.kpi-val.red{color:#EF4444}
+.kpi-sub{font-size:11px;color:#94A3B8;margin-top:3px}
+/* Bar Chart */
+.bar-chart{display:flex;align-items:flex-end;gap:18px;height:180px;padding:20px 20px 0}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bar-score{font-size:11px;font-weight:700;color:#0F172A}
+.bar{width:100%;background:#00B336;border-radius:4px 4px 0 0}
+.bar-month{font-size:10px;color:#94A3B8;margin-top:8px;padding-bottom:10px}
+/* Table */
+.tbl{width:100%;border-collapse:collapse}
+.tbl thead tr{background:#F8FAFC;border-bottom:1px solid #F1F5F9}
+.tbl th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#94A3B8;padding:10px 20px;text-align:left}
+.tbl td{font-size:13px;color:#334155;padding:11px 20px;border-bottom:1px solid #F8FAFC}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#FAFAFA}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.dot.green{background:#00B336}
+.dot.amber{background:#F59E0B}
+.badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase}
+.badge.red{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA}
+.badge.amber{background:#FFFBEB;color:#D97706;border:1px solid #FDE68A}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">R3VP</div>
+    <div class="sub">Recovery Platform</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-item"><span class="icon">&#9632;</span> Dashboard</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Workloads</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Test Runs</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Threat Scanner</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Incidents</div>
+    <div class="nav-item active"><span class="icon">&#9632;</span> Reports</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Providers</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Console</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Settings</div>
+    <span class="nav-sub">Team</span>
+    <span class="nav-sub">API Keys</span>
+    <span class="nav-sub">SSO</span>
+    <span class="nav-sub">Integrations</span>
+  </div>
+</div>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="page-title">CISO Scorecard</div>
+    <div class="page-sub">Executive readiness summary with trend analysis and risk ranking</div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-ghost">Download PDF</button>
+    <button class="btn-primary">Configure Digest</button>
+  </div>
+</div>
+
+<!-- Body -->
+<div class="body">
+<div class="inner">
+
+  <!-- Score Hero -->
+  <div class="card score-hero">
+    <div class="card-body">
+      <div class="big-score">84</div>
+      <div class="score-label">Overall Readiness Score</div>
+      <div class="score-sub">44 of 47 workloads tested &middot; 41 passing &middot; 87% RTO compliant</div>
+      <div class="progress-wrap"><div class="progress-fill" style="width:84%"></div></div>
+    </div>
+  </div>
+
+  <!-- KPI Grid -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Workloads Passing</div>
+      <div class="kpi-val green">41/47</div>
+      <div class="kpi-sub">87% pass rate</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">RTO Compliant</div>
+      <div class="kpi-val green">87%</div>
+      <div class="kpi-sub">41 of 47 workloads</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Active Threats</div>
+      <div class="kpi-val red">1</div>
+      <div class="kpi-sub">Requires attention</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Open Incidents</div>
+      <div class="kpi-val green">0</div>
+      <div class="kpi-sub">All resolved</div>
+    </div>
+  </div>
+
+  <!-- Trend Chart -->
+  <div class="card">
+    <div class="card-hd">Score Trend (6 Months)</div>
+    <div class="card-body" style="padding-bottom:0">
+      <div class="bar-chart">
+        <div class="bar-col">
+          <div class="bar-score">71</div>
+          <div class="bar" style="height:128px"></div>
+          <div class="bar-month">Jan</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-score">74</div>
+          <div class="bar" style="height:133px"></div>
+          <div class="bar-month">Feb</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-score">78</div>
+          <div class="bar" style="height:140px"></div>
+          <div class="bar-month">Mar</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-score">80</div>
+          <div class="bar" style="height:144px"></div>
+          <div class="bar-month">Apr</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-score">82</div>
+          <div class="bar" style="height:148px"></div>
+          <div class="bar-month">May</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-score">84</div>
+          <div class="bar" style="height:151px"></div>
+          <div class="bar-month">Jun</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Provider Breakdown -->
+  <div class="card">
+    <div class="card-hd">Provider Breakdown</div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Provider</th>
+          <th>Tested/Total</th>
+          <th>Pass Rate</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:600">VMware vSphere</td>
+          <td>20/20</td>
+          <td>95%</td>
+          <td><span class="dot green"></span>Active</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">Azure Backup</td>
+          <td>10/10</td>
+          <td>80%</td>
+          <td><span class="dot green"></span>Active</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">AWS Backup</td>
+          <td>8/8</td>
+          <td>75%</td>
+          <td><span class="dot amber"></span>Review</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">Google Cloud</td>
+          <td>4/5</td>
+          <td>75%</td>
+          <td><span class="dot amber"></span>Review</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">Hyper-V</td>
+          <td>2/4</td>
+          <td>100%</td>
+          <td><span class="dot amber"></span>Partial</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Top Risks -->
+  <div class="card">
+    <div class="card-hd">Top Risks</div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Workload</th>
+          <th>Severity</th>
+          <th>Detail</th>
+          <th>Provider</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:600">db-prod-03</td>
+          <td><span class="badge red">HIGH</span></td>
+          <td style="color:#64748B">RTO exceeded target by 42 min in last 2 tests</td>
+          <td>VMware</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">auth-svc-01</td>
+          <td><span class="badge amber">MEDIUM</span></td>
+          <td style="color:#64748B">Not tested in 45 days</td>
+          <td>Azure</td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">erp-prod-01</td>
+          <td><span class="badge amber">MEDIUM</span></td>
+          <td style="color:#64748B">Pass rate dropped from 100% to 67% this quarter</td>
+          <td>VMware</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="font-size:11px;color:#94A3B8;text-align:right;padding:4px 0 16px">Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy</div>
+</div>
+</div>
+
+</body>
+</html>

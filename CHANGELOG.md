@@ -7,6 +7,49 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Phase 11: AI Insights
+
+### Added
+- RTO trend prediction via linear regression: slope, projected next RTO, risk level (critical/high/medium/low), and estimated tests until breach
+- Anomaly detection over RTO time series using z-score analysis (|z| > 2.0 flagged as spike or drop)
+- Workload risk ranking scored across test recency, RTO proximity to target, and recent failure rate
+- Rule-based natural language query handler covering workload counts, RTO breaches, threat status, readiness score, and provider performance
+- Insights portal page with NL query bar, example query chips, risk ranking table
+- API endpoints: GET /v1/insights/rto-prediction/{id}, GET /v1/insights/risk-ranking, POST /v1/insights/query
+
+---
+
+## [Unreleased] - Phase 10: Integrations Marketplace
+
+### Added
+- ServiceNow integration: creates incident via Table API with urgency/impact severity mapping
+- Jira integration: creates issue via Jira Cloud REST v3 with Atlassian Document Format body and r3vp label
+- PagerDuty integration: triggers alert via Events API v2 with critical/warning/info severity mapping
+- Splunk integration: pushes events via HTTP Event Collector (HEC) with configurable index
+- IBM QRadar integration: sends CEF syslog over UDP for recovery events and threat detections
+- Microsoft Sentinel integration: posts to Log Analytics Data Collector API with HMAC-SHA256 SharedKey auth
+- Integration catalog endpoint listing all six connectors with category and description
+- Integration event log: every dispatch attempt stored with status, error detail, and response time
+- CRUD API at /v1/integrations with test endpoint (POST /{id}/test) and enable/disable toggle
+- Alembic migration 0012 adding integrations and integration_event_logs tables
+- Integrations portal page: catalog card grid, active integrations table, event log
+
+---
+
+## [Unreleased] - Phase 9: Executive Reporting and CISO Scorecard
+
+### Added
+- Overall readiness score (0-100) computed from coverage (40%), pass rate (35%), RTO compliance (15%), threat penalty (up to 10 pts deducted)
+- CISO scorecard PDF: score hero, KPI row, 6-month trend table, provider breakdown, top risks ranked by severity
+- ScorecardSnapshot model for persisting monthly snapshots with provider_breakdown and top_risks JSONB
+- DigestSchedule model for weekly/monthly/quarterly email delivery with configurable sections
+- Scorecard trend API returning last N monthly snapshots
+- Digest schedule CRUD API at /v1/executive/digest-schedules
+- Alembic migration 0011 adding digest_schedules and scorecard_snapshots tables
+- Scorecard portal page with score hero, trend chart, provider breakdown, risk ranking
+
+---
+
 ## [Unreleased] - Phase 8: Multi-tenancy and RBAC
 
 ### Added

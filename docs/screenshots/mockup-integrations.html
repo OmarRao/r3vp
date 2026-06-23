@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>R3VP - Integrations</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+body{background:#F8FAFC;display:flex}
+.sidebar{width:220px;min-height:100vh;background:#0F172A;position:fixed;left:0;top:0;display:flex;flex-direction:column;z-index:100}
+.sidebar-logo{padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar-logo .brand{color:#fff;font-size:15px;font-weight:800;letter-spacing:0.5px}
+.sidebar-logo .sub{color:#00B336;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.nav-section{padding:10px 0}
+.nav-item{display:flex;align-items:center;gap:9px;padding:7px 20px;color:rgba(255,255,255,0.6);font-size:13px;font-weight:500;text-decoration:none;cursor:pointer}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;background:rgba(0,179,54,0.18);border-left:3px solid #00B336;padding-left:17px}
+.nav-item .icon{width:16px;text-align:center;font-size:14px}
+.nav-sub{padding-left:45px;font-size:12px;color:rgba(255,255,255,0.45);display:block;padding-top:4px;padding-bottom:4px;cursor:pointer}
+.nav-sub:hover{color:rgba(255,255,255,0.75)}
+.nav-sub.active-sub{color:#00B336}
+.topbar{position:fixed;top:0;left:220px;right:0;height:56px;background:#fff;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;padding:0 28px;z-index:90}
+.topbar-left .page-title{font-size:15px;font-weight:700;color:#0F172A}
+.topbar-left .page-sub{font-size:12px;color:#94A3B8;margin-top:1px}
+.body{margin-left:220px;margin-top:56px;padding:28px;min-height:calc(100vh - 56px);background:#F8FAFC;width:calc(100% - 220px)}
+.inner{max-width:1000px;margin:0 auto}
+.card{background:#fff;border:1px solid #E2E8F0;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:20px}
+.card-hd{padding:14px 20px;border-bottom:1px solid #F1F5F9;font-size:13px;font-weight:700;color:#0F172A}
+.section-label{font-size:13px;font-weight:700;color:#0F172A;margin-bottom:12px}
+.int-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.int-card{background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.int-logo{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;margin-bottom:12px}
+.int-name{font-size:14px;font-weight:700;color:#0F172A}
+.int-cat{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;display:inline-block;margin-left:6px}
+.int-cat.itsm{background:#EFF6FF;color:#1D4ED8}
+.int-cat.alerting{background:#FFFBEB;color:#D97706}
+.int-cat.siem{background:#F5F3FF;color:#7C3AED}
+.int-desc{font-size:12px;color:#64748B;margin-top:6px;margin-bottom:14px;min-height:32px}
+.int-footer{display:flex;justify-content:flex-end}
+.btn-ghost-sm{background:#fff;color:#475569;border:1px solid #E2E8F0;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:500;cursor:pointer}
+.connected-badge{background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600}
+.tbl{width:100%;border-collapse:collapse}
+.tbl thead tr{background:#F8FAFC;border-bottom:1px solid #F1F5F9}
+.tbl th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#94A3B8;padding:10px 20px;text-align:left}
+.tbl td{font-size:13px;color:#334155;padding:11px 20px;border-bottom:1px solid #F8FAFC}
+.tbl tr:last-child td{border-bottom:none}
+.badge-ok{background:#F0FDF4;color:#16A34A;border:1px solid #BBF7D0;border-radius:4px;font-size:10px;font-weight:700;padding:2px 6px}
+.badge-err{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;border-radius:4px;font-size:10px;font-weight:700;padding:2px 6px}
+.action-link{font-size:12px;color:#00B336;cursor:pointer;margin-right:10px}
+.action-link.del{color:#EF4444}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">R3VP</div>
+    <div class="sub">Recovery Platform</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-item"><span class="icon">&#9632;</span> Dashboard</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Workloads</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Test Runs</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Threat Scanner</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Incidents</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Reports</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Providers</div>
+    <div class="nav-item"><span class="icon">&#9632;</span> Console</div>
+    <div class="nav-item active"><span class="icon">&#9632;</span> Settings</div>
+    <span class="nav-sub">Team</span>
+    <span class="nav-sub">API Keys</span>
+    <span class="nav-sub">SSO</span>
+    <span class="nav-sub active-sub">Integrations</span>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="page-title">Integrations</div>
+    <div class="page-sub">Connect R3VP to your ITSM, alerting, and SIEM tools</div>
+  </div>
+</div>
+
+<div class="body">
+<div class="inner">
+
+  <div class="section-label">Available Integrations</div>
+  <div class="int-grid">
+    <!-- ServiceNow -->
+    <div class="int-card">
+      <div class="int-logo" style="background:#0B3D91">SN</div>
+      <div><span class="int-name">ServiceNow</span><span class="int-cat itsm">ITSM</span></div>
+      <div class="int-desc">Create CMDB incidents on SLA breach</div>
+      <div class="int-footer"><span class="connected-badge">Connected</span></div>
+    </div>
+    <!-- Jira -->
+    <div class="int-card">
+      <div class="int-logo" style="background:#0052CC">Ji</div>
+      <div><span class="int-name">Jira</span><span class="int-cat itsm">ITSM</span></div>
+      <div class="int-desc">Open issues when recovery tests fail</div>
+      <div class="int-footer"><button class="btn-ghost-sm">Connect</button></div>
+    </div>
+    <!-- PagerDuty -->
+    <div class="int-card">
+      <div class="int-logo" style="background:#06AC38">PD</div>
+      <div><span class="int-name">PagerDuty</span><span class="int-cat alerting">Alerting</span></div>
+      <div class="int-desc">Trigger alerts for critical failures</div>
+      <div class="int-footer"><span class="connected-badge">Connected</span></div>
+    </div>
+    <!-- Splunk -->
+    <div class="int-card">
+      <div class="int-logo" style="background:#000">Sp</div>
+      <div><span class="int-name">Splunk</span><span class="int-cat siem">SIEM</span></div>
+      <div class="int-desc">Push events via HEC</div>
+      <div class="int-footer"><button class="btn-ghost-sm">Connect</button></div>
+    </div>
+    <!-- QRadar -->
+    <div class="int-card">
+      <div class="int-logo" style="background:#1F3161">QR</div>
+      <div><span class="int-name">IBM QRadar</span><span class="int-cat siem">SIEM</span></div>
+      <div class="int-desc">CEF syslog for recovery events</div>
+      <div class="int-footer"><button class="btn-ghost-sm">Connect</button></div>
+    </div>
+    <!-- Sentinel -->
+    <div class="int-card">
+      <div class="int-logo" style="background:#0078D4">Az</div>
+      <div><span class="int-name">Microsoft Sentinel</span><span class="int-cat siem">SIEM</span></div>
+      <div class="int-desc">Stream to Log Analytics workspace</div>
+      <div class="int-footer"><button class="btn-ghost-sm">Connect</button></div>
+    </div>
+  </div>
+
+  <!-- Active Integrations -->
+  <div class="card">
+    <div class="card-hd">Active Integrations (2)</div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Trigger Events</th>
+          <th>Last Triggered</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:600">Production ServiceNow</td>
+          <td>ServiceNow</td>
+          <td style="font-size:11px;color:#64748B">sla_breach, test_failed</td>
+          <td>Today 14:22</td>
+          <td><span class="badge-ok">OK</span></td>
+          <td>
+            <span class="action-link">Test</span>
+            <span class="action-link">Disable</span>
+            <span class="action-link del">Delete</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="font-weight:600">PagerDuty Oncall</td>
+          <td>PagerDuty</td>
+          <td style="font-size:11px;color:#64748B">threat_detected, test_failed</td>
+          <td>Jun 20</td>
+          <td><span class="badge-ok">OK</span></td>
+          <td>
+            <span class="action-link">Test</span>
+            <span class="action-link">Disable</span>
+            <span class="action-link del">Delete</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Event Log -->
+  <div class="card">
+    <div class="card-hd">Recent Events (50)</div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Integration</th>
+          <th>Event</th>
+          <th>Status</th>
+          <th>Response Time</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Production ServiceNow</td>
+          <td style="font-family:monospace;font-size:12px">sla_breach</td>
+          <td><span class="badge-ok">OK</span></td>
+          <td>312ms</td>
+          <td style="color:#94A3B8">Jun 22 14:22</td>
+        </tr>
+        <tr>
+          <td>PagerDuty Oncall</td>
+          <td style="font-family:monospace;font-size:12px">threat_detected</td>
+          <td><span class="badge-ok">OK</span></td>
+          <td>198ms</td>
+          <td style="color:#94A3B8">Jun 22 09:15</td>
+        </tr>
+        <tr>
+          <td>Production ServiceNow</td>
+          <td style="font-family:monospace;font-size:12px">test_failed</td>
+          <td><span class="badge-ok">OK</span></td>
+          <td>287ms</td>
+          <td style="color:#94A3B8">Jun 21 16:40</td>
+        </tr>
+        <tr>
+          <td>Production ServiceNow</td>
+          <td style="font-family:monospace;font-size:12px">sla_breach</td>
+          <td><span class="badge-err">ERROR</span></td>
+          <td style="color:#EF4444">-<br/><span style="font-size:10px">Timeout after 15s</span></td>
+          <td style="color:#94A3B8">Jun 20 11:03</td>
+        </tr>
+        <tr>
+          <td>PagerDuty Oncall</td>
+          <td style="font-family:monospace;font-size:12px">test_failed</td>
+          <td><span class="badge-ok">OK</span></td>
+          <td>201ms</td>
+          <td style="color:#94A3B8">Jun 19 22:17</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="font-size:11px;color:#94A3B8;text-align:right;padding:4px 0 16px">Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy</div>
+</div>
+</div>
+
+</body>
+</html>

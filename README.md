@@ -225,6 +225,24 @@ Service account API keys let CI/CD pipelines, GRC tools, and SIEM connectors acc
 
 SAML 2.0 SSO integrates R3VP with Okta, Microsoft Entra ID, Google Workspace, Ping Identity, and any generic SAML 2.0 provider. Org owners configure the IdP certificate and attribute mapping, then share the SP metadata with their identity provider. SSO can be toggled without losing the configuration.
 
+### CISO Scorecard
+
+![CISO Scorecard](docs/screenshots/scorecard.png)
+
+The CISO scorecard produces a single 0-100 readiness score from four weighted factors: workload coverage (40%), pass rate (35%), RTO compliance (15%), and a threat penalty. A 6-month trend chart, provider breakdown, and top risk ranking are included. The scorecard downloads as a signed PDF and can be delivered automatically on a weekly, monthly, or quarterly digest schedule.
+
+### Integrations
+
+![Integrations](docs/screenshots/integrations.png)
+
+The integrations marketplace connects R3VP to six external tools: ServiceNow and Jira for ITSM ticket creation, PagerDuty for on-call alerting, and Splunk, IBM QRadar, and Microsoft Sentinel for SIEM event streaming. Each integration subscribes to specific trigger events (SLA breach, test failure, threat detection, incident creation) and every dispatch attempt is logged with status and response time.
+
+### AI Insights
+
+![AI Insights](docs/screenshots/ai-insights.png)
+
+The AI insights module provides three capabilities without an external LLM dependency: RTO trend prediction using linear regression to flag workloads trending toward breach before it happens, statistical anomaly detection over recovery time series using z-score analysis, and a natural language query interface for common recovery posture questions. Workloads are ranked by a composite risk score across test recency, RTO proximity, and failure rate.
+
 ---
 
 ## Architecture
