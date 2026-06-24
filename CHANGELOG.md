@@ -7,6 +7,23 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Phase 12: DR Runbook Automation
+
+### Added
+- Runbook model with scenario classification (ransomware, datacenter_failure, cloud_outage, site_failover, custom) and RTO target
+- RunbookStep model with seq ordering, depends_on_seq dependency graph, parallel flag, step_type, timeout, and on_failure policy (stop/continue/rollback)
+- Six step types: recover_workload, health_check, notify, wait, manual_gate, run_script
+- Topological sort engine resolving step dependencies into execution waves with concurrent parallel steps
+- RunbookExecution and RunbookExecutionStep models tracking live step status, duration, output, and errors
+- Temporal RunbookWorkflow: fetches plan, executes each step via typed activities, posts status after every step, finalizes with actual RTO and pass/fail
+- Actual vs target RTO computation and rto_met flag stored per execution
+- API at /v1/runbooks: list, create, get with execution plan, trigger execution, execution history, live step status
+- Portal runbooks page: scenario filter pills, runbook cards with wave/step summary, RTO badge, execution history table
+- Runbook execution detail view: wave timeline with per-step status, duration, output panel
+- Migration 0013 adding runbooks, runbook_steps, runbook_executions, runbook_execution_steps tables
+
+---
+
 ## [Unreleased] - Phase 11: AI Insights
 
 ### Added

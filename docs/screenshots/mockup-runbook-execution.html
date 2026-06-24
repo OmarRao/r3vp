@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>R3VP - Runbook Execution</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #F8FAFC; display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 240px; min-height: 100vh; background: #0F172A;
+    display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0;
+  }
+  .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .sidebar-logo .logo-title { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+  .sidebar-logo .logo-sub { font-size: 11px; color: #64748B; margin-top: 2px; font-weight: 500; }
+  .sidebar-nav { padding: 16px 12px; flex: 1; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 8px; margin-bottom: 2px;
+    font-size: 13.5px; font-weight: 500; color: #94A3B8;
+    text-decoration: none; cursor: pointer;
+  }
+  .nav-item:hover { color: #fff; }
+  .nav-item.active { background: #00B336; color: #fff; font-weight: 600; }
+  .nav-icon { width: 16px; height: 16px; opacity: 0.8; flex-shrink: 0; }
+  .nav-item.active .nav-icon { opacity: 1; }
+
+  /* Main */
+  .main { margin-left: 240px; flex: 1; padding: 32px 32px 48px; min-height: 100vh; }
+
+  /* Page header */
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+  .page-title { font-size: 20px; font-weight: 700; color: #0F172A; }
+  .page-sub { font-size: 13px; color: #94A3B8; margin-top: 4px; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .badge-completed-lg { background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 8px; }
+  .btn-ghost-sm { padding: 8px 14px; font-size: 13px; font-weight: 600; color: #475569; border: 1px solid #E2E8F0; border-radius: 8px; background: #fff; cursor: pointer; }
+
+  /* Summary card */
+  .summary-card {
+    background: #fff; border: 1px solid #E2E8F0; border-radius: 12px;
+    border-left: 4px solid #00B336;
+    padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px;
+  }
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+  .summary-item .s-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94A3B8; margin-bottom: 4px; }
+  .summary-item .s-value { font-size: 26px; font-weight: 700; color: #0F172A; }
+  .summary-item .s-value.green { color: #00B336; }
+  .summary-item .s-value.green-check { color: #00B336; display: flex; align-items: center; gap: 6px; font-size: 22px; }
+  .summary-sub { display: flex; gap: 24px; padding-top: 14px; border-top: 1px solid #F1F5F9; }
+  .summary-sub-item { font-size: 12px; color: #64748B; }
+  .summary-sub-item span { font-weight: 600; color: #0F172A; }
+
+  /* Timeline card */
+  .timeline-card {
+    background: #fff; border: 1px solid #E2E8F0; border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; overflow: hidden;
+  }
+  .timeline-card-header { padding: 14px 20px; border-bottom: 1px solid #F1F5F9; }
+  .timeline-card-header span { font-size: 14px; font-weight: 700; color: #0F172A; }
+
+  /* Wave section */
+  .wave-section { border-bottom: 1px solid #F1F5F9; }
+  .wave-section:last-child { border-bottom: none; }
+  .wave-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 20px; background: #F8FAFC;
+    border-bottom: 1px solid #F1F5F9;
+  }
+  .wave-check { width: 18px; height: 18px; background: #00B336; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .wave-check svg { width: 10px; height: 10px; color: #fff; }
+  .wave-title { font-size: 12px; font-weight: 700; color: #0F172A; }
+  .wave-mode { font-size: 11px; font-weight: 500; color: #64748B; margin-left: 4px; }
+
+  /* Step rows */
+  .step-row {
+    display: flex; align-items: center; gap: 0;
+    padding: 10px 20px 10px 40px; border-bottom: 1px solid #F8FAFC;
+  }
+  .step-row:last-child { border-bottom: none; }
+  .step-num { font-size: 11px; font-weight: 700; color: #94A3B8; width: 36px; flex-shrink: 0; }
+  .step-type { font-size: 11px; font-weight: 600; color: #475569; background: #F1F5F9; border: 1px solid #E2E8F0; padding: 2px 7px; border-radius: 4px; margin-right: 10px; flex-shrink: 0; font-family: 'Courier New', monospace; }
+  .step-target { font-size: 13px; color: #0F172A; font-weight: 500; flex: 1; }
+  .step-target .step-provider { font-size: 11px; color: #94A3B8; font-weight: 400; margin-left: 6px; }
+  .step-dur { font-size: 12px; color: #64748B; margin-right: 12px; width: 52px; text-align: right; flex-shrink: 0; }
+  .step-status { flex-shrink: 0; }
+  .step-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; border: 1px solid; padding: 2px 7px; border-radius: 4px; }
+  .step-completed { background: #F0FDF4; color: #15803D; border-color: #BBF7D0; }
+  .step-approved { background: #F0FDF4; color: #15803D; border-color: #BBF7D0; }
+  .parallel-badge { font-size: 10px; font-weight: 600; color: #6366F1; background: #EEF2FF; border: 1px solid #C7D2FE; padding: 2px 6px; border-radius: 4px; margin-right: 8px; }
+
+  /* Step detail card */
+  .detail-card {
+    background: #fff; border: 1px solid #E2E8F0; border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;
+  }
+  .detail-card-header { padding: 14px 20px; border-bottom: 1px solid #F1F5F9; }
+  .detail-card-header span { font-size: 14px; font-weight: 700; color: #0F172A; }
+  .detail-body { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+  .detail-left { padding: 20px 24px; border-right: 1px solid #F1F5F9; }
+  .detail-right { padding: 20px 24px; }
+  .detail-row { margin-bottom: 14px; }
+  .detail-row:last-child { margin-bottom: 0; }
+  .d-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94A3B8; margin-bottom: 3px; }
+  .d-value { font-size: 13px; font-weight: 500; color: #0F172A; }
+  .d-value.mono { font-family: 'Courier New', monospace; font-size: 12px; color: #475569; }
+  .output-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94A3B8; margin-bottom: 8px; }
+  .output-box {
+    background: #1E293B; border-radius: 8px; padding: 16px;
+    font-family: 'Courier New', monospace; font-size: 12px;
+    color: #4ADE80; line-height: 1.7; white-space: pre;
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-title">R3VP</div>
+    <div class="logo-sub">Resilience Platform</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="#">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="#">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+      Incidents
+    </a>
+    <a class="nav-item active" href="#">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      Runbooks
+    </a>
+    <a class="nav-item" href="#">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Reports
+    </a>
+    <a class="nav-item" href="#">
+      <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+      Settings
+    </a>
+  </nav>
+</aside>
+
+<!-- Main content -->
+<main class="main">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">Full Ransomware Recovery</div>
+      <div class="page-sub">Execution &middot; Jun 22 2026 14:00 &middot; Triggered manually by Omar Rao</div>
+    </div>
+    <div class="header-right">
+      <span class="badge-completed-lg">COMPLETED</span>
+      <button class="btn-ghost-sm">Download Report</button>
+    </div>
+  </div>
+
+  <!-- Execution summary card -->
+  <div class="summary-card">
+    <div class="summary-grid">
+      <div class="summary-item">
+        <div class="s-label">Status</div>
+        <div class="s-value green">COMPLETED</div>
+      </div>
+      <div class="summary-item">
+        <div class="s-label">Actual RTO</div>
+        <div class="s-value green">187 min</div>
+      </div>
+      <div class="summary-item">
+        <div class="s-label">Target RTO</div>
+        <div class="s-value">240 min</div>
+      </div>
+      <div class="summary-item">
+        <div class="s-label">RTO</div>
+        <div class="s-value green-check">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          MET
+        </div>
+      </div>
+    </div>
+    <div class="summary-sub">
+      <div class="summary-sub-item">Started <span>14:00:00</span></div>
+      <div class="summary-sub-item">Completed <span>17:07:14</span></div>
+      <div class="summary-sub-item"><span>12</span> steps</div>
+      <div class="summary-sub-item"><span>4</span> waves</div>
+    </div>
+  </div>
+
+  <!-- Execution timeline -->
+  <div class="timeline-card">
+    <div class="timeline-card-header"><span>Execution Timeline</span></div>
+
+    <!-- Wave 1 -->
+    <div class="wave-section">
+      <div class="wave-header">
+        <div class="wave-check">
+          <svg fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <span class="wave-title">WAVE 1 of 4</span>
+        <span class="wave-mode">Sequential</span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">Step 1</span>
+        <span class="step-type">recover_workload</span>
+        <span class="step-target">dc-01.prod.local <span class="step-provider">(VMware)</span></span>
+        <span class="step-dur">28 min</span>
+        <span class="step-status"><span class="step-badge step-completed">COMPLETED</span></span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">Step 2</span>
+        <span class="step-type">recover_workload</span>
+        <span class="step-target">auth-svc-01 <span class="step-provider">(Azure)</span></span>
+        <span class="step-dur">19 min</span>
+        <span class="step-status"><span class="step-badge step-completed">COMPLETED</span></span>
+      </div>
+    </div>
+
+    <!-- Wave 2 -->
+    <div class="wave-section">
+      <div class="wave-header">
+        <div class="wave-check">
+          <svg fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <span class="wave-title">WAVE 2 of 4</span>
+        <span class="wave-mode">Parallel</span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">Step 3</span>
+        <span class="step-type">recover_workload</span>
+        <span class="step-target">sql-prod-01 <span class="step-provider">(VMware)</span></span>
+        <span class="step-dur">45 min</span>
+        <span class="step-status" style="display:flex;align-items:center;gap:6px;"><span class="parallel-badge">PARALLEL</span><span class="step-badge step-completed">COMPLETED</span></span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">Step 4</span>
+        <span class="step-type">recover_workload</span>
+        <span class="step-target">erp-prod-01 <span class="step-provider">(VMware)</span></span>
+        <span class="step-dur">38 min</span>
+        <span class="step-status" style="display:flex;align-items:center;gap:6px;"><span class="parallel-badge">PARALLEL</span><span class="step-badge step-completed">COMPLETED</span></span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">Step 5</span>
+        <span class="step-type">health_check</span>
+        <span class="step-target">All Wave 2 workloads</span>
+        <span class="step-dur">3 min</span>
+        <span class="step-status"><span class="step-badge step-completed">COMPLETED</span></span>
+      </div>
+    </div>
+
+    <!-- Wave 3 -->
+    <div class="wave-section">
+      <div class="wave-header">
+        <div class="wave-check">
+          <svg fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <span class="wave-title">WAVE 3 of 4</span>
+        <span class="wave-mode">Sequential</span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">Step 6</span>
+        <span class="step-type">wait</span>
+        <span class="step-target">5 minutes for DNS propagation</span>
+        <span class="step-dur">5 min</span>
+        <span class="step-status"><span class="step-badge step-completed">COMPLETED</span></span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">Step 7</span>
+        <span class="step-type">notify</span>
+        <span class="step-target">Slack #incident-response: "Core systems restored"</span>
+        <span class="step-dur">&lt;1 min</span>
+        <span class="step-status"><span class="step-badge step-completed">COMPLETED</span></span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">Step 8</span>
+        <span class="step-type">manual_gate</span>
+        <span class="step-target">"Confirm VPN access is restored"</span>
+        <span class="step-dur">12 min</span>
+        <span class="step-status"><span class="step-badge step-approved">APPROVED</span></span>
+      </div>
+    </div>
+
+    <!-- Wave 4 -->
+    <div class="wave-section">
+      <div class="wave-header">
+        <div class="wave-check">
+          <svg fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <span class="wave-title">WAVE 4 of 4</span>
+        <span class="wave-mode">Sequential</span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">Step 9</span>
+        <span class="step-type">recover_workload</span>
+        <span class="step-target">reporting-01 <span class="step-provider">(AWS)</span></span>
+        <span class="step-dur">22 min</span>
+        <span class="step-status"><span class="step-badge step-completed">COMPLETED</span></span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">Step 10</span>
+        <span class="step-type">recover_workload</span>
+        <span class="step-target">backup-proxy-01 <span class="step-provider">(VMware)</span></span>
+        <span class="step-dur">14 min</span>
+        <span class="step-status"><span class="step-badge step-completed">COMPLETED</span></span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">Step 11</span>
+        <span class="step-type">health_check</span>
+        <span class="step-target">Final validation all workloads</span>
+        <span class="step-dur">5 min</span>
+        <span class="step-status"><span class="step-badge step-completed">COMPLETED</span></span>
+      </div>
+      <div class="step-row">
+        <span class="step-num">Step 12</span>
+        <span class="step-type">notify</span>
+        <span class="step-target">Email to CISO: "DR exercise complete"</span>
+        <span class="step-dur">&lt;1 min</span>
+        <span class="step-status"><span class="step-badge step-completed">COMPLETED</span></span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Step detail panel -->
+  <div class="detail-card">
+    <div class="detail-card-header"><span>Step Detail: sql-prod-01 Recovery</span></div>
+    <div class="detail-body">
+      <div class="detail-left">
+        <div class="detail-row">
+          <div class="d-label">Step Type</div>
+          <div class="d-value mono">recover_workload</div>
+        </div>
+        <div class="detail-row">
+          <div class="d-label">Workload</div>
+          <div class="d-value">sql-prod-01</div>
+        </div>
+        <div class="detail-row">
+          <div class="d-label">Provider</div>
+          <div class="d-value">VMware</div>
+        </div>
+        <div class="detail-row">
+          <div class="d-label">Timeout</div>
+          <div class="d-value">60 min</div>
+        </div>
+        <div class="detail-row">
+          <div class="d-label">On Failure</div>
+          <div class="d-value mono">rollback_wave</div>
+        </div>
+      </div>
+      <div class="detail-right">
+        <div class="output-label">Output</div>
+        <div class="output-box">{
+  "test_run_id": "tr-abc123",
+  "rto_actual_mins": 45,
+  "health_checks_passed": true,
+  "restore_point": "2026-06-22T06:00:00Z"
+}</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

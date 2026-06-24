@@ -243,6 +243,18 @@ The integrations marketplace connects R3VP to six external tools: ServiceNow and
 
 The AI insights module provides three capabilities without an external LLM dependency: RTO trend prediction using linear regression to flag workloads trending toward breach before it happens, statistical anomaly detection over recovery time series using z-score analysis, and a natural language query interface for common recovery posture questions. Workloads are ranked by a composite risk score across test recency, RTO proximity, and failure rate.
 
+### DR Runbooks
+
+![DR Runbooks](docs/screenshots/runbooks.png)
+
+The runbooks page lists all recovery playbooks organised by scenario: ransomware, datacenter failure, cloud outage, site failover, and custom. Each runbook card shows the wave count, estimated duration, RTO target, and last execution result. Scenario filter pills let operators jump straight to the relevant playbook during an incident.
+
+### Runbook Execution
+
+![Runbook Execution](docs/screenshots/runbook-execution.png)
+
+The execution detail view shows a live wave-by-wave timeline with per-step status, duration, and output. Steps display their type (recover workload, health check, notify, wait, manual gate, run script), and the step detail panel shows the full JSON output from each activity. Actual RTO is computed at completion and compared to the runbook target.
+
 ---
 
 ## Architecture
