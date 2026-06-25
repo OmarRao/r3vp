@@ -20,7 +20,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
       <div className="w-full max-w-2xl">
         <div className="text-center mb-8">
-          <span className="text-2xl font-bold text-slate-900">R3VP</span>
+          <span className="text-2xl font-bold text-slate-900">R<span className="text-green-500">3</span>VP</span>
           <span className="text-sm text-green-500 font-semibold ml-2">Setup</span>
         </div>
 

@@ -23,7 +23,7 @@ body{padding:32px 16px}
 .wizard-wrap{width:100%;max-width:680px}
 .wizard-logo{text-align:center;margin-bottom:28px}
 .logo-text{font-size:20px;font-weight:800;color:var(--text-1);letter-spacing:-0.5px}
-.logo-sub{font-size:12px;font-weight:600;color:var(--green);margin-left:8px}
+.logo-text em{color:var(--green);font-style:normal}.logo-sub{font-size:12px;font-weight:600;color:var(--green);margin-left:8px}
 .stepper{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px}
 .step-item{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
 .step-item:not(:last-child)::after{content:'';position:absolute;top:14px;left:calc(50% + 14px);right:calc(-50% + 14px);height:2px;background:var(--border)}
@@ -56,7 +56,7 @@ select.form-control{appearance:none;background-image:url("data:image/svg+xml,%3C
 <body>
 <div class="wizard-wrap">
   <div class="wizard-logo">
-    <span class="logo-text">R3VP</span><span class="logo-sub">Setup</span>
+    <span class="logo-text">R<em>3</em>VP</span><span class="logo-sub">Setup</span>
   </div>
 
   <div class="stepper">
