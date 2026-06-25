@@ -22,24 +22,6 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
-## [Unreleased] - Phase 14: Billing and Usage Metering
-
-### Added
-- Stripe-backed subscription management with three plan tiers: Starter ($499/mo, 10 workloads), Growth ($1,499/mo, 50 workloads), Enterprise ($25/workload/month, unlimited)
-- Subscription model tracking plan, status, Stripe customer and subscription IDs, workload limit/count, trial and billing period dates
-- UsageRecord model capturing per-period consumption: workloads active, test runs, reports generated, evidence bundles, API calls
-- Invoice model mirroring Stripe invoices with amount, status, period, hosted PDF URL, and paid timestamp
-- Billing service with plan registry, Stripe customer creation, hosted Checkout session creation, and subscription cancellation helpers
-- Public plan catalog endpoint listing all tiers with features and pricing
-- Subscription status endpoint returning current plan with workload utilization and estimated monthly bill
-- Usage history endpoint returning last 6 billing periods with consumption breakdown
-- Invoice history endpoint with downloadable PDF links
-- Stripe webhook handler processing customer.subscription.updated and invoice.paid lifecycle events with signature verification
-- Billing portal page with current plan card, workload progress bar, plan comparison grid, and invoices table
-- Migration 0015 adding subscriptions, usage_records, and invoices tables
-
----
-
 ## [Unreleased] - Phase 13: Self-Service Onboarding Wizard
 
 ### Added

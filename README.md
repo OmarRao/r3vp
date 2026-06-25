@@ -261,12 +261,6 @@ The execution detail view shows a live wave-by-wave timeline with per-step statu
 
 The self-service onboarding wizard guides new organizations from signup to first validated recovery test without professional services. A six-step horizontal stepper covers org profile, appliance deployment (Docker or OVA), Veeam B&R connection, workload discovery, and first test execution. Credentials are encrypted with SOPS and age on the appliance and never transmitted to the cloud.
 
-### Billing and Usage
-
-![Billing and Usage](docs/screenshots/billing.png)
-
-The billing portal shows current plan with workload consumption progress, a three-tier plan comparison grid (Starter / Growth / Enterprise), per-period usage metrics for workloads, test runs, reports, and API calls, and a downloadable invoice history. Plan upgrades redirect to Stripe Checkout. Subscription state is kept in sync via Stripe webhooks.
-
 ### Appliance Fleet
 
 ![Appliance Fleet](docs/screenshots/fleet.png)
