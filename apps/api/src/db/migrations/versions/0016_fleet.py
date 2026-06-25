@@ -1,14 +1,14 @@
 """Appliance fleet: groups, health snapshots, bulk config jobs
 
 Revision ID: 0016
-Revises: 0015
+Revises: 0014
 """
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 revision = "0016"
-down_revision = "0015"
+down_revision = "0014"
 branch_labels = None
 depends_on = None
 
