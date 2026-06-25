@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Billing and Usage - R3VP</title>
+<style>
+:root {
+  --bg: #F8FAFC; --surface: #FFFFFF; --border: #E2E8F0; --border-light: #F1F5F9;
+  --text-1: #0F172A; --text-2: #475569; --text-3: #94A3B8;
+  --green: #00B336; --green-bg: #F0FDF4; --green-border: #BBF7D0; --green-text: #15803D;
+  --amber: #D97706; --amber-bg: #FFFBEB; --amber-border: #FDE68A;
+  --red: #DC2626; --red-bg: #FFF1F2; --red-border: #FECACA;
+  --blue: #2563EB; --blue-bg: #EFF6FF; --blue-border: #BFDBFE;
+  --sidebar: #0F172A; --font: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --radius: 10px; --radius-sm: 6px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text-1);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;overflow-y:auto;z-index:100}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo-text{font-size:21px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.logo-text em{color:var(--green);font-style:normal}
+.logo-tag{font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
+.logo-ver{font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px}
+.nav{flex:1;padding:8px 0}
+.nav-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.25);padding:12px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 18px;font-size:12px;color:rgba(255,255,255,0.55);cursor:pointer;border-left:2px solid transparent;transition:all 0.12s;text-decoration:none}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;border-left-color:var(--green);background:rgba(0,179,54,0.12);font-weight:600}
+.sidebar-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,0.07);font-size:10px;color:rgba(255,255,255,0.25);line-height:1.7}
+.sidebar-footer a{color:var(--green);text-decoration:none}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.topbar-left{display:flex;flex-direction:column;min-width:0}
+.page-title{font-size:16px;font-weight:700;color:var(--text-1)}
+.page-sub{font-size:11px;color:var(--text-3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 28px;background:var(--bg)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all 0.12s;white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:var(--green-text)}
+.btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-size:12px;font-weight:700;color:var(--text-1)}
+.card-body{padding:16px 18px}
+.mb20{margin-bottom:20px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-green{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border)}
+.badge-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.bar-track{flex:1;height:6px;background:#F1F5F9;border-radius:99px;overflow:hidden}
+.bar-fill{height:6px;border-radius:99px}
+.bar-green{background:var(--green)}
+.bar-amber{background:var(--amber)}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-3);padding:10px 16px;text-align:left;background:#FAFAFA;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 16px;border-bottom:1px solid var(--border-light);color:var(--text-2);font-size:12px;vertical-align:middle}
+tr:last-child td{border:none}
+tr:hover td{background:#FAFAFA}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">R<em>3</em>VP</div>
+      <div class="logo-tag">Recovery Readiness</div>
+      <div class="logo-ver">v2.1.0-beta</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Overview</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/></svg>
+        Dashboard
+      </a>
+      <div class="nav-section">Testing</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Test Runs
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Workloads
+      </a>
+      <div class="nav-section">Infrastructure</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="14" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+        Provider Coverage
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h3v3H2zM7 4h3v3H7zM2 9h3v3H2zM7 9h3v3H7z" stroke="currentColor" stroke-width="1.5"/><path d="M12 1v14M12 4h2M12 9h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Fleet
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1L15 5v6L8 15 1 11V5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        Threat Scanner
+      </a>
+      <div class="nav-section">Compliance</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 8l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+        Evidence Vault
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12L6 4l4 5 2-3 2 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Reports
+      </a>
+      <div class="nav-section">System</div>
+      <a class="nav-item active" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      Built by <a href="mailto:omar.rao@veeam.com">Omar Rao</a><br>
+      Engineer - Data Resilience,<br>
+      Cybersecurity and Privacy<br>
+      <a href="https://www.linkedin.com/in/omarrao/" target="_blank">LinkedIn</a> &nbsp;&middot;&nbsp;
+      <a href="https://omarrao.substack.com/" target="_blank">Substack</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Billing and Usage</div>
+        <div class="page-sub">Manage your subscription, usage, and invoices</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost">Upgrade Plan</button>
+      </div>
+    </div>
+
+    <div class="body">
+
+      <!-- Current Plan -->
+      <div class="card mb20" style="border-left:4px solid var(--green)">
+        <div class="card-body">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="badge badge-green" style="font-size:13px;padding:4px 12px;letter-spacing:1px">GROWTH</span>
+              <span class="badge badge-green">ACTIVE</span>
+            </div>
+            <div style="text-align:right">
+              <span style="font-size:26px;font-weight:800;color:var(--text-1)">$1,499</span>
+              <span style="font-size:12px;color:var(--text-3)"> / month</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div class="bar-track">
+              <div class="bar-fill bar-amber" style="width:94%"></div>
+            </div>
+            <span style="font-size:11px;color:var(--text-3);white-space:nowrap">47 / 50 workloads</span>
+          </div>
+          <p style="font-size:11px;color:var(--text-3)">47 of 50 workloads used &middot; Renews Jul 1, 2026 &middot; Next invoice: $1,499</p>
+        </div>
+      </div>
+
+      <!-- Plan comparison -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
+
+        <div class="card" style="padding:18px">
+          <h3 style="font-weight:700;color:var(--text-1);margin-bottom:4px">Starter</h3>
+          <div style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:12px">$499<span style="font-size:11px;font-weight:400;color:var(--text-3)">/mo</span></div>
+          <ul style="list-style:none;margin-bottom:16px">
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>10 workloads</li>
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>All providers</li>
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>SOC 2 / ISO 27001</li>
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>Email support</li>
+          </ul>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center">Downgrade</button>
+        </div>
+
+        <div class="card" style="padding:18px;border-color:var(--green)">
+          <div style="font-size:9px;font-weight:700;color:var(--green-text);background:var(--green-bg);border:1px solid var(--green-border);padding:2px 8px;border-radius:99px;display:inline-block;margin-bottom:6px">Current Plan</div>
+          <h3 style="font-weight:700;color:var(--text-1);margin-bottom:4px">Growth</h3>
+          <div style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:12px">$1,499<span style="font-size:11px;font-weight:400;color:var(--text-3)">/mo</span></div>
+          <ul style="list-style:none;margin-bottom:16px">
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>50 workloads</li>
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>All frameworks</li>
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>RBAC + SSO</li>
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>API keys</li>
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>Integrations</li>
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>Priority support</li>
+          </ul>
+        </div>
+
+        <div class="card" style="padding:18px">
+          <h3 style="font-weight:700;color:var(--text-1);margin-bottom:4px">Enterprise</h3>
+          <div style="font-size:20px;font-weight:800;color:var(--text-1);margin-bottom:12px">Custom</div>
+          <ul style="list-style:none;margin-bottom:16px">
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>Unlimited workloads</li>
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>All features</li>
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>MSSP console</li>
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>Custom SLA</li>
+            <li style="font-size:11px;color:var(--text-2);margin-bottom:4px"><span style="color:var(--green);margin-right:4px">&#10003;</span>Dedicated CSM</li>
+          </ul>
+          <button class="btn btn-primary" style="width:100%;justify-content:center">Contact Sales</button>
+        </div>
+
+      </div>
+
+      <!-- Usage this period -->
+      <div class="card mb20">
+        <div class="card-hd"><span class="card-title">Usage This Period (Jun 2026)</span></div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:11px;color:var(--text-2);width:160px;flex-shrink:0">Workloads Active</span>
+              <div class="bar-track"><div class="bar-fill bar-amber" style="width:94%"></div></div>
+              <span style="font-size:11px;color:var(--text-3);width:100px;text-align:right;flex-shrink:0">47 / 50</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:11px;color:var(--text-2);width:160px;flex-shrink:0">Test Runs</span>
+              <div class="bar-track"><div class="bar-fill bar-green" style="width:20%"></div></div>
+              <span style="font-size:11px;color:var(--text-3);width:100px;text-align:right;flex-shrink:0">124 / unlimited</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:11px;color:var(--text-2);width:160px;flex-shrink:0">Reports Generated</span>
+              <div class="bar-track"><div class="bar-fill bar-green" style="width:8%"></div></div>
+              <span style="font-size:11px;color:var(--text-3);width:100px;text-align:right;flex-shrink:0">8 / unlimited</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:11px;color:var(--text-2);width:160px;flex-shrink:0">Evidence Bundles</span>
+              <div class="bar-track"><div class="bar-fill bar-green" style="width:6%"></div></div>
+              <span style="font-size:11px;color:var(--text-3);width:100px;text-align:right;flex-shrink:0">6 / unlimited</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:11px;color:var(--text-2);width:160px;flex-shrink:0">API Calls</span>
+              <div class="bar-track"><div class="bar-fill bar-green" style="width:15%"></div></div>
+              <span style="font-size:11px;color:var(--text-3);width:100px;text-align:right;flex-shrink:0">2,847 / unlimited</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:11px;color:var(--text-2);width:160px;flex-shrink:0">Scheduled Deliveries</span>
+              <div class="bar-track"><div class="bar-fill bar-green" style="width:4%"></div></div>
+              <span style="font-size:11px;color:var(--text-3);width:100px;text-align:right;flex-shrink:0">4 / unlimited</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Usage history -->
+      <div class="card mb20">
+        <div class="card-hd"><span class="card-title">Usage History</span></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th>Workloads</th>
+              <th>Test Runs</th>
+              <th>Reports</th>
+              <th>API Calls</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Jun 2026</td>
+              <td>47</td>
+              <td>124</td>
+              <td>8</td>
+              <td>2,847</td>
+              <td style="font-weight:600;color:var(--text-1)">$1,499</td>
+            </tr>
+            <tr>
+              <td>May 2026</td>
+              <td>45</td>
+              <td>98</td>
+              <td>6</td>
+              <td>2,201</td>
+              <td style="font-weight:600;color:var(--text-1)">$1,499</td>
+            </tr>
+            <tr>
+              <td>Apr 2026</td>
+              <td>42</td>
+              <td>110</td>
+              <td>7</td>
+              <td>1,984</td>
+              <td style="font-weight:600;color:var(--text-1)">$1,499</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Invoices -->
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Invoices</span></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Period</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Jun 2026</td>
+              <td style="font-weight:600;color:var(--text-1)">$1,499</td>
+              <td><span class="badge badge-green">PAID</span></td>
+              <td><button class="btn btn-ghost btn-sm">Download</button></td>
+            </tr>
+            <tr>
+              <td>May 2026</td>
+              <td style="font-weight:600;color:var(--text-1)">$1,499</td>
+              <td><span class="badge badge-green">PAID</span></td>
+              <td><button class="btn btn-ghost btn-sm">Download</button></td>
+            </tr>
+            <tr>
+              <td>Apr 2026</td>
+              <td style="font-weight:600;color:var(--text-1)">$1,499</td>
+              <td><span class="badge badge-green">PAID</span></td>
+              <td><button class="btn btn-ghost btn-sm">Download</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

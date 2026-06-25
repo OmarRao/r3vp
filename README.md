@@ -255,6 +255,24 @@ The runbooks page lists all recovery playbooks organised by scenario: ransomware
 
 The execution detail view shows a live wave-by-wave timeline with per-step status, duration, and output. Steps display their type (recover workload, health check, notify, wait, manual gate, run script), and the step detail panel shows the full JSON output from each activity. Actual RTO is computed at completion and compared to the runbook target.
 
+### Onboarding Wizard
+
+![Onboarding Wizard](docs/screenshots/onboarding.png)
+
+The self-service onboarding wizard guides new organizations from signup to first validated recovery test without professional services. A six-step horizontal stepper covers org profile, appliance deployment (Docker or OVA), Veeam B&R connection, workload discovery, and first test execution. Credentials are encrypted with SOPS and age on the appliance and never transmitted to the cloud.
+
+### Billing and Usage
+
+![Billing and Usage](docs/screenshots/billing.png)
+
+The billing portal shows current plan with workload consumption progress, a three-tier plan comparison grid (Starter / Growth / Enterprise), per-period usage metrics for workloads, test runs, reports, and API calls, and a downloadable invoice history. Plan upgrades redirect to Stripe Checkout. Subscription state is kept in sync via Stripe webhooks.
+
+### Appliance Fleet
+
+![Appliance Fleet](docs/screenshots/fleet.png)
+
+The fleet management page provides a unified view across all deployed appliances. Each appliance row shows a status-colored border (green / amber / red), resource utilization bars, and connection state badges for Veeam, vCenter, and Temporal. Site groups allow bulk configuration templates to be pushed to multiple appliances simultaneously. A bulk config editor accepts a JSON payload and dispatches it as an async job with per-appliance result tracking.
+
 ---
 
 ## Architecture

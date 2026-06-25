@@ -7,6 +7,54 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Phase 15: Appliance Fleet Management
+
+### Added
+- ApplianceGroup model for organizing appliances by site or region with config template and tags
+- ApplianceGroupMember join table with cascade deletes for clean group/appliance removal
+- ApplianceHealthSnapshot model capturing CPU, memory, disk, Veeam/vCenter/Temporal connection state, version, and per-appliance alert list
+- BulkConfigJob model for async config push to multiple appliances with per-appliance result tracking
+- Fleet overview endpoint aggregating healthy/warning/offline counts and per-appliance status in one response
+- Site group CRUD API with config_template for bulk configuration propagation
+- Bulk config push endpoint: accepts appliance IDs and config dict, creates async job, returns job ID for status polling
+- Fleet portal page with KPI cards, appliance rows showing status-colored borders with resource and connection badges, groups section, and bulk config JSON editor
+- Migration 0016 adding appliance_groups, appliance_group_members, appliance_health_snapshots, and bulk_config_jobs tables
+
+---
+
+## [Unreleased] - Phase 14: Billing and Usage Metering
+
+### Added
+- Stripe-backed subscription management with three plan tiers: Starter ($499/mo, 10 workloads), Growth ($1,499/mo, 50 workloads), Enterprise ($25/workload/month, unlimited)
+- Subscription model tracking plan, status, Stripe customer and subscription IDs, workload limit/count, trial and billing period dates
+- UsageRecord model capturing per-period consumption: workloads active, test runs, reports generated, evidence bundles, API calls
+- Invoice model mirroring Stripe invoices with amount, status, period, hosted PDF URL, and paid timestamp
+- Billing service with plan registry, Stripe customer creation, hosted Checkout session creation, and subscription cancellation helpers
+- Public plan catalog endpoint listing all tiers with features and pricing
+- Subscription status endpoint returning current plan with workload utilization and estimated monthly bill
+- Usage history endpoint returning last 6 billing periods with consumption breakdown
+- Invoice history endpoint with downloadable PDF links
+- Stripe webhook handler processing customer.subscription.updated and invoice.paid lifecycle events with signature verification
+- Billing portal page with current plan card, workload progress bar, plan comparison grid, and invoices table
+- Migration 0015 adding subscriptions, usage_records, and invoices tables
+
+---
+
+## [Unreleased] - Phase 13: Self-Service Onboarding Wizard
+
+### Added
+- OnboardingSession model with org-scoped unique constraint, step progress tracking, step_data JSONB for per-step completion evidence, and completed/dismissed flags
+- Six-step onboarding flow: org_profile, deploy_appliance, connect_veeam, discover_workloads, first_test, complete
+- Step completion predicates: each step has a typed check on step_data (appliance_id, veeam_connected, workload_count, first_test_run_id)
+- Auto-complete trigger: session marks complete when step 6 is reached and overall progress is >= 80%
+- Onboarding API: GET status (auto-creates session on first call), POST step advancement, POST dismiss, POST reset
+- Full-screen wizard portal page with horizontal step stepper, org profile form, Docker deployment instructions, and step progress tracking
+- Registration token display and 24-hour expiry hint on deploy_appliance step
+- Security note confirming SOPS + age credential isolation in the wizard UI
+- Migration 0014 adding onboarding_sessions table with org_id unique index
+
+---
+
 ## [Unreleased] - Phase 12: DR Runbook Automation
 
 ### Added
