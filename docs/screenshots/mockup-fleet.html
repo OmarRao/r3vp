@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Appliance Fleet - R3VP</title>
+<style>
+:root {
+  --bg: #F8FAFC; --surface: #FFFFFF; --border: #E2E8F0; --border-light: #F1F5F9;
+  --text-1: #0F172A; --text-2: #475569; --text-3: #94A3B8;
+  --green: #00B336; --green-bg: #F0FDF4; --green-border: #BBF7D0; --green-text: #15803D;
+  --amber: #D97706; --amber-bg: #FFFBEB; --amber-border: #FDE68A;
+  --red: #DC2626; --red-bg: #FFF1F2; --red-border: #FECACA;
+  --blue: #2563EB; --blue-bg: #EFF6FF; --blue-border: #BFDBFE;
+  --sidebar: #0F172A; --font: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --radius: 10px; --radius-sm: 6px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text-1);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;overflow-y:auto;z-index:100}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo-text{font-size:21px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.logo-text em{color:var(--green);font-style:normal}
+.logo-tag{font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
+.logo-ver{font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px}
+.nav{flex:1;padding:8px 0}
+.nav-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.25);padding:12px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 18px;font-size:12px;color:rgba(255,255,255,0.55);cursor:pointer;border-left:2px solid transparent;transition:all 0.12s;text-decoration:none}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;border-left-color:var(--green);background:rgba(0,179,54,0.12);font-weight:600}
+.sidebar-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,0.07);font-size:10px;color:rgba(255,255,255,0.25);line-height:1.7}
+.sidebar-footer a{color:var(--green);text-decoration:none}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.topbar-left{display:flex;flex-direction:column;min-width:0}
+.page-title{font-size:16px;font-weight:700;color:var(--text-1)}
+.page-sub{font-size:11px;color:var(--text-3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 28px;background:var(--bg)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all 0.12s;white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:var(--green-text)}
+.btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-size:12px;font-weight:700;color:var(--text-1)}
+.card-body{padding:16px 18px}
+.mb20{margin-bottom:20px}
+.kpi-grid{display:grid;gap:12px;margin-bottom:20px}
+.kpi-4{grid-template-columns:repeat(4,1fr)}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3);margin-bottom:6px}
+.kpi-val{font-size:26px;font-weight:800;color:var(--text-1);line-height:1;letter-spacing:-0.5px}
+.kpi-sub{font-size:11px;color:var(--text-3);margin-top:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-green{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border)}
+.badge-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.badge-gray{background:#F1F5F9;color:#64748B;border:1px solid var(--border)}
+/* Appliance rows */
+.appliance-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);border-left-width:4px;margin-bottom:8px}
+.appliance-row:last-child{margin-bottom:0}
+.appliance-row.green{border-left-color:var(--green)}
+.appliance-row.amber{border-left-color:var(--amber)}
+.appliance-row.red{border-left-color:var(--red)}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-green{background:var(--green)}
+.dot-amber{background:var(--amber)}
+.dot-red{background:var(--red)}
+.appliance-name{font-weight:600;font-size:12px;color:var(--text-1)}
+.appliance-site{font-size:10px;color:var(--text-3);font-style:italic}
+.metric-pill{display:inline-flex;align-items:center;gap:3px;background:#F1F5F9;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:600;color:var(--text-2)}
+.conn-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.conn-ok{background:var(--green-bg);color:var(--green-text)}
+.conn-fail{background:var(--red-bg);color:var(--red)}
+.conn-na{background:#F1F5F9;color:var(--text-3)}
+.alert-bar{background:#FFFBEB;border:1px solid var(--amber-border);border-radius:6px;padding:6px 12px;font-size:10px;color:var(--amber);margin-top:6px;display:flex;align-items:center;gap:6px}
+.alert-bar-red{background:var(--red-bg);border-color:var(--red-border);color:var(--red)}
+.ver-tag{font-size:10px;color:var(--text-3);background:#F1F5F9;border-radius:4px;padding:2px 6px;font-family:monospace}
+.wl-badge{font-size:10px;font-weight:700;color:var(--text-2);background:#F1F5F9;border-radius:4px;padding:2px 7px}
+.last-test{font-size:10px;color:var(--text-3);white-space:nowrap}
+textarea.form-control{resize:vertical;font-family:monospace;font-size:11px;background:#0F172A;color:#00B336;border-color:#334155;border-radius:var(--radius-sm)}
+.form-control{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-family:var(--font);color:var(--text-1);background:#fff;outline:none}
+.form-control:focus{border-color:var(--green)}
+.form-label{font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:4px;display:block}
+.radio-group{display:flex;gap:16px;align-items:center}
+.radio-group label{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-2);cursor:pointer}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">R<em>3</em>VP</div>
+      <div class="logo-tag">Recovery Readiness</div>
+      <div class="logo-ver">v2.1.0-beta</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Overview</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/></svg>
+        Dashboard
+      </a>
+      <div class="nav-section">Testing</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Test Runs
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Workloads
+      </a>
+      <div class="nav-section">Infrastructure</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="14" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+        Provider Coverage
+      </a>
+      <a class="nav-item active" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="7" width="14" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="12" width="14" height="3" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+        Fleet
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1L15 5v6L8 15 1 11V5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        Threat Scanner
+      </a>
+      <div class="nav-section">Compliance</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 8l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+        Evidence Vault
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12L6 4l4 5 2-3 2 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Reports
+      </a>
+      <div class="nav-section">System</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      Built by <a href="mailto:omar.rao@veeam.com">Omar Rao</a><br>
+      Engineer - Data Resilience,<br>
+      Cybersecurity and Privacy<br>
+      <a href="https://www.linkedin.com/in/omarrao/" target="_blank">LinkedIn</a> &nbsp;&middot;&nbsp;
+      <a href="https://omarrao.substack.com/" target="_blank">Substack</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Appliance Fleet</div>
+        <div class="page-sub">Monitor and manage all appliances across sites and regions</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost">Bulk Config</button>
+        <button class="btn btn-primary">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          New Group
+        </button>
+      </div>
+    </div>
+
+    <div class="body">
+
+      <!-- KPI Row -->
+      <div class="kpi-grid kpi-4">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Appliances</div>
+          <div class="kpi-val">5</div>
+          <div class="kpi-sub">Across all sites</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Healthy</div>
+          <div class="kpi-val" style="color:var(--green)">3</div>
+          <div class="kpi-sub">Normal operation</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Warning</div>
+          <div class="kpi-val" style="color:var(--amber)">1</div>
+          <div class="kpi-sub">Needs attention</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Offline</div>
+          <div class="kpi-val" style="color:var(--red)">1</div>
+          <div class="kpi-sub">No heartbeat</div>
+        </div>
+      </div>
+
+      <!-- Fleet Overview -->
+      <div class="card mb20">
+        <div class="card-hd"><span class="card-title">Fleet Overview</span></div>
+        <div class="card-body">
+
+          <!-- Row 1: NYC-Primary -->
+          <div class="appliance-row green">
+            <div class="status-dot dot-green"></div>
+            <div style="min-width:130px">
+              <div class="appliance-name">NYC-Primary</div>
+              <div class="appliance-site">NYC DC1</div>
+            </div>
+            <div style="display:flex;gap:5px;flex-shrink:0">
+              <span class="metric-pill">CPU 24%</span>
+              <span class="metric-pill">RAM 41%</span>
+              <span class="metric-pill">Disk 38%</span>
+            </div>
+            <div style="display:flex;gap:5px;flex-shrink:0;margin-left:8px">
+              <span class="conn-badge conn-ok">Veeam &#10003;</span>
+              <span class="conn-badge conn-ok">vCenter &#10003;</span>
+              <span class="conn-badge conn-ok">Temporal &#10003;</span>
+            </div>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0">
+              <span class="wl-badge">20 workloads</span>
+              <span class="ver-tag">v0.13.0</span>
+              <span class="last-test">Today 14:22</span>
+              <button class="btn btn-ghost btn-sm">Details</button>
+            </div>
+          </div>
+
+          <!-- Row 2: NYC-DR -->
+          <div class="appliance-row green">
+            <div class="status-dot dot-green"></div>
+            <div style="min-width:130px">
+              <div class="appliance-name">NYC-DR</div>
+              <div class="appliance-site">NYC DR Site</div>
+            </div>
+            <div style="display:flex;gap:5px;flex-shrink:0">
+              <span class="metric-pill">CPU 12%</span>
+              <span class="metric-pill">RAM 28%</span>
+              <span class="metric-pill">Disk 22%</span>
+            </div>
+            <div style="display:flex;gap:5px;flex-shrink:0;margin-left:8px">
+              <span class="conn-badge conn-ok">Veeam &#10003;</span>
+              <span class="conn-badge conn-ok">vCenter &#10003;</span>
+              <span class="conn-badge conn-ok">Temporal &#10003;</span>
+            </div>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0">
+              <span class="wl-badge">8 workloads</span>
+              <span class="ver-tag">v0.13.0</span>
+              <span class="last-test">Jun 20</span>
+              <button class="btn btn-ghost btn-sm">Details</button>
+            </div>
+          </div>
+
+          <!-- Row 3: Azure-EastUS (amber) -->
+          <div>
+            <div class="appliance-row amber">
+              <div class="status-dot dot-amber"></div>
+              <div style="min-width:130px">
+                <div class="appliance-name">Azure-EastUS</div>
+                <div class="appliance-site">Azure East US</div>
+              </div>
+              <div style="display:flex;gap:5px;flex-shrink:0">
+                <span class="metric-pill">CPU 18%</span>
+                <span class="metric-pill" style="background:#FFFBEB;color:var(--amber)">RAM 65%</span>
+                <span class="metric-pill" style="background:#FFFBEB;color:var(--amber)">Disk 71%</span>
+              </div>
+              <div style="display:flex;gap:5px;flex-shrink:0;margin-left:8px">
+                <span class="conn-badge conn-ok">Veeam &#10003;</span>
+                <span class="conn-badge conn-fail">vCenter &#10007;</span>
+                <span class="conn-badge conn-ok">Temporal &#10003;</span>
+              </div>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0">
+                <span class="wl-badge">10 workloads</span>
+                <span class="ver-tag">v0.12.1</span>
+                <span class="last-test">Jun 18</span>
+                <button class="btn btn-ghost btn-sm">Details</button>
+              </div>
+            </div>
+            <div class="alert-bar">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 13H2L8 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 7v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.5" fill="currentColor"/></svg>
+              Disk usage above 70% &middot; vCenter connection lost
+            </div>
+          </div>
+
+          <!-- Row 4: AWS-USEast1 -->
+          <div class="appliance-row green" style="margin-top:8px">
+            <div class="status-dot dot-green"></div>
+            <div style="min-width:130px">
+              <div class="appliance-name">AWS-USEast1</div>
+              <div class="appliance-site">AWS us-east-1</div>
+            </div>
+            <div style="display:flex;gap:5px;flex-shrink:0">
+              <span class="metric-pill">CPU 9%</span>
+              <span class="metric-pill">RAM 33%</span>
+              <span class="metric-pill">Disk 28%</span>
+            </div>
+            <div style="display:flex;gap:5px;flex-shrink:0;margin-left:8px">
+              <span class="conn-badge conn-ok">Veeam &#10003;</span>
+              <span class="conn-badge conn-na">vCenter N/A</span>
+              <span class="conn-badge conn-ok">Temporal &#10003;</span>
+            </div>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0">
+              <span class="wl-badge">8 workloads</span>
+              <span class="ver-tag">v0.13.0</span>
+              <span class="last-test">Jun 21</span>
+              <button class="btn btn-ghost btn-sm">Details</button>
+            </div>
+          </div>
+
+          <!-- Row 5: London-DC (red) -->
+          <div>
+            <div class="appliance-row red">
+              <div class="status-dot dot-red"></div>
+              <div style="min-width:130px">
+                <div class="appliance-name">London-DC</div>
+                <div class="appliance-site">London DC</div>
+              </div>
+              <div style="display:flex;gap:5px;flex-shrink:0">
+                <span class="metric-pill" style="color:var(--text-3)">CPU -</span>
+                <span class="metric-pill" style="color:var(--text-3)">RAM -</span>
+                <span class="metric-pill" style="color:var(--text-3)">Disk -</span>
+              </div>
+              <div style="display:flex;gap:5px;flex-shrink:0;margin-left:8px">
+                <span class="conn-badge conn-fail">Veeam &#10007;</span>
+                <span class="conn-badge conn-fail">vCenter &#10007;</span>
+                <span class="conn-badge conn-fail">Temporal &#10007;</span>
+              </div>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0">
+                <span class="wl-badge">0 workloads</span>
+                <span class="ver-tag">v0.11.2</span>
+                <span class="last-test">Jun 10</span>
+                <button class="btn btn-ghost btn-sm">Details</button>
+              </div>
+            </div>
+            <div class="alert-bar alert-bar-red">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r="0.8" fill="currentColor"/></svg>
+              No heartbeat in 72 hours
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Groups -->
+      <div class="card mb20">
+        <div class="card-hd"><span class="card-title">Site Groups (2)</span></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface)">
+            <div style="flex:1;min-width:0">
+              <span style="font-weight:600;font-size:12px;color:var(--text-1)">NYC Sites</span>
+              <span style="font-size:11px;color:var(--text-3);margin-left:8px">2 appliances (NYC-Primary, NYC-DR)</span>
+            </div>
+            <code style="font-size:10px;color:var(--text-3);background:#F1F5F9;padding:2px 8px;border-radius:4px">default_rto=60</code>
+            <button class="btn btn-ghost btn-sm">Edit</button>
+            <button class="btn btn-ghost btn-sm">Push Config</button>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface)">
+            <div style="flex:1;min-width:0">
+              <span style="font-weight:600;font-size:12px;color:var(--text-1)">Cloud Sites</span>
+              <span style="font-size:11px;color:var(--text-3);margin-left:8px">2 appliances (Azure-EastUS, AWS-USEast1)</span>
+            </div>
+            <code style="font-size:10px;color:var(--text-3);background:#F1F5F9;padding:2px 8px;border-radius:4px">default_rto=120</code>
+            <button class="btn btn-ghost btn-sm">Edit</button>
+            <button class="btn btn-ghost btn-sm">Push Config</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Bulk Config -->
+      <div class="card">
+        <div class="card-hd"><span class="card-title">Bulk Configuration Push</span></div>
+        <div class="card-body">
+          <div style="margin-bottom:14px">
+            <label class="form-label">Target</label>
+            <div class="radio-group">
+              <label><input type="radio" name="target" checked> All Appliances</label>
+              <label><input type="radio" name="target"> Group</label>
+              <label><input type="radio" name="target"> Select Specific</label>
+            </div>
+          </div>
+          <div style="margin-bottom:16px">
+            <label class="form-label">Configuration JSON</label>
+            <textarea class="form-control" rows="4">{
+  "default_rto_target_mins": 60,
+  "sync_interval_mins": 30,
+  "log_level": "info"
+}</textarea>
+          </div>
+          <button class="btn btn-primary">Push to 5 Appliances</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Onboarding Setup - R3VP</title>
+<style>
+:root {
+  --bg: #F8FAFC; --surface: #FFFFFF; --border: #E2E8F0; --border-light: #F1F5F9;
+  --text-1: #0F172A; --text-2: #475569; --text-3: #94A3B8;
+  --green: #00B336; --green-bg: #F0FDF4; --green-border: #BBF7D0; --green-text: #15803D;
+  --amber: #D97706; --amber-bg: #FFFBEB; --amber-border: #FDE68A;
+  --red: #DC2626; --red-bg: #FFF1F2; --red-border: #FECACA;
+  --blue: #2563EB; --blue-bg: #EFF6FF; --blue-border: #BFDBFE;
+  --sidebar: #0F172A; --font: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --radius: 10px; --radius-sm: 6px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font);background:#fff;color:var(--text-1);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center;min-height:100vh}
+body{padding:32px 16px}
+.wizard-wrap{width:100%;max-width:680px}
+.wizard-logo{text-align:center;margin-bottom:28px}
+.logo-text{font-size:20px;font-weight:800;color:var(--text-1);letter-spacing:-0.5px}
+.logo-sub{font-size:12px;font-weight:600;color:var(--green);margin-left:8px}
+.stepper{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px}
+.step-item{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+.step-item:not(:last-child)::after{content:'';position:absolute;top:14px;left:calc(50% + 14px);right:calc(-50% + 14px);height:2px;background:var(--border)}
+.step-item.done::after{background:var(--green)}
+.step-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid var(--border);background:#fff;color:var(--text-3);position:relative;z-index:1}
+.step-circle.active{background:var(--green);border-color:var(--green);color:#fff}
+.step-circle.done{background:var(--green);border-color:var(--green);color:#fff}
+.step-label{font-size:9px;color:var(--text-3);margin-top:5px;text-align:center;line-height:1.3}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:12px}
+.card-heading{font-size:20px;font-weight:700;color:var(--text-1);margin-bottom:4px}
+.card-sub{font-size:12px;color:var(--text-3);margin-bottom:22px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-grid-full{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.span2{grid-column:span 2}
+.form-label{font-size:11px;font-weight:600;color:var(--text-2)}
+.form-control{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-family:var(--font);color:var(--text-1);background:#fff;outline:none}
+.form-control:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,179,54,0.1)}
+.input-wrap{position:relative;display:flex;align-items:center}
+.input-suffix{position:absolute;right:10px;font-size:11px;color:var(--text-3);pointer-events:none}
+.note-panel{background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:8px;padding:14px 16px;margin-top:4px;font-size:11px;color:#1e40af;line-height:1.6}
+.card-footer{display:flex;justify-content:flex-end;margin-top:22px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all 0.12s;white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:var(--green-text)}
+.wizard-step-count{text-align:center;font-size:11px;color:var(--text-3);margin-top:6px}
+select.form-control{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%2394A3B8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+</style>
+</head>
+<body>
+<div class="wizard-wrap">
+  <div class="wizard-logo">
+    <span class="logo-text">R3VP</span><span class="logo-sub">Setup</span>
+  </div>
+
+  <div class="stepper">
+    <div class="step-item done">
+      <div class="step-circle active">1</div>
+      <div class="step-label">Profile</div>
+    </div>
+    <div class="step-item">
+      <div class="step-circle">2</div>
+      <div class="step-label">Appliance</div>
+    </div>
+    <div class="step-item">
+      <div class="step-circle">3</div>
+      <div class="step-label">Veeam</div>
+    </div>
+    <div class="step-item">
+      <div class="step-circle">4</div>
+      <div class="step-label">Workloads</div>
+    </div>
+    <div class="step-item">
+      <div class="step-circle">5</div>
+      <div class="step-label">First Test</div>
+    </div>
+    <div class="step-item">
+      <div class="step-circle">6</div>
+      <div class="step-label">Done</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-heading">Organization Profile</div>
+    <div class="card-sub">Tell us about your organization to configure default recovery objectives</div>
+
+    <div class="form-grid">
+      <div class="form-group span2">
+        <label class="form-label">Organization Name</label>
+        <input class="form-control" type="text" value="Acme Corporation">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Industry</label>
+        <select class="form-control">
+          <option selected>Financial Services</option>
+          <option>Healthcare</option>
+          <option>Technology</option>
+          <option>Manufacturing</option>
+          <option>Retail</option>
+          <option>Government</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Default RTO Target</label>
+        <div class="input-wrap">
+          <input class="form-control" type="number" value="60" style="padding-right:58px">
+          <span class="input-suffix">minutes</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Default RPO Target</label>
+        <div class="input-wrap">
+          <input class="form-control" type="number" value="24" style="padding-right:40px">
+          <span class="input-suffix">hours</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Primary Veeam Version</label>
+        <select class="form-control">
+          <option selected>Veeam 12 (v1.1)</option>
+          <option>Veeam 12 (v1.0)</option>
+          <option>Veeam 11</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-grid-full">
+      <div class="form-group span2">
+        <label class="form-label">Primary Hypervisor</label>
+        <select class="form-control">
+          <option selected>VMware vSphere</option>
+          <option>Microsoft Hyper-V</option>
+          <option>Nutanix AHV</option>
+          <option>Proxmox</option>
+          <option>Azure</option>
+          <option>AWS</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="note-panel">
+      Your credentials are encrypted with SOPS + age and never leave your environment. R3VP only stores test results and metadata in the cloud.
+    </div>
+
+    <div class="card-footer">
+      <button class="btn btn-primary">
+        Continue
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="wizard-step-count">Step 1 of 6</div>
+</div>
+</body>
+</html>

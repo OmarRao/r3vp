@@ -4,3 +4,6 @@ from .rbac import Role, OrgMember, OrgInvite, ApiKey, SsoConfig
 from .executive_report import DigestSchedule, ScorecardSnapshot
 from .integration import Integration, IntegrationEventLog
 from .runbook import Runbook, RunbookStep, RunbookExecution, RunbookExecutionStep
+from .onboarding import OnboardingSession
+from .billing import Subscription, UsageRecord, Invoice
+from .fleet import ApplianceGroup, ApplianceGroupMember, ApplianceHealthSnapshot, BulkConfigJob
