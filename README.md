@@ -11,6 +11,97 @@ R3VP is an automated recovery validation platform that connects to your Veeam Ba
 
 ---
 
+## Sample UI
+
+> Font: Segoe UI. All screens include breadcrumb navigation. Try the live demo at [`/demo`](#live-demo) - sign in with Google, no setup required.
+
+<table>
+<tr>
+<td width="50%">
+
+**Recovery Readiness Dashboard**
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+</td>
+<td width="50%">
+
+**Workloads**
+
+![Workloads](docs/screenshots/workloads.png)
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+**Test Run Detail**
+
+![Test Run Detail](docs/screenshots/test-run-detail.png)
+
+</td>
+<td width="50%">
+
+**Compliance Frameworks**
+
+![Compliance Frameworks](docs/screenshots/compliance-frameworks.png)
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+**Continuous Validation**
+
+![Continuous Validation](docs/screenshots/continuous-validation.png)
+
+</td>
+<td width="50%">
+
+**MSSP Console**
+
+![MSSP Console](docs/screenshots/mssp.png)
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+**Fleet Management**
+
+![Fleet Management](docs/screenshots/fleet.png)
+
+</td>
+<td width="50%">
+
+**AI Insights**
+
+![AI Insights](docs/screenshots/ai-insights.png)
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+**DR Runbooks**
+
+![DR Runbooks](docs/screenshots/runbooks.png)
+
+</td>
+<td width="50%">
+
+**User Analytics (Firebase)**
+
+![User Analytics](docs/screenshots/analytics.png)
+
+</td>
+</tr>
+</table>
+
+[View all 26 screens in the Screenshots section below](#screenshots) or the [full technical user guide](docs/user-guide.md).
+
+---
+
 ## How It Works
 
 R3VP has three parts: a lightweight appliance you deploy inside your environment, a SaaS management portal in the cloud, and a workflow engine that ties them together.
