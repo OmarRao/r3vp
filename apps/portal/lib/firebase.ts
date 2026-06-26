@@ -1,5 +1,6 @@
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getAnalytics, type Analytics } from "firebase/analytics";
+import { getAuth, type Auth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,8 +14,9 @@ const firebaseConfig = {
 
 let app: FirebaseApp | undefined;
 let analytics: Analytics | undefined;
+let auth: Auth | undefined;
 
-export function initFirebase(): { app: FirebaseApp; analytics: Analytics } | null {
+export function initFirebase(): { app: FirebaseApp; analytics: Analytics; auth: Auth } | null {
   if (typeof window === "undefined") return null;
   if (!firebaseConfig.apiKey) return null;
 
@@ -24,7 +26,15 @@ export function initFirebase(): { app: FirebaseApp; analytics: Analytics } | nul
   if (!analytics) {
     analytics = getAnalytics(app);
   }
-  return { app, analytics };
+  if (!auth) {
+    auth = getAuth(app);
+  }
+  return { app, analytics, auth };
 }
 
-export { analytics };
+export function getFirebaseAuth(): Auth | null {
+  const fb = initFirebase();
+  return fb ? fb.auth : null;
+}
+
+export { analytics, auth };

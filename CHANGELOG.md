@@ -15,6 +15,11 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 - `apps/portal/lib/track.ts` - typed event helpers: trackLogin(), trackPageView(), and 10 named domain events
 - `apps/portal/components/firebase-init.tsx` - client component wired into root layout; fires login event on Auth0 session start
 - Firebase environment variables added to `.env.local.example` with setup instructions
+- Firebase Authentication login at `/demo/login` with Google Sign-In and email/password
+- `context/firebase-auth-context.tsx` React context providing user state and signOut across demo routes
+- Demo dashboard at `/demo` - full portal UI with realistic mock data, protected by Firebase Auth
+  (no Auth0 or backend API required); redirect guard via `onAuthStateChanged`
+- `app/demo/layout.tsx` wrapping demo routes with `FirebaseAuthProvider`
 - User Analytics portal page mockup showing 30-day login chart, top users table, feature usage bars, and live events feed
 - `analytics.png` screenshot added to docs/screenshots/
 - Comprehensive technical user guide at `docs/user-guide.md` covering all 21 features, architecture, installation, API reference, security design, and troubleshooting

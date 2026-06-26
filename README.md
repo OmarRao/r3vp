@@ -293,6 +293,32 @@ The user analytics page tracks login activity, session counts, and feature usage
 
 ---
 
+## Live Demo
+
+R3VP ships a self-contained demo mode at `/demo` that is protected by **Firebase Authentication** (free). Anyone can sign in with a Google account or email/password and explore the full portal UI with realistic sample data - no appliance, no backend, no configuration needed.
+
+### Demo login
+
+![Demo Login](docs/screenshots/demo-login.png)
+
+### Demo dashboard
+
+![Demo Dashboard](docs/screenshots/demo-dashboard.png)
+
+The demo dashboard shows live KPIs, a recent test runs table, and an active alerts panel all populated with sample recovery validation data. The sidebar gives access to all portal sections. A blue banner reminds the viewer that data is simulated.
+
+### Setting up Firebase for the demo
+
+1. Create a free Firebase project at [https://console.firebase.google.com](https://console.firebase.google.com)
+2. Add a **Web app** to the project and copy the config values
+3. In the Firebase console, go to **Authentication > Sign-in method** and enable **Google** and **Email/Password**
+4. Copy `apps/portal/.env.local.example` to `apps/portal/.env.local` and fill in the `NEXT_PUBLIC_FIREBASE_*` values
+5. Run `npm run dev` and visit `http://localhost:3000/demo`
+
+The demo works without Auth0 or any backend API. Firebase credentials are only required for the `/demo` route - the main portal still uses Auth0.
+
+---
+
 ## User Guide
 
 A comprehensive technical user guide covering every feature, architecture details, installation walkthroughs, API reference, security design, and troubleshooting is maintained at:
