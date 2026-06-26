@@ -7,6 +7,52 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Phase 18: Continuous Validation Mode
+
+### Added
+- ContinuousValidationPolicy model with configurable interval (minimum 1 min), workload scope, per-check toggles, and consecutive-failure alert threshold
+- Six micro-check types: restore_point_freshness, mount_check, veeam_job_status, agent_heartbeat, vcenter_connectivity, rpo_compliance
+- MicroValidationRun model recording per-check JSONB results, restore point age, duration, and alert_sent flag per run
+- ValidationAlert model with alert_type, severity, resolution tracking, and cascade delete on policy removal
+- Rolling health computation from last 100 runs: healthy (>=90% pass), degraded (70-89%), failing (<70%)
+- Consecutive failure counter for alert escalation
+- Policy toggle endpoint (PATCH /policies/{id}/toggle) for enable/disable without deletion
+- Continuous Validation portal page with KPI row, policy cards, active alerts with severity borders, and runs table
+- Available checks reference grid with category and description for each of the 6 check types
+- Migration 0019 adding continuous_validation_policies, micro_validation_runs, validation_alerts tables
+
+---
+
+## [Unreleased] - Phase 17: Custom Compliance Framework Builder
+
+### Added
+- Six compliance frameworks now built-in: SOC 2 Type II, ISO/IEC 27001:2022, NIST CSF 2.0, EU DORA (Article 11/12/25), PCI DSS 4.0, HIPAA Security Rule
+- ComplianceFramework model for org-scoped custom frameworks with short_code, version, and is_builtin flag
+- ComplianceControl model mapping control IDs to R3VP metrics (pass_rate, rto_compliance, coverage_pct) with thresholds and weights
+- FrameworkAssessment model storing scored results per control in JSONB with overall weighted score and period range
+- evaluate_framework() engine: scores each control against live metric values, computes weighted 0-100 overall score
+- Framework catalog endpoint listing all built-in frameworks with control counts
+- Custom framework CRUD: create framework, add controls, list controls
+- Assessment endpoint running scoring against current period metrics and persisting result
+- Framework builder portal page: 6 framework cards with DORA highlighted as EU mandate, 3-step custom builder flow
+- Migration 0018 adding compliance_frameworks, compliance_controls, framework_assessments tables
+
+---
+
+## [Unreleased] - Phase 16: MSSP Console
+
+### Added
+- MsspPartner model with white-label branding fields (logo_url, primary_color), plan tier, and max_customer_orgs limit
+- MsspCustomerOrg model with tier (standard/premium/enterprise), free-form tags, notes, and onboarded_at timestamp
+- MsspAlertRule model with five condition types: readiness_below, rto_breach, test_failure, no_test_in_days, threat_detected
+- Alert rule scoping: all orgs, tier-specific (tier:premium), or tag-specific (tag:critical)
+- Cross-org summary endpoint aggregating healthy/warning/critical counts, avg readiness score, total workloads/threats/incidents
+- Per-customer scorecard endpoint with 6-month readiness trend and top risk workloads
+- MSSP console portal page with 5-col KPI row, customer table with score/tier/threat badges, and alert rule toggles
+- Migration 0017 adding mssp_partners, mssp_customer_orgs, mssp_alert_rules tables with cascade deletes
+
+---
+
 ## [Unreleased] - Phase 15: Appliance Fleet Management
 
 ### Added

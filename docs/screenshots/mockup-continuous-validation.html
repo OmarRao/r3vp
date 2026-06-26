@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Continuous Validation - R3VP</title>
+<style>
+:root {
+  --bg: #F8FAFC; --surface: #FFFFFF; --border: #E2E8F0; --border-light: #F1F5F9;
+  --text-1: #0F172A; --text-2: #475569; --text-3: #94A3B8;
+  --green: #00B336; --green-bg: #F0FDF4; --green-border: #BBF7D0; --green-text: #15803D;
+  --amber: #D97706; --amber-bg: #FFFBEB; --amber-border: #FDE68A;
+  --red: #DC2626; --red-bg: #FFF1F2; --red-border: #FECACA;
+  --blue: #2563EB; --blue-bg: #EFF6FF; --blue-border: #BFDBFE;
+  --sidebar: #0F172A; --font: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --radius: 10px; --radius-sm: 6px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text-1);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;overflow-y:auto;z-index:100}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo-text{font-size:21px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.logo-text em{color:var(--green);font-style:normal}
+.logo-tag{font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
+.logo-ver{font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px}
+.nav{flex:1;padding:8px 0}
+.nav-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.25);padding:12px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 18px;font-size:12px;color:rgba(255,255,255,0.55);cursor:pointer;border-left:2px solid transparent;transition:all 0.12s;text-decoration:none}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;border-left-color:var(--green);background:rgba(0,179,54,0.12);font-weight:600}
+.sidebar-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,0.07);font-size:10px;color:rgba(255,255,255,0.25);line-height:1.7}
+.sidebar-footer a{color:var(--green);text-decoration:none}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.topbar-left{display:flex;flex-direction:column;min-width:0}
+.page-title{font-size:16px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.page-sub{font-size:11px;color:var(--text-3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 28px;background:var(--bg)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all 0.12s;white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff}
+.btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-size:12px;font-weight:700;color:var(--text-1)}
+.kpi-grid{display:grid;gap:12px;margin-bottom:20px}
+.kpi-4{grid-template-columns:repeat(4,1fr)}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3);margin-bottom:6px}
+.kpi-val{font-size:26px;font-weight:800;line-height:1;letter-spacing:-0.5px}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-3);padding:10px 16px;text-align:left;background:#FAFAFA;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 16px;border-bottom:1px solid var(--border-light);color:var(--text-2);font-size:12px;vertical-align:middle}
+tr:last-child td{border:none}
+tr:hover td{background:#FAFAFA}
+.mb20{margin-bottom:20px}
+.toggle{position:relative;display:inline-block;width:32px;height:18px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:#CBD5E1;border-radius:99px;transition:0.2s}
+.toggle-slider:before{content:"";position:absolute;height:12px;width:12px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:0.2s}
+input:checked + .toggle-slider{background:var(--green)}
+input:checked + .toggle-slider:before{transform:translateX(14px)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">R<em>3</em>VP</div>
+      <div class="logo-tag">Recovery Readiness</div>
+      <div class="logo-ver">v2.1.0-beta</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Overview</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/></svg>
+        Dashboard
+      </a>
+      <div class="nav-section">Monitoring</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="14" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+        Fleet
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 14V9l4-4 4 4 4-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="4" r="1.5" fill="currentColor"/></svg>
+        MSSP Console
+      </a>
+      <div class="nav-section">Protection</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Workloads
+      </a>
+      <a class="nav-item active" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.2" opacity=".5"/><circle cx="8" cy="8" r="7.5" stroke="currentColor" stroke-width="0.8" opacity=".25"/></svg>
+        Always-On
+      </a>
+      <div class="nav-section">Compliance</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12L6 4l4 5 2-3 2 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Reports
+      </a>
+      <div class="nav-section">System</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      Built by <a href="mailto:omar.rao@veeam.com">Omar Rao</a><br>
+      Engineer - Data Resilience,<br>
+      Cybersecurity and Privacy<br>
+      <a href="https://www.linkedin.com/in/omarrao/" target="_blank">LinkedIn</a> &nbsp;&middot;&nbsp;
+      <a href="https://omarrao.substack.com/" target="_blank">Substack</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Continuous Validation</div>
+        <div class="page-sub">Always-on micro-checks running every 15 minutes without full instant recovery</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          + New Policy
+        </button>
+      </div>
+    </div>
+
+    <div class="body">
+
+      <!-- Health Summary KPIs -->
+      <div class="kpi-grid kpi-4">
+        <div class="kpi-card">
+          <div class="kpi-label">Overall Status</div>
+          <div class="kpi-val" style="color:var(--green-text)">Healthy</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Pass Rate (last 24h)</div>
+          <div class="kpi-val" style="color:var(--green-text)">94%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Active Alerts</div>
+          <div class="kpi-val" style="color:var(--amber)">2</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Checks Run Today</div>
+          <div class="kpi-val" style="color:var(--text-1)">1,847</div>
+        </div>
+      </div>
+
+      <!-- Policies -->
+      <div class="card mb20">
+        <div class="card-hd">
+          <span class="card-title">Validation Policies (2)</span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--border-light)">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--text-1)">Production Workloads <span style="font-size:11px;font-weight:400;color:var(--text-3);margin-left:6px">Every 15 min</span></div>
+            <div style="font-size:11px;color:var(--text-3);margin-top:2px">Scope: All workloads &nbsp;&middot;&nbsp; Checks: Restore Point, Mount, Veeam Job, Heartbeat</div>
+          </div>
+          <button class="btn btn-ghost btn-sm">Edit</button>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 18px">
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--text-1)">Critical Tier Only <span style="font-size:11px;font-weight:400;color:var(--text-3);margin-left:6px">Every 5 min</span></div>
+            <div style="font-size:11px;color:var(--text-3);margin-top:2px">Scope: tag:critical &nbsp;&middot;&nbsp; Checks: All 6 checks</div>
+          </div>
+          <button class="btn btn-ghost btn-sm">Edit</button>
+        </div>
+      </div>
+
+      <!-- Active Alerts -->
+      <div class="card mb20">
+        <div class="card-hd">
+          <span class="card-title">Active Alerts (2)</span>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 18px;border-bottom:1px solid var(--border-light);border-left:3px solid var(--red)">
+          <span style="font-size:10px;font-weight:700;text-transform:uppercase;background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);border-radius:4px;padding:2px 8px;white-space:nowrap;flex-shrink:0">HIGH</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--text-1);margin-bottom:3px">files-prod-01 <span style="font-size:11px;font-weight:400;color:var(--text-3);margin-left:4px">consecutive_failures</span></div>
+            <div style="font-size:11px;color:var(--text-2)">3 consecutive micro-validation failures. Last Veeam job failed with E0x8019.</div>
+          </div>
+          <div style="font-size:11px;color:var(--text-3);white-space:nowrap;flex-shrink:0">Jun 26 13:45</div>
+          <button class="btn btn-ghost btn-sm" style="flex-shrink:0">Resolve</button>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:14px;padding:14px 18px;border-left:3px solid #F59E0B">
+          <span style="font-size:10px;font-weight:700;text-transform:uppercase;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);border-radius:4px;padding:2px 8px;white-space:nowrap;flex-shrink:0">MEDIUM</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:600;color:var(--text-1);margin-bottom:3px">erp-prod-01 <span style="font-size:11px;font-weight:400;color:var(--text-3);margin-left:4px">restore_point_stale</span></div>
+            <div style="font-size:11px;color:var(--text-2)">Restore point age 6h exceeds RPO target of 4h.</div>
+          </div>
+          <div style="font-size:11px;color:var(--text-3);white-space:nowrap;flex-shrink:0">Jun 26 14:00</div>
+          <button class="btn btn-ghost btn-sm" style="flex-shrink:0">Resolve</button>
+        </div>
+      </div>
+
+      <!-- Recent Checks Table -->
+      <div class="card mb20" style="overflow:hidden">
+        <div class="card-hd">
+          <span class="card-title">Recent Micro-Validation Runs</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Workload</th>
+              <th>Status</th>
+              <th>Checks</th>
+              <th>RP Age</th>
+              <th>Duration</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--text-1);font-weight:500">db-prod-01</td>
+              <td><span style="font-size:10px;font-weight:700;text-transform:uppercase;background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border);border-radius:4px;padding:2px 8px">PASS</span></td>
+              <td>4/4</td>
+              <td>1h</td>
+              <td>312ms</td>
+              <td style="color:var(--text-3)">14:00</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-1);font-weight:500">dc-prod-02</td>
+              <td><span style="font-size:10px;font-weight:700;text-transform:uppercase;background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border);border-radius:4px;padding:2px 8px">PASS</span></td>
+              <td>4/4</td>
+              <td>2h</td>
+              <td>289ms</td>
+              <td style="color:var(--text-3)">14:00</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-1);font-weight:500">erp-prod-01</td>
+              <td><span style="font-size:10px;font-weight:700;text-transform:uppercase;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border);border-radius:4px;padding:2px 8px">WARN</span></td>
+              <td>3/4</td>
+              <td>6h</td>
+              <td>445ms</td>
+              <td style="color:var(--text-3)">14:00</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text-1);font-weight:500">files-prod-01</td>
+              <td><span style="font-size:10px;font-weight:700;text-transform:uppercase;background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);border-radius:4px;padding:2px 8px">FAIL</span></td>
+              <td>2/4</td>
+              <td>18h</td>
+              <td>580ms</td>
+              <td style="color:var(--text-3)">14:00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Available Checks -->
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-title">Available Micro-Checks</span>
+        </div>
+        <div style="padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--border-light);border-radius:8px">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M3 8l3 3 7-7" stroke="#00B336" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text-1)">Restore Point Freshness</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px">Verifies the latest restore point is within the RPO window</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--border-light);border-radius:8px">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M8 1l2 4 5 .7-3.5 3.4.8 5L8 12l-4.3 2.2.8-5L1 5.7 6 5z" stroke="#00B336" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text-1)">Mount Endpoint Reachability</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px">Tests that the recovery mount endpoint responds within 5s</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--border-light);border-radius:8px">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M3 8l3 3 7-7" stroke="#00B336" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text-1)">Veeam Job Status</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px">Checks last backup job completed with Success or Warning</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--border-light);border-radius:8px">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M8 8m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0" stroke="#00B336" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="#00B336" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text-1)">Appliance Heartbeat</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px">Confirms appliance heartbeat within last interval</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--border-light);border-radius:8px">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M8 1L15 5v6L8 15 1 11V5z" stroke="#00B336" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text-1)">vCenter Connectivity</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px">Verifies appliance can reach vCenter and enumerate the protected VM</div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--border-light);border-radius:8px">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M2 12L6 4l4 5 2-3 2 6" stroke="#00B336" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text-1)">RPO Compliance Check</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px">Calculates current RPO exposure vs the workload RPO target</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

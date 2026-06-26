@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Compliance Frameworks - R3VP</title>
+<style>
+:root {
+  --bg: #F8FAFC; --surface: #FFFFFF; --border: #E2E8F0; --border-light: #F1F5F9;
+  --text-1: #0F172A; --text-2: #475569; --text-3: #94A3B8;
+  --green: #00B336; --green-bg: #F0FDF4; --green-border: #BBF7D0; --green-text: #15803D;
+  --amber: #D97706; --amber-bg: #FFFBEB; --amber-border: #FDE68A;
+  --red: #DC2626; --red-bg: #FFF1F2; --red-border: #FECACA;
+  --blue: #2563EB; --blue-bg: #EFF6FF; --blue-border: #BFDBFE;
+  --sidebar: #0F172A; --font: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --radius: 10px; --radius-sm: 6px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text-1);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;flex-shrink:0;background:var(--sidebar);display:flex;flex-direction:column;overflow-y:auto;z-index:100}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo-text{font-size:21px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.logo-text em{color:var(--green);font-style:normal}
+.logo-tag{font-size:9px;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
+.logo-ver{font-size:9px;color:rgba(255,255,255,0.2);margin-top:2px}
+.nav{flex:1;padding:8px 0}
+.nav-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.25);padding:12px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 18px;font-size:12px;color:rgba(255,255,255,0.55);cursor:pointer;border-left:2px solid transparent;transition:all 0.12s;text-decoration:none}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;border-left-color:var(--green);background:rgba(0,179,54,0.12);font-weight:600}
+.sidebar-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,0.07);font-size:10px;color:rgba(255,255,255,0.25);line-height:1.7}
+.sidebar-footer a{color:var(--green);text-decoration:none}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.topbar-left{display:flex;flex-direction:column;min-width:0}
+.page-title{font-size:16px;font-weight:700;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.page-sub{font-size:11px;color:var(--text-3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 28px;background:var(--bg)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all 0.12s;white-space:nowrap}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:var(--green-text)}
+.btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-title{font-size:12px;font-weight:700;color:var(--text-1)}
+.card-body{padding:16px 18px}
+.mb20{margin-bottom:20px}
+.fw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.fw-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px}
+.fw-card.highlight{border-color:#F59E0B;box-shadow:0 0 0 1px #F59E0B20,var(--shadow-sm)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">R<em>3</em>VP</div>
+      <div class="logo-tag">Recovery Readiness</div>
+      <div class="logo-ver">v2.1.0-beta</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Overview</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".8"/></svg>
+        Dashboard
+      </a>
+      <div class="nav-section">Monitoring</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="14" height="4" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+        Fleet
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 14V9l4-4 4 4 4-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="4" r="1.5" fill="currentColor"/></svg>
+        MSSP Console
+      </a>
+      <div class="nav-section">Protection</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Workloads
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Always-On
+      </a>
+      <div class="nav-section">Compliance</div>
+      <a class="nav-item active" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 12L6 4l4 5 2-3 2 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Reports
+      </a>
+      <div class="nav-section">System</div>
+      <a class="nav-item" href="#">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      Built by <a href="mailto:omar.rao@veeam.com">Omar Rao</a><br>
+      Engineer - Data Resilience,<br>
+      Cybersecurity and Privacy<br>
+      <a href="https://www.linkedin.com/in/omarrao/" target="_blank">LinkedIn</a> &nbsp;&middot;&nbsp;
+      <a href="https://omarrao.substack.com/" target="_blank">Substack</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="page-title">Compliance Frameworks</div>
+        <div class="page-sub">Built-in and custom control mapping frameworks</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          + Custom Framework
+        </button>
+      </div>
+    </div>
+
+    <div class="body">
+
+      <div class="fw-grid">
+
+        <!-- SOC2 -->
+        <div class="fw-card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:10px;font-weight:700;background:#F1F5F9;color:#64748B;border:1px solid var(--border);border-radius:4px;padding:2px 8px">SOC2</span>
+            <span style="font-size:9px;font-weight:700;text-transform:uppercase;background:var(--green-bg);color:var(--green-text);border-radius:3px;padding:1px 6px">BUILT-IN</span>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:var(--text-1)">SOC 2 Type II</div>
+          <div style="font-size:11px;color:var(--text-3)">v2017</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.5;margin-top:2px">Trust services criteria covering security, availability, processing integrity, confidentiality, and privacy.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)">
+            <span style="font-size:11px;background:#F1F5F9;color:#64748B;border-radius:99px;padding:2px 10px;font-weight:600">3 controls</span>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost btn-sm">View Controls</button>
+              <button class="btn btn-primary btn-sm">Run Assessment</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ISO27001 -->
+        <div class="fw-card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:10px;font-weight:700;background:#F1F5F9;color:#64748B;border:1px solid var(--border);border-radius:4px;padding:2px 8px">ISO27001</span>
+            <span style="font-size:9px;font-weight:700;text-transform:uppercase;background:var(--green-bg);color:var(--green-text);border-radius:3px;padding:1px 6px">BUILT-IN</span>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:var(--text-1)">ISO/IEC 27001:2022</div>
+          <div style="font-size:11px;color:var(--text-3)">v2022</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.5;margin-top:2px">Information security management system standard with 93 controls across 4 themes.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)">
+            <span style="font-size:11px;background:#F1F5F9;color:#64748B;border-radius:99px;padding:2px 10px;font-weight:600">4 controls</span>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost btn-sm">View Controls</button>
+              <button class="btn btn-primary btn-sm">Run Assessment</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- NIST-CSF -->
+        <div class="fw-card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:10px;font-weight:700;background:#F1F5F9;color:#64748B;border:1px solid var(--border);border-radius:4px;padding:2px 8px">NIST-CSF</span>
+            <span style="font-size:9px;font-weight:700;text-transform:uppercase;background:var(--green-bg);color:var(--green-text);border-radius:3px;padding:1px 6px">BUILT-IN</span>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:var(--text-1)">NIST Cybersecurity Framework 2.0</div>
+          <div style="font-size:11px;color:var(--text-3)">v2.0</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.5;margin-top:2px">Risk-based framework with five core functions: Identify, Protect, Detect, Respond, Recover.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)">
+            <span style="font-size:11px;background:#F1F5F9;color:#64748B;border-radius:99px;padding:2px 10px;font-weight:600">3 controls</span>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost btn-sm">View Controls</button>
+              <button class="btn btn-primary btn-sm">Run Assessment</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DORA -->
+        <div class="fw-card highlight">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:10px;font-weight:700;background:#F1F5F9;color:#64748B;border:1px solid var(--border);border-radius:4px;padding:2px 8px">DORA</span>
+            <span style="font-size:9px;font-weight:700;text-transform:uppercase;background:var(--green-bg);color:var(--green-text);border-radius:3px;padding:1px 6px">BUILT-IN</span>
+            <span style="font-size:9px;font-weight:700;text-transform:uppercase;background:#FFFBEB;color:var(--amber);border:1px solid var(--amber-border);border-radius:3px;padding:1px 6px">NEW - EU Mandate</span>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:var(--text-1)">EU Digital Operational Resilience Act</div>
+          <div style="font-size:11px;color:var(--text-3)">v2025</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.5;margin-top:2px">EU mandate for financial entities covering ICT risk, incident reporting, and resilience testing.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)">
+            <span style="font-size:11px;background:#F1F5F9;color:#64748B;border-radius:99px;padding:2px 10px;font-weight:600">4 controls</span>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost btn-sm">View Controls</button>
+              <button class="btn btn-primary btn-sm">Run Assessment</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PCI-DSS -->
+        <div class="fw-card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:10px;font-weight:700;background:#F1F5F9;color:#64748B;border:1px solid var(--border);border-radius:4px;padding:2px 8px">PCI-DSS</span>
+            <span style="font-size:9px;font-weight:700;text-transform:uppercase;background:var(--green-bg);color:var(--green-text);border-radius:3px;padding:1px 6px">BUILT-IN</span>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:var(--text-1)">PCI DSS 4.0</div>
+          <div style="font-size:11px;color:var(--text-3)">v4.0</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.5;margin-top:2px">Payment card industry standard protecting cardholder data across 12 requirement domains.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)">
+            <span style="font-size:11px;background:#F1F5F9;color:#64748B;border-radius:99px;padding:2px 10px;font-weight:600">2 controls</span>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost btn-sm">View Controls</button>
+              <button class="btn btn-primary btn-sm">Run Assessment</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- HIPAA -->
+        <div class="fw-card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:10px;font-weight:700;background:#F1F5F9;color:#64748B;border:1px solid var(--border);border-radius:4px;padding:2px 8px">HIPAA</span>
+            <span style="font-size:9px;font-weight:700;text-transform:uppercase;background:var(--green-bg);color:var(--green-text);border-radius:3px;padding:1px 6px">BUILT-IN</span>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:var(--text-1)">HIPAA Security Rule</div>
+          <div style="font-size:11px;color:var(--text-3)">v2024</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.5;margin-top:2px">US healthcare data protection standard with administrative, physical, and technical safeguards.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light)">
+            <span style="font-size:11px;background:#F1F5F9;color:#64748B;border-radius:99px;padding:2px 10px;font-weight:600">3 controls</span>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost btn-sm">View Controls</button>
+              <button class="btn btn-primary btn-sm">Run Assessment</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Custom Framework Builder -->
+      <div class="card">
+        <div class="card-hd">
+          <span class="card-title">Build a Custom Framework</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;align-items:flex-start;gap:0;margin-bottom:20px">
+
+            <!-- Step 1 -->
+            <div style="flex:1;text-align:center;padding:0 12px">
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">1</div>
+              <div style="font-size:12px;font-weight:700;color:var(--text-1);margin-bottom:4px">Name Your Framework</div>
+              <div style="font-size:11px;color:var(--text-3)">e.g. MAS TRM, FCA SYSC</div>
+            </div>
+
+            <!-- Arrow -->
+            <div style="flex-shrink:0;padding-top:14px;color:var(--text-3)">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <!-- Step 2 -->
+            <div style="flex:1;text-align:center;padding:0 12px">
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">2</div>
+              <div style="font-size:12px;font-weight:700;color:var(--text-1);margin-bottom:4px">Add Controls</div>
+              <div style="font-size:11px;color:var(--text-3)">Map control IDs to R3VP metrics (pass_rate, rto_compliance, coverage_pct)</div>
+            </div>
+
+            <!-- Arrow -->
+            <div style="flex-shrink:0;padding-top:14px;color:var(--text-3)">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M12 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <!-- Step 3 -->
+            <div style="flex:1;text-align:center;padding:0 12px">
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--green);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">3</div>
+              <div style="font-size:12px;font-weight:700;color:var(--text-1);margin-bottom:4px">Run Assessment</div>
+              <div style="font-size:11px;color:var(--text-3)">Generate scored report with pass/fail per control</div>
+            </div>
+
+          </div>
+          <p style="font-size:12px;color:var(--text-2);line-height:1.6;border-top:1px solid var(--border-light);padding-top:14px">R3VP supports SOC 2, ISO 27001, NIST CSF, DORA, PCI DSS, and HIPAA out of the box. Add any framework your auditor or regulator requires.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
