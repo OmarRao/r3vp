@@ -12,7 +12,7 @@
   --amber:#D97706;--amber-bg:#FFFBEB;--amber-border:#FDE68A;
   --red:#DC2626;--red-bg:#FFF1F2;--red-border:#FECACA;
   --blue:#2563EB;--blue-bg:#EFF6FF;--blue-border:#BFDBFE;
-  --sidebar:#0F172A;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --sidebar:#0F172A;--font:'Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
   --radius:10px;--radius-sm:6px;
   --shadow-sm:0 1px 2px rgba(0,0,0,0.05);
 }
@@ -45,9 +45,9 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .btn-primary{background:var(--green);color:#fff}
 .btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
-.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.card-hd{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .card-title{font-size:12px;font-weight:700;color:var(--text-1)}
-.card-body{padding:16px 18px}
+.card-body{padding:16px 20px}
 .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap}
 .badge-green{background:var(--green-bg);color:var(--green-text);border:1px solid var(--green-border)}
 .badge-gray{background:#F1F5F9;color:#64748B;border:1px solid var(--border)}
@@ -77,6 +77,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .status-info{display:flex;align-items:center;gap:12px}
 .status-label{font-size:12px;font-weight:600;color:var(--text-1)}
 .status-provider{font-size:11px;color:var(--text-3);margin-top:2px}
+.breadcrumb{flex-shrink:0;background:#F8FAFC;border-bottom:1px solid #E2E8F0;padding:0 28px;height:32px;display:flex;align-items:center;gap:6px;font-size:11px;color:#94A3B8}
+.bc-item{color:#64748B;font-weight:500}
+.bc-item.bc-active{color:#0F172A;font-weight:600}
+.bc-sep{color:#CBD5E1;font-size:10px}
+.kpi-card{min-height:88px}
 @media(max-width:768px){
   .sidebar{position:fixed;left:-220px;top:0;bottom:0;transition:left 0.25s;z-index:100}
   .sidebar.open{left:0}
@@ -130,6 +135,13 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
       <div class="topbar-right">
         <button class="btn btn-ghost">Documentation</button>
       </div>
+    </div>
+    <div class="breadcrumb">
+      <span class="bc-item">R3VP</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-item">Settings</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-item bc-active">Single Sign-On</span>
     </div>
     <div class="body">
 

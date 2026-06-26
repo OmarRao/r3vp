@@ -6,7 +6,7 @@
 <title>R3VP Multi-Cloud Providers</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F4F6F8; color: #1A1A2E; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; background: #F4F6F8; color: #1A1A2E; }
   .sidebar { position: fixed; top: 0; left: 0; width: 220px; height: 100vh; background: #1A1A2E; display: flex; flex-direction: column; }
   .logo { padding: 24px 20px 16px; border-bottom: 1px solid #2a2a3e; }
   .logo-text { font-size: 20px; font-weight: 700; color: #fff; } .logo-text em{color:#00B336;font-style:normal}
@@ -48,6 +48,11 @@
   .version-table td { padding: 8px 10px; border-bottom: 1px solid #f5f5f5; }
   .check { color: #00B336; font-weight: 700; }
   .cross { color: #D1D5DB; }
+.breadcrumb{flex-shrink:0;background:#F8FAFC;border-bottom:1px solid #E2E8F0;padding:0 28px;height:32px;display:flex;align-items:center;gap:6px;font-size:11px;color:#94A3B8}
+.bc-item{color:#64748B;font-weight:500}
+.bc-item.bc-active{color:#0F172A;font-weight:600}
+.bc-sep{color:#CBD5E1;font-size:10px}
+.kpi-card{min-height:88px}
 </style>
 </head>
 <body>
@@ -71,6 +76,11 @@
   </div>
   <div class="sidebar-footer">Built by <a href="https://www.linkedin.com/in/omarrao/">Omar Rao</a><br>Engineer, Data Resilience &amp; Cybersecurity</div>
 </nav>
+    <div class="breadcrumb">
+      <span class="bc-item">R3VP</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-item bc-active">Providers</span>
+    </div>
 <main class="main">
   <div class="page-title">Multi-Cloud Provider Coverage</div>
   <div class="page-sub">4 providers configured &bull; 52 workloads &bull; 127 recovery tests</div>

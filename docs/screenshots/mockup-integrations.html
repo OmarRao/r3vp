@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>R3VP - Integrations</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,sans-serif}
 body{background:#F8FAFC;display:flex}
 .sidebar{width:220px;min-height:100vh;background:#0F172A;position:fixed;left:0;top:0;display:flex;flex-direction:column;z-index:100}
 .sidebar-logo{padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,0.08)}
@@ -48,6 +48,12 @@ body{background:#F8FAFC;display:flex}
 .badge-err{background:#FEF2F2;color:#DC2626;border:1px solid #FECACA;border-radius:4px;font-size:10px;font-weight:700;padding:2px 6px}
 .action-link{font-size:12px;color:#00B336;cursor:pointer;margin-right:10px}
 .action-link.del{color:#EF4444}
+th,td{padding:10px 16px}
+.breadcrumb{flex-shrink:0;background:#F8FAFC;border-bottom:1px solid #E2E8F0;padding:0 28px;height:32px;display:flex;align-items:center;gap:6px;font-size:11px;color:#94A3B8}
+.bc-item{color:#64748B;font-weight:500}
+.bc-item.bc-active{color:#0F172A;font-weight:600}
+.bc-sep{color:#CBD5E1;font-size:10px}
+.kpi-card{min-height:88px}
 </style>
 </head>
 <body>
@@ -81,6 +87,11 @@ body{background:#F8FAFC;display:flex}
   </div>
 </div>
 
+    <div class="breadcrumb">
+      <span class="bc-item">R3VP</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-item bc-active">Integrations</span>
+    </div>
 <div class="body">
 <div class="inner">
 

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>R3VP - AI Insights</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,sans-serif}
 body{background:#F8FAFC;display:flex}
 .sidebar{width:220px;min-height:100vh;background:#0F172A;position:fixed;left:0;top:0;display:flex;flex-direction:column;z-index:100}
 .sidebar-logo{padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,0.08)}
@@ -51,6 +51,13 @@ body{background:#F8FAFC;display:flex}
 .pred-stat-val{font-size:18px;font-weight:700;color:#0F172A;margin-top:2px}
 .pred-stat-val.amber{color:#D97706}
 .pred-stat-val.red{color:#EF4444}
+.breadcrumb{flex-shrink:0;background:#F8FAFC;border-bottom:1px solid #E2E8F0;padding:0 28px;height:32px;display:flex;align-items:center;gap:6px;font-size:11px;color:#94A3B8}
+.bc-item{color:#64748B;font-weight:500}
+.bc-item.bc-active{color:#0F172A;font-weight:600}
+.bc-sep{color:#CBD5E1;font-size:10px}
+.card-hd{padding:14px 20px}
+.card-body{padding:16px 20px}
+th,td{padding:10px 16px}
 </style>
 </head>
 <body>
@@ -84,7 +91,12 @@ body{background:#F8FAFC;display:flex}
   </div>
 </div>
 
-<div class="body">
+<div class="breadcrumb" style="position:fixed;top:56px;left:220px;right:0;z-index:89">
+      <span class="bc-item">R3VP</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-item bc-active">AI Insights</span>
+    </div>
+<div class="body" style="margin-top:88px">
 <div class="inner">
 
   <!-- NL Query -->

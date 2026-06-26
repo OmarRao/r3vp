@@ -13,7 +13,7 @@
   --red:#DC2626;--red-bg:#FFF1F2;--red-border:#FECACA;
   --blue:#2563EB;--blue-bg:#EFF6FF;--blue-border:#BFDBFE;
   --purple:#7C3AED;--purple-bg:#F5F3FF;
-  --sidebar:#0F172A;--font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --sidebar:#0F172A;--font:'Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
   --radius:10px;--radius-sm:6px;
   --shadow-sm:0 1px 2px rgba(0,0,0,0.05);
 }
@@ -41,18 +41,18 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .page-title{font-size:16px;font-weight:700;color:var(--text-1)}
 .page-sub{font-size:11px;color:var(--text-3);margin-top:1px}
 .topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.body{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 28px;background:var(--bg)}
+.body{flex:1;overflow-y:auto;padding:24px 28px}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);white-space:nowrap}
 .btn-primary{background:var(--green);color:#fff}
 .btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
 .btn-sm{padding:5px 10px;font-size:11px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
-.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.card-hd{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .card-title{font-size:12px;font-weight:700;color:var(--text-1)}
-.card-body{padding:16px 18px}
-.kpi-grid{display:grid;gap:12px;margin-bottom:20px}
+.card-body{padding:16px 20px}
+.kpi-grid{display:grid;gap:14px;margin-bottom:20px}
 .kpi-4{grid-template-columns:repeat(4,1fr)}
-.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm)}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm);min-height:88px}
 .kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3);margin-bottom:6px}
 .kpi-val{font-size:26px;font-weight:800;color:var(--text-1);line-height:1;letter-spacing:-0.5px}
 .kpi-sub{font-size:11px;color:var(--text-3);margin-top:4px}
@@ -88,6 +88,10 @@ tr:hover td{background:#FAFAFA}
 .form-group label{font-size:11px;font-weight:600;color:var(--text-2);display:block;margin-bottom:4px}
 .form-input{border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;font-size:12px;color:var(--text-1);outline:none;font-family:var(--font);width:100%;background:var(--surface)}
 .form-input:focus{border-color:var(--green)}
+.breadcrumb{flex-shrink:0;background:#F8FAFC;border-bottom:1px solid #E2E8F0;padding:0 28px;height:32px;display:flex;align-items:center;gap:6px;font-size:11px;color:#94A3B8}
+.bc-item{color:#64748B;font-weight:500}
+.bc-item.bc-active{color:#0F172A;font-weight:600}
+.bc-sep{color:#CBD5E1;font-size:10px}
 @media(max-width:768px){
   .sidebar{position:fixed;left:-220px;top:0;bottom:0;transition:left 0.25s;z-index:100}
   .sidebar.open{left:0}
@@ -144,6 +148,13 @@ tr:hover td{background:#FAFAFA}
         <button class="btn btn-ghost">Delivery Logs</button>
         <button class="btn btn-primary">+ New Schedule</button>
       </div>
+    </div>
+    <div class="breadcrumb">
+      <span class="bc-item">R3VP</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-item">Reports</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-item bc-active">Scheduled Delivery</span>
     </div>
     <div class="body">
 

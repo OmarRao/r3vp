@@ -12,7 +12,7 @@
   --amber: #D97706; --amber-bg: #FFFBEB; --amber-border: #FDE68A;
   --red: #DC2626; --red-bg: #FFF1F2; --red-border: #FECACA;
   --blue: #2563EB; --blue-bg: #EFF6FF; --blue-border: #BFDBFE;
-  --sidebar: #0F172A; --font: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --sidebar: #0F172A; --font: 'Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;
   --radius: 10px; --radius-sm: 6px;
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
   --shadow: 0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
@@ -45,11 +45,11 @@ html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--b
 .btn-ghost{background:transparent;color:var(--text-2);border:1px solid var(--border)}
 .btn-sm{padding:5px 10px;font-size:11px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
-.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-hd{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
 .card-title{font-size:12px;font-weight:700;color:var(--text-1)}
-.kpi-grid{display:grid;gap:12px;margin-bottom:20px}
+.kpi-grid{display:grid;gap:14px;margin-bottom:20px}
 .kpi-4{grid-template-columns:repeat(4,1fr)}
-.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm)}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow-sm);min-height:88px}
 .kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3);margin-bottom:6px}
 .kpi-val{font-size:26px;font-weight:800;line-height:1;letter-spacing:-0.5px}
 table{width:100%;border-collapse:collapse}
@@ -64,6 +64,10 @@ tr:hover td{background:#FAFAFA}
 .toggle-slider:before{content:"";position:absolute;height:12px;width:12px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:0.2s}
 input:checked + .toggle-slider{background:var(--green)}
 input:checked + .toggle-slider:before{transform:translateX(14px)}
+.breadcrumb{flex-shrink:0;background:#F8FAFC;border-bottom:1px solid #E2E8F0;padding:0 28px;height:32px;display:flex;align-items:center;gap:6px;font-size:11px;color:#94A3B8}
+.bc-item{color:#64748B;font-weight:500}
+.bc-item.bc-active{color:#0F172A;font-weight:600}
+.bc-sep{color:#CBD5E1;font-size:10px}
 </style>
 </head>
 <body>
@@ -131,6 +135,12 @@ input:checked + .toggle-slider:before{transform:translateX(14px)}
           + New Policy
         </button>
       </div>
+    </div>
+
+    <div class="breadcrumb">
+      <span class="bc-item">R3VP</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-item bc-active">Continuous Validation</span>
     </div>
 
     <div class="body">

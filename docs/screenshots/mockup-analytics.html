@@ -15,7 +15,7 @@
   --sidebar: #0F172A;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text-1); display: flex; min-height: 100vh; font-size: 14px; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text-1); display: flex; min-height: 100vh; font-size: 14px; }
 
 /* Sidebar */
 .sidebar { width: 220px; min-width: 220px; background: var(--sidebar); display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0; overflow-y: auto; }
@@ -114,6 +114,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 .event-right { text-align: right; flex-shrink: 0; }
 .event-time { font-size: 11px; color: var(--text-3); }
 .event-ip { font-size: 10px; color: var(--text-3); margin-top: 2px; font-family: monospace; }
+th,td{padding:10px 16px}
+.breadcrumb{flex-shrink:0;background:#F8FAFC;border-bottom:1px solid #E2E8F0;padding:0 28px;height:32px;display:flex;align-items:center;gap:6px;font-size:11px;color:#94A3B8}
+.bc-item{color:#64748B;font-weight:500}
+.bc-item.bc-active{color:#0F172A;font-weight:600}
+.bc-sep{color:#CBD5E1;font-size:10px}
+.kpi-card{min-height:88px}
 </style>
 </head>
 <body>
@@ -175,6 +181,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
       <button class="btn-outline">Last 30 Days</button>
       <div class="avatar">OR</div>
     </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <span class="bc-item">R3VP</span>
+    <span class="bc-sep">›</span>
+    <span class="bc-item">Settings</span>
+    <span class="bc-sep">›</span>
+    <span class="bc-item bc-active">User Analytics</span>
   </div>
 
   <!-- Content -->
