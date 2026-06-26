@@ -267,6 +267,24 @@ The self-service onboarding wizard guides new organizations from signup to first
 
 The fleet management page provides a unified view across all deployed appliances. Each appliance row shows a status-colored border (green / amber / red), resource utilization bars, and connection state badges for Veeam, vCenter, and Temporal. Site groups allow bulk configuration templates to be pushed to multiple appliances simultaneously. A bulk config editor accepts a JSON payload and dispatches it as an async job with per-appliance result tracking.
 
+### MSSP Console
+
+![MSSP Console](docs/screenshots/mssp.png)
+
+The MSSP console gives managed service providers a single pane of glass across all customer organizations. A five-column KPI row shows total customers, health breakdown, and average readiness score. The customer table displays per-org tier badges (standard, premium, enterprise), readiness score pills, workload counts, active threat counts, and last test date. Alert rules can be scoped to all customers, a specific tier, or a tag, and fire on conditions like score drops, RTO breaches, threat detection, and stale tests.
+
+### Compliance Frameworks
+
+![Compliance Frameworks](docs/screenshots/compliance-frameworks.png)
+
+The compliance framework page ships six built-in frameworks: SOC 2 Type II, ISO/IEC 27001:2022, NIST CSF 2.0, EU DORA (highlighted as a current mandate), PCI DSS 4.0, and HIPAA Security Rule. A three-step custom framework builder lets organizations add any regulation by naming the framework, mapping control IDs to R3VP metrics (pass rate, RTO compliance, workload coverage), and running a scored assessment. Assessment results are stored per period for audit history.
+
+### Continuous Validation
+
+![Continuous Validation](docs/screenshots/continuous-validation.png)
+
+Continuous validation runs six lightweight micro-checks against every workload on a configurable interval (default: every 15 minutes) without triggering full instant recovery. Checks cover restore point freshness, mount endpoint reachability, Veeam job status, appliance heartbeat, vCenter connectivity, and RPO compliance. Active alerts show severity-coded left borders with one-click resolution. A rolling pass rate and consecutive failure counter provide early warning before a scheduled full recovery test would catch the issue.
+
 ---
 
 ## Architecture
