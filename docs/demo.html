@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R3VP - Ransomware Readiness & Recovery Validation Platform | Live Demo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,sans-serif;background:#F1F5F9;color:#0F172A;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+/* Top bar */
+.topbar{height:40px;background:#0F172A;display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+.topbar-logo{font-size:17px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.topbar-logo span{color:#00B336}
+.topbar-badge{font-size:9px;color:#00B336;text-transform:uppercase;letter-spacing:2px;margin-left:8px;opacity:.7}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-org{font-size:11px;color:rgba(255,255,255,.5)}
+.topbar-user{font-size:11px;color:rgba(255,255,255,.7);background:rgba(255,255,255,.08);padding:3px 10px;border-radius:12px}
+/* Layout */
+.layout{display:flex;flex:1;overflow:hidden}
+/* Sidebar */
+.sidebar{width:210px;flex-shrink:0;background:#1E293B;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-section-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.2);padding:14px 16px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:12px;color:rgba(255,255,255,.55);cursor:pointer;border-left:2px solid transparent;transition:all .15s}
+.nav-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.04)}
+.nav-item.active{color:#fff;background:rgba(0,179,54,.12);border-left-color:#00B336}
+.nav-icon{font-size:13px;width:16px;text-align:center;flex-shrink:0}
+.sidebar-footer{padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);margin-top:auto}
+.sidebar-footer-text{font-size:9px;color:rgba(255,255,255,.2);line-height:1.8}
+/* Breadcrumb */
+.breadcrumb{height:30px;background:#F8FAFC;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;gap:6px;padding:0 24px;font-size:11px;color:#94A3B8;flex-shrink:0}
+.bc-link{color:#64748B;font-weight:500;cursor:pointer;text-decoration:none}
+.bc-active{color:#0F172A;font-weight:600}
+.bc-sep{color:#CBD5E1;font-size:10px}
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.content{flex:1;overflow-y:auto;padding:24px}
+/* Page header */
+.page-header{margin-bottom:20px}
+.page-title{font-size:18px;font-weight:700;color:#0F172A}
+.page-subtitle{font-size:12px;color:#64748B;margin-top:2px}
+/* KPI row */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.kpi-card{background:#fff;border-radius:8px;padding:14px 16px;border:1px solid #E2E8F0}
+.kpi-label{font-size:10px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.kpi-value{font-size:22px;font-weight:800;color:#0F172A}
+.kpi-value.green{color:#00B336}
+.kpi-value.red{color:#EF4444}
+.kpi-value.amber{color:#F59E0B}
+.kpi-delta{font-size:10px;margin-top:3px;color:#64748B}
+.kpi-delta.up{color:#00B336}
+.kpi-delta.down{color:#EF4444}
+/* Score gauge */
+.score-ring{width:58px;height:58px;position:relative;margin-right:12px}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .score-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#0F172A}
+/* Alert banner */
+.alert-banner{background:#FEF3C7;border:1px solid #F59E0B;border-radius:8px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:12px;color:#92400E}
+.alert-dot{width:7px;height:7px;border-radius:50%;background:#F59E0B;flex-shrink:0}
+/* Cards row */
+.cards-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px}
+/* Table */
+.card{background:#fff;border-radius:8px;border:1px solid #E2E8F0;overflow:hidden}
+.card-header{padding:12px 16px;border-bottom:1px solid #F1F5F9;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600;color:#0F172A}
+.card-action{font-size:11px;color:#3B82F6;cursor:pointer}
+table{width:100%;border-collapse:collapse}
+th{font-size:10px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:.5px;padding:8px 16px;text-align:left;background:#F8FAFC;border-bottom:1px solid #E2E8F0}
+td{font-size:12px;color:#334155;padding:9px 16px;border-bottom:1px solid #F8FAFC}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#F8FAFC}
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px}
+.badge-green{background:#DCFCE7;color:#166534}
+.badge-red{background:#FEE2E2;color:#991B1B}
+.badge-amber{background:#FEF3C7;color:#92400E}
+.badge-blue{background:#DBEAFE;color:#1E40AF}
+.badge-slate{background:#F1F5F9;color:#475569}
+/* Compliance bars */
+.compliance-item{margin-bottom:14px}
+.compliance-header{display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px}
+.compliance-bar{height:7px;background:#E2E8F0;border-radius:4px;overflow:hidden}
+.compliance-fill{height:100%;border-radius:4px;transition:width .6s ease}
+/* Risk items */
+.risk-list{padding:0 16px 12px}
+.risk-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F8FAFC;font-size:12px}
+.risk-item:last-child{border-bottom:none}
+.risk-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+/* Sections hidden by default */
+.section{display:none}
+.section.active{display:block}
+/* Workloads full table */
+.search-bar{background:#fff;border:1px solid #E2E8F0;border-radius:6px;padding:7px 12px;font-size:12px;width:260px;font-family:inherit;color:#0F172A}
+.search-bar:focus{outline:2px solid #3B82F6;outline-offset:-1px}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.btn{font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer;border:none;font-family:inherit}
+.btn-primary{background:#0F172A;color:#fff}
+.btn-primary:hover{background:#1E293B}
+.btn-outline{background:#fff;color:#374151;border:1px solid #E2E8F0}
+.btn-outline:hover{background:#F8FAFC}
+.btn-green{background:#00B336;color:#fff}
+/* Test run detail */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.detail-card{background:#fff;border-radius:8px;border:1px solid #E2E8F0;padding:16px}
+.detail-label{font-size:10px;font-weight:600;color:#64748B;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.detail-value{font-size:13px;font-weight:600;color:#0F172A}
+.timeline{padding:0}
+.timeline-item{display:flex;gap:12px;margin-bottom:12px}
+.timeline-dot-wrap{display:flex;flex-direction:column;align-items:center;gap:0}
+.timeline-dot{width:10px;height:10px;border-radius:50%;background:#00B336;flex-shrink:0;margin-top:3px}
+.timeline-line{width:1px;flex:1;background:#E2E8F0;min-height:18px}
+.timeline-content{flex:1;padding-bottom:4px}
+.timeline-label{font-size:12px;font-weight:600;color:#0F172A}
+.timeline-time{font-size:10px;color:#94A3B8;margin-top:1px}
+/* Chart placeholder */
+.chart-area{height:160px;background:linear-gradient(180deg,#F0FDF4 0%,#F8FAFC 100%);border-radius:6px;display:flex;align-items:flex-end;justify-content:space-around;padding:0 12px 12px;gap:4px}
+.bar{border-radius:3px 3px 0 0;transition:all .3s;cursor:pointer;position:relative}
+.bar:hover{opacity:.85}
+.bar-green{background:#00B336}
+.bar-red{background:#EF4444}
+.bar-amber{background:#F59E0B}
+/* Score cards grid */
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.score-card{background:#fff;border-radius:8px;border:1px solid #E2E8F0;padding:16px;text-align:center}
+.score-card-value{font-size:32px;font-weight:800;margin:8px 0 4px}
+.score-card-label{font-size:11px;color:#64748B}
+.score-card-sub{font-size:10px;color:#94A3B8;margin-top:2px}
+/* MSSP tenant table */
+.tenant-row td:first-child{font-weight:600}
+/* Pill tabs */
+.tab-row{display:flex;gap:4px;margin-bottom:20px;background:#F1F5F9;padding:4px;border-radius:8px;width:fit-content}
+.tab{font-size:11px;font-weight:600;padding:5px 14px;border-radius:6px;cursor:pointer;color:#64748B;transition:all .15s}
+.tab.active{background:#fff;color:#0F172A;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+/* Fleet map */
+.fleet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px}
+.appliance-card{background:#fff;border-radius:8px;border:1px solid #E2E8F0;padding:14px}
+.appliance-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.appliance-name{font-size:13px;font-weight:700;color:#0F172A}
+.appliance-meta{font-size:10px;color:#94A3B8;margin-top:2px}
+.appliance-stat{display:flex;justify-content:space-between;font-size:11px;color:#64748B;padding:3px 0;border-bottom:1px solid #F8FAFC}
+.appliance-stat:last-child{border:none}
+/* Insight cards */
+.insight-card{background:#fff;border-radius:8px;border:1px solid #E2E8F0;padding:16px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start}
+.insight-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.insight-title{font-size:13px;font-weight:700;color:#0F172A;margin-bottom:4px}
+.insight-body{font-size:12px;color:#475569;line-height:1.6}
+.insight-action{margin-top:8px;font-size:11px;color:#3B82F6;cursor:pointer;font-weight:600}
+/* Onboarding hero */
+.demo-hero{background:linear-gradient(135deg,#0F172A 0%,#1E3A5F 100%);border-radius:12px;padding:32px;color:#fff;margin-bottom:20px;text-align:center}
+.demo-hero h1{font-size:22px;font-weight:800;margin-bottom:8px}
+.demo-hero p{font-size:13px;color:rgba(255,255,255,.7);max-width:480px;margin:0 auto 20px;line-height:1.6}
+.demo-hero-btn{background:#00B336;color:#fff;border:none;padding:10px 28px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+/* Scrollbar */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
+/* Notification */
+.notif{position:fixed;bottom:20px;right:20px;background:#0F172A;color:#fff;padding:10px 18px;border-radius:8px;font-size:12px;transform:translateY(60px);opacity:0;transition:all .3s;z-index:999;border-left:3px solid #00B336}
+.notif.show{transform:translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div style="display:flex;align-items:center">
+    <div class="topbar-logo">R<span>3</span>VP</div>
+    <div class="topbar-badge">Live Demo</div>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-org">Contoso Financial Group</div>
+    <div class="topbar-user">j.miller@contoso.com</div>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section-label">Overview</div>
+    <div class="nav-item active" onclick="nav('dashboard',this,'R3VP')"><span class="nav-icon">&#9674;</span> Dashboard</div>
+    <div class="nav-item" onclick="nav('workloads',this,'Workloads')"><span class="nav-icon">&#9632;</span> Workloads</div>
+    <div class="nav-item" onclick="nav('testruns',this,'Test Runs')"><span class="nav-icon">&#9654;</span> Test Runs</div>
+    <div class="nav-item" onclick="nav('appliances',this,'Appliances')"><span class="nav-icon">&#9673;</span> Appliances</div>
+
+    <div class="sidebar-section-label">Security</div>
+    <div class="nav-item" onclick="nav('threats',this,'Threat Scanner')"><span class="nav-icon">&#9888;</span> Threat Scanner</div>
+    <div class="nav-item" onclick="nav('incidents',this,'Incidents')"><span class="nav-icon">&#9888;</span> Incidents</div>
+    <div class="nav-item" onclick="nav('cv',this,'Continuous Validation')"><span class="nav-icon">&#8635;</span> Continuous Validation</div>
+
+    <div class="sidebar-section-label">Compliance</div>
+    <div class="nav-item" onclick="nav('compliance',this,'Compliance Reports')"><span class="nav-icon">&#9744;</span> Reports</div>
+    <div class="nav-item" onclick="nav('scorecard',this,'Readiness Scorecard')"><span class="nav-icon">&#9733;</span> Scorecard</div>
+    <div class="nav-item" onclick="nav('evidence',this,'Evidence Vault')"><span class="nav-icon">&#128274;</span> Evidence Vault</div>
+
+    <div class="sidebar-section-label">Operations</div>
+    <div class="nav-item" onclick="nav('runbooks',this,'DR Runbooks')"><span class="nav-icon">&#128196;</span> DR Runbooks</div>
+    <div class="nav-item" onclick="nav('fleet',this,'Fleet')"><span class="nav-icon">&#127758;</span> Fleet</div>
+    <div class="nav-item" onclick="nav('mssp',this,'MSSP Console')"><span class="nav-icon">&#128101;</span> MSSP Console</div>
+    <div class="nav-item" onclick="nav('providers',this,'Providers')"><span class="nav-icon">&#9729;</span> Providers</div>
+    <div class="nav-item" onclick="nav('insights',this,'AI Insights')"><span class="nav-icon">&#10024;</span> AI Insights</div>
+
+    <div class="sidebar-section-label">Settings</div>
+    <div class="nav-item" onclick="nav('team',this,'Team')"><span class="nav-icon">&#128100;</span> Team</div>
+    <div class="nav-item" onclick="nav('integrations',this,'Integrations')"><span class="nav-icon">&#128279;</span> Integrations</div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-text">
+        R3VP v2.6.0<br>
+        Omar Rao | Data Resilience<br>
+        Veeam Software
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="main">
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="bc-link" onclick="nav('dashboard',null,'R3VP')">R3VP</span>
+      <span class="bc-sep">›</span>
+      <span class="bc-active" id="bc-current">Dashboard</span>
+    </div>
+    <div class="content" id="content-area">
+
+      <!-- DASHBOARD -->
+      <div class="section active" id="sec-dashboard">
+        <div class="page-header">
+          <div class="page-title">Recovery Readiness Dashboard</div>
+          <div class="page-subtitle">Contoso Financial Group &mdash; Last validated: 2 hours ago</div>
+        </div>
+
+        <div class="alert-banner">
+          <div class="alert-dot"></div>
+          <strong>2 workloads</strong>&nbsp;have not been validated in &gt;7 days: <strong>PAY-DB-02</strong> and <strong>ARC-FS-01</strong>. Schedule a recovery test now.
+          <span style="margin-left:auto;cursor:pointer;color:#92400E;font-weight:600" onclick="nav('testruns',document.querySelectorAll('.nav-item')[2],'Test Runs')">Run Test &rarr;</span>
+        </div>
+
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Total Workloads</div>
+            <div class="kpi-value">142</div>
+            <div class="kpi-delta up">&#9650; 8 this month</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Validated (30d)</div>
+            <div class="kpi-value green">128</div>
+            <div class="kpi-delta">90.1% coverage</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Avg RTO Achieved</div>
+            <div class="kpi-value">4.2h</div>
+            <div class="kpi-delta up">&#9650; vs 5.8h target</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Avg RPO Achieved</div>
+            <div class="kpi-value green">23m</div>
+            <div class="kpi-delta">vs 60m target</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Readiness Score</div>
+            <div class="kpi-value green">91</div>
+            <div class="kpi-delta up">&#9650; +4 vs last month</div>
+          </div>
+        </div>
+
+        <div class="cards-row">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Recent Test Runs</div>
+              <div class="card-action" onclick="nav('testruns',document.querySelectorAll('.nav-item')[2],'Test Runs')">View all</div>
+            </div>
+            <table>
+              <thead><tr><th>Workload</th><th>Platform</th><th>RTO</th><th>RPO</th><th>Status</th><th>Time</th></tr></thead>
+              <tbody>
+                <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer">
+                  <td><strong>SQLPROD-01</strong></td><td><span class="badge badge-slate">VMware</span></td><td>2h 14m</td><td>18m</td><td><span class="badge badge-green">Passed</span></td><td>2h ago</td>
+                </tr>
+                <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer">
+                  <td><strong>EXCHG-02</strong></td><td><span class="badge badge-slate">Hyper-V</span></td><td>3h 52m</td><td>32m</td><td><span class="badge badge-green">Passed</span></td><td>5h ago</td>
+                </tr>
+                <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer">
+                  <td><strong>DC-WEST-01</strong></td><td><span class="badge badge-slate">Azure</span></td><td>1h 08m</td><td>12m</td><td><span class="badge badge-green">Passed</span></td><td>8h ago</td>
+                </tr>
+                <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer">
+                  <td><strong>PAY-DB-02</strong></td><td><span class="badge badge-slate">VMware</span></td><td>&mdash;</td><td>&mdash;</td><td><span class="badge badge-red">Failed</span></td><td>1d ago</td>
+                </tr>
+                <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer">
+                  <td><strong>CRM-APP-03</strong></td><td><span class="badge badge-slate">AWS</span></td><td>4h 33m</td><td>45m</td><td><span class="badge badge-amber">Warning</span></td><td>2d ago</td>
+                </tr>
+                <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer">
+                  <td><strong>FILE-SRV-07</strong></td><td><span class="badge badge-slate">Proxmox</span></td><td>0h 52m</td><td>8m</td><td><span class="badge badge-green">Passed</span></td><td>2d ago</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="card">
+              <div class="card-header"><div class="card-title">30-Day Test History</div></div>
+              <div style="padding:12px">
+                <div class="chart-area" id="chart-bars"></div>
+                <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:#64748B">
+                  <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#00B336;display:inline-block"></span>Pass</span>
+                  <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#EF4444;display:inline-block"></span>Fail</span>
+                  <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:2px;background:#F59E0B;display:inline-block"></span>Warn</span>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Active Alerts</div></div>
+              <div class="risk-list">
+                <div class="risk-item"><div class="risk-dot" style="background:#EF4444"></div><span>PAY-DB-02 restore failed &mdash; agent timeout</span></div>
+                <div class="risk-item"><div class="risk-dot" style="background:#F59E0B"></div><span>CRM-APP-03 RTO exceeded target by 33m</span></div>
+                <div class="risk-item"><div class="risk-dot" style="background:#F59E0B"></div><span>ARC-FS-01 not validated in 9 days</span></div>
+                <div class="risk-item"><div class="risk-dot" style="background:#3B82F6"></div><span>SQLPROD-01 backup chain gap detected</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-header">
+            <div class="card-title">Platform Coverage</div>
+            <div class="card-action" onclick="nav('providers',document.querySelectorAll('.nav-item')[14],'Providers')">Manage providers</div>
+          </div>
+          <div style="padding:16px;display:grid;grid-template-columns:repeat(5,1fr);gap:16px">
+            <div style="text-align:center"><div style="font-size:22px;font-weight:800;color:#00B336">58</div><div style="font-size:10px;color:#64748B;margin-top:3px">VMware</div></div>
+            <div style="text-align:center"><div style="font-size:22px;font-weight:800;color:#3B82F6">24</div><div style="font-size:10px;color:#64748B;margin-top:3px">Hyper-V</div></div>
+            <div style="text-align:center"><div style="font-size:22px;font-weight:800;color:#8B5CF6">22</div><div style="font-size:10px;color:#64748B;margin-top:3px">Azure</div></div>
+            <div style="text-align:center"><div style="font-size:22px;font-weight:800;color:#F59E0B">18</div><div style="font-size:10px;color:#64748B;margin-top:3px">AWS</div></div>
+            <div style="text-align:center"><div style="font-size:22px;font-weight:800;color:#64748B">20</div><div style="font-size:10px;color:#64748B;margin-top:3px">Other</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WORKLOADS -->
+      <div class="section" id="sec-workloads">
+        <div class="page-header">
+          <div class="page-title">Workloads</div>
+          <div class="page-subtitle">142 workloads across 10 platforms</div>
+        </div>
+        <div class="toolbar">
+          <input class="search-bar" placeholder="Search by name, platform, tag..." oninput="filterWorkloads(this.value)">
+          <button class="btn btn-outline" onclick="filterByStatus('all')">All</button>
+          <button class="btn btn-outline" onclick="filterByStatus('pass')">Validated</button>
+          <button class="btn btn-outline" onclick="filterByStatus('fail')">Failed</button>
+          <button class="btn btn-green" onclick="notify('Recovery test triggered for selected workloads')">Run Test</button>
+          <button class="btn btn-outline" style="margin-left:auto" onclick="notify('Exporting workload inventory...')">Export CSV</button>
+        </div>
+        <div class="card">
+          <table id="workloads-table">
+            <thead><tr><th><input type="checkbox" onchange="selectAll(this)"></th><th>Workload</th><th>Platform</th><th>Backup Type</th><th>Last Test</th><th>RTO Target</th><th>RTO Actual</th><th>RPO</th><th>Status</th><th>Tags</th></tr></thead>
+            <tbody id="workloads-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TEST RUNS -->
+      <div class="section" id="sec-testruns">
+        <div class="page-header">
+          <div class="page-title">Test Runs</div>
+          <div class="page-subtitle">All automated recovery validation runs</div>
+        </div>
+        <div class="toolbar">
+          <button class="btn btn-green" onclick="notify('New test run scheduled. Check Appliances for status.')">Schedule Run</button>
+          <button class="btn btn-outline" onclick="notify('Exporting test run log...')">Export</button>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Run ID</th><th>Workload</th><th>Platform</th><th>Started</th><th>Duration</th><th>RTO</th><th>RPO</th><th>Evidence</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer"><td><span style="font-family:monospace;font-size:11px">TR-2006-0041</span></td><td>SQLPROD-01</td><td><span class="badge badge-slate">VMware</span></td><td>Jun 26 10:14</td><td>2h 14m</td><td>2h 14m</td><td>18m</td><td><span class="badge badge-blue">12 files</span></td><td><span class="badge badge-green">Passed</span></td></tr>
+              <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer"><td><span style="font-family:monospace;font-size:11px">TR-2006-0040</span></td><td>EXCHG-02</td><td><span class="badge badge-slate">Hyper-V</span></td><td>Jun 26 07:02</td><td>3h 52m</td><td>3h 52m</td><td>32m</td><td><span class="badge badge-blue">9 files</span></td><td><span class="badge badge-green">Passed</span></td></tr>
+              <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer"><td><span style="font-family:monospace;font-size:11px">TR-2006-0039</span></td><td>DC-WEST-01</td><td><span class="badge badge-slate">Azure</span></td><td>Jun 25 22:30</td><td>1h 08m</td><td>1h 08m</td><td>12m</td><td><span class="badge badge-blue">7 files</span></td><td><span class="badge badge-green">Passed</span></td></tr>
+              <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer"><td><span style="font-family:monospace;font-size:11px">TR-2006-0038</span></td><td>PAY-DB-02</td><td><span class="badge badge-slate">VMware</span></td><td>Jun 25 14:00</td><td>0h 08m</td><td>&mdash;</td><td>&mdash;</td><td><span class="badge badge-red">1 log</span></td><td><span class="badge badge-red">Failed</span></td></tr>
+              <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer"><td><span style="font-family:monospace;font-size:11px">TR-2006-0037</span></td><td>CRM-APP-03</td><td><span class="badge badge-slate">AWS</span></td><td>Jun 25 06:00</td><td>4h 33m</td><td>4h 33m</td><td>45m</td><td><span class="badge badge-blue">8 files</span></td><td><span class="badge badge-amber">Warning</span></td></tr>
+              <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer"><td><span style="font-family:monospace;font-size:11px">TR-2006-0036</span></td><td>FILE-SRV-07</td><td><span class="badge badge-slate">Proxmox</span></td><td>Jun 24 23:15</td><td>0h 52m</td><td>0h 52m</td><td>8m</td><td><span class="badge badge-blue">6 files</span></td><td><span class="badge badge-green">Passed</span></td></tr>
+              <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer"><td><span style="font-family:monospace;font-size:11px">TR-2006-0035</span></td><td>SAP-ERP-01</td><td><span class="badge badge-slate">Nutanix</span></td><td>Jun 24 18:00</td><td>5h 12m</td><td>5h 12m</td><td>55m</td><td><span class="badge badge-blue">14 files</span></td><td><span class="badge badge-green">Passed</span></td></tr>
+              <tr onclick="nav('rundetail',null,'Test Run Detail')" style="cursor:pointer"><td><span style="font-family:monospace;font-size:11px">TR-2006-0034</span></td><td>ORACL-FIN-02</td><td><span class="badge badge-slate">VMware</span></td><td>Jun 24 10:00</td><td>3h 44m</td><td>3h 44m</td><td>28m</td><td><span class="badge badge-blue">11 files</span></td><td><span class="badge badge-green">Passed</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RUN DETAIL -->
+      <div class="section" id="sec-rundetail">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+          <button class="btn btn-outline" onclick="nav('testruns',document.querySelectorAll('.nav-item')[2],'Test Runs')">&larr; Back to Test Runs</button>
+          <div>
+            <div class="page-title">Test Run TR-2006-0041 &mdash; SQLPROD-01</div>
+            <div class="page-subtitle">VMware &bull; Isolated sandbox &bull; Jun 26, 2026 10:14 UTC</div>
+          </div>
+          <span class="badge badge-green" style="margin-left:auto;font-size:13px;padding:5px 14px">Passed</span>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-card">
+            <div class="detail-label">RTO Achieved</div><div class="detail-value" style="color:#00B336;font-size:22px">2h 14m</div>
+            <div style="font-size:10px;color:#64748B;margin-top:4px">Target: 4h &bull; 44% under target</div>
+          </div>
+          <div class="detail-card">
+            <div class="detail-label">RPO Achieved</div><div class="detail-value" style="color:#00B336;font-size:22px">18 minutes</div>
+            <div style="font-size:10px;color:#64748B;margin-top:4px">Target: 60m &bull; Restore point: Jun 26 08:01</div>
+          </div>
+          <div class="detail-card">
+            <div class="detail-label">Workload Details</div>
+            <div style="margin-top:6px;font-size:12px;color:#475569;line-height:1.9">
+              <div><strong>VM:</strong> SQLPROD-01.contoso.local</div>
+              <div><strong>vCenter:</strong> vc01.contoso.local</div>
+              <div><strong>Cluster:</strong> PROD-Cluster-A</div>
+              <div><strong>Restore Point:</strong> Full + 3 incrementals</div>
+              <div><strong>Sandbox Network:</strong> VLAN-999 (isolated)</div>
+            </div>
+          </div>
+          <div class="detail-card">
+            <div class="detail-label">Health Checks (8/8 passed)</div>
+            <div style="margin-top:8px;display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="color:#00B336">&#10003;</span> OS boot verified (Windows Server 2022)</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="color:#00B336">&#10003;</span> SQL Server service running</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="color:#00B336">&#10003;</span> Database integrity check passed</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="color:#00B336">&#10003;</span> Network connectivity verified</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="color:#00B336">&#10003;</span> Application login test passed</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="color:#00B336">&#10003;</span> Transaction log validated</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="color:#00B336">&#10003;</span> Sandbox teardown completed</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="color:#00B336">&#10003;</span> Evidence captured (12 artifacts)</div>
+            </div>
+          </div>
+        </div>
+        <div class="cards-row">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Recovery Timeline</div></div>
+            <div style="padding:16px">
+              <div class="timeline">
+                <div class="timeline-item"><div class="timeline-dot-wrap"><div class="timeline-dot"></div><div class="timeline-line"></div></div><div class="timeline-content"><div class="timeline-label">Test Run Initiated</div><div class="timeline-time">10:14:02 UTC &mdash; Triggered by schedule</div></div></div>
+                <div class="timeline-item"><div class="timeline-dot-wrap"><div class="timeline-dot"></div><div class="timeline-line"></div></div><div class="timeline-content"><div class="timeline-label">Restore Point Selected</div><div class="timeline-time">10:14:18 UTC &mdash; Latest full backup Jun 26 08:01</div></div></div>
+                <div class="timeline-item"><div class="timeline-dot-wrap"><div class="timeline-dot"></div><div class="timeline-line"></div></div><div class="timeline-content"><div class="timeline-label">Sandbox Network Provisioned</div><div class="timeline-time">10:15:04 UTC &mdash; VLAN-999 isolated network ready</div></div></div>
+                <div class="timeline-item"><div class="timeline-dot-wrap"><div class="timeline-dot"></div><div class="timeline-line"></div></div><div class="timeline-content"><div class="timeline-label">Instant VM Recovery Started</div><div class="timeline-time">10:16:30 UTC &mdash; Veeam B&amp;R Instant Recovery API called</div></div></div>
+                <div class="timeline-item"><div class="timeline-dot-wrap"><div class="timeline-dot"></div><div class="timeline-line"></div></div><div class="timeline-content"><div class="timeline-label">VM Powered On</div><div class="timeline-time">10:28:11 UTC &mdash; OS boot detected</div></div></div>
+                <div class="timeline-item"><div class="timeline-dot-wrap"><div class="timeline-dot"></div><div class="timeline-line"></div></div><div class="timeline-content"><div class="timeline-label">Application Health Checks Running</div><div class="timeline-time">10:30:44 UTC &mdash; SQL Server, DB integrity, login test</div></div></div>
+                <div class="timeline-item"><div class="timeline-dot-wrap"><div class="timeline-dot" style="background:#00B336"></div><div class="timeline-line" style="background:transparent"></div></div><div class="timeline-content"><div class="timeline-label" style="color:#00B336">All Checks Passed &mdash; RTO Measured</div><div class="timeline-time">12:28:54 UTC &mdash; 2h 14m 52s from initiation</div></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Evidence Artifacts</div>
+              <div class="card-action" onclick="notify('Opening Evidence Vault for TR-2006-0041...')">View Vault</div>
+            </div>
+            <div style="padding:8px 16px">
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F8FAFC;font-size:12px"><span>&#128248; vm-boot-screenshot.png</span><span class="badge badge-blue" style="cursor:pointer" onclick="notify('Downloading vm-boot-screenshot.png...')">Download</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F8FAFC;font-size:12px"><span>&#128196; health-check-report.pdf</span><span class="badge badge-blue" style="cursor:pointer" onclick="notify('Downloading health-check-report.pdf...')">Download</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F8FAFC;font-size:12px"><span>&#128196; sql-integrity-check.log</span><span class="badge badge-blue" style="cursor:pointer" onclick="notify('Downloading sql-integrity-check.log...')">Download</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F8FAFC;font-size:12px"><span>&#128248; app-login-test.png</span><span class="badge badge-blue" style="cursor:pointer" onclick="notify('Downloading app-login-test.png...')">Download</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #F8FAFC;font-size:12px"><span>&#128196; network-trace.pcap</span><span class="badge badge-blue" style="cursor:pointer" onclick="notify('Downloading network-trace.pcap...')">Download</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:12px"><span>&#128196; full-test-report.pdf</span><span class="badge badge-green" style="cursor:pointer" onclick="notify('Downloading full-test-report.pdf...')">Audit</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPLIANCES -->
+      <div class="section" id="sec-appliances">
+        <div class="page-header"><div class="page-title">Appliances</div><div class="page-subtitle">3 appliances registered across 2 sites</div></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px">
+          <div class="appliance-card" style="border-left:3px solid #00B336">
+            <div class="appliance-header"><div><div class="appliance-name">R3VP-PROD-01</div><div class="appliance-meta">HQ Data Center &bull; v2.6.0</div></div><span class="badge badge-green">Online</span></div>
+            <div class="appliance-stat"><span>Last heartbeat</span><span>12s ago</span></div>
+            <div class="appliance-stat"><span>Active jobs</span><span>2 running</span></div>
+            <div class="appliance-stat"><span>Veeam B&R</span><span>12.2.0.334</span></div>
+            <div class="appliance-stat"><span>vCenter</span><span>vc01.contoso.local</span></div>
+            <div class="appliance-stat"><span>Workloads managed</span><span>92</span></div>
+            <div class="appliance-stat"><span>Tests this month</span><span>38</span></div>
+          </div>
+          <div class="appliance-card" style="border-left:3px solid #00B336">
+            <div class="appliance-header"><div><div class="appliance-name">R3VP-DR-01</div><div class="appliance-meta">DR Site West &bull; v2.6.0</div></div><span class="badge badge-green">Online</span></div>
+            <div class="appliance-stat"><span>Last heartbeat</span><span>28s ago</span></div>
+            <div class="appliance-stat"><span>Active jobs</span><span>0 running</span></div>
+            <div class="appliance-stat"><span>Veeam B&R</span><span>12.2.0.334</span></div>
+            <div class="appliance-stat"><span>vCenter</span><span>vc02-dr.contoso.local</span></div>
+            <div class="appliance-stat"><span>Workloads managed</span><span>50</span></div>
+            <div class="appliance-stat"><span>Tests this month</span><span>21</span></div>
+          </div>
+          <div class="appliance-card" style="border-left:3px solid #F59E0B">
+            <div class="appliance-header"><div><div class="appliance-name">R3VP-CLOUD-01</div><div class="appliance-meta">Azure East US &bull; v2.5.1</div></div><span class="badge badge-amber">Update Available</span></div>
+            <div class="appliance-stat"><span>Last heartbeat</span><span>3m ago</span></div>
+            <div class="appliance-stat"><span>Active jobs</span><span>1 running</span></div>
+            <div class="appliance-stat"><span>Veeam B&R</span><span>12.1.2.172</span></div>
+            <div class="appliance-stat"><span>Cloud</span><span>Azure East US</span></div>
+            <div class="appliance-stat"><span>Workloads managed</span><span>22</span></div>
+            <div class="appliance-stat"><span>Tests this month</span><span>9</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Appliance Activity Log</div></div>
+          <table>
+            <thead><tr><th>Time</th><th>Appliance</th><th>Event</th><th>Details</th></tr></thead>
+            <tbody>
+              <tr><td>10:14 UTC</td><td>R3VP-PROD-01</td><td><span class="badge badge-green">Job Started</span></td><td>Test run TR-2006-0041 initiated for SQLPROD-01</td></tr>
+              <tr><td>08:01 UTC</td><td>R3VP-PROD-01</td><td><span class="badge badge-blue">Backup Sync</span></td><td>Fetched 142 restore points from Veeam B&R</td></tr>
+              <tr><td>07:02 UTC</td><td>R3VP-PROD-01</td><td><span class="badge badge-green">Job Completed</span></td><td>TR-2006-0040 (EXCHG-02) passed all checks</td></tr>
+              <tr><td>Jun 25 14:00</td><td>R3VP-PROD-01</td><td><span class="badge badge-red">Job Failed</span></td><td>TR-2006-0038 (PAY-DB-02) agent timeout after 8m</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- THREAT SCANNER -->
+      <div class="section" id="sec-threats">
+        <div class="page-header"><div class="page-title">Threat Scanner</div><div class="page-subtitle">Analyzes backup chains for ransomware indicators before restore</div></div>
+        <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi-card"><div class="kpi-label">Backup Chains Scanned</div><div class="kpi-value">1,284</div><div class="kpi-delta up">This month</div></div>
+          <div class="kpi-card"><div class="kpi-label">Threat Detections</div><div class="kpi-value red">3</div><div class="kpi-delta down">2 high, 1 medium</div></div>
+          <div class="kpi-card"><div class="kpi-label">Clean Restore Points</div><div class="kpi-value green">1,281</div><div class="kpi-delta">99.8% clean</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg Scan Time</div><div class="kpi-value">4.2m</div><div class="kpi-delta">per restore point</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Threat Detections</div></div>
+          <table>
+            <thead><tr><th>Restore Point</th><th>Workload</th><th>Detected</th><th>Threat Type</th><th>Severity</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td><span style="font-family:monospace;font-size:11px">RP-20260614-0201</span></td><td>FILE-SRV-03</td><td>Jun 14 02:18</td><td>Entropy anomaly (possible encryption)</td><td><span class="badge badge-red">High</span></td><td><span class="badge badge-slate" style="cursor:pointer" onclick="notify('Restore point quarantined')">Quarantine</span></td></tr>
+              <tr><td><span style="font-family:monospace;font-size:11px">RP-20260610-1830</span></td><td>FILE-SRV-03</td><td>Jun 10 18:45</td><td>Mass file rename pattern</td><td><span class="badge badge-red">High</span></td><td><span class="badge badge-slate" style="cursor:pointer" onclick="notify('Restore point quarantined')">Quarantine</span></td></tr>
+              <tr><td><span style="font-family:monospace;font-size:11px">RP-20260619-0800</span></td><td>SHARE-04</td><td>Jun 19 08:12</td><td>Known ransomware extension pattern</td><td><span class="badge badge-amber">Medium</span></td><td><span class="badge badge-slate" style="cursor:pointer" onclick="notify('Restore point flagged for review')">Review</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- INCIDENTS -->
+      <div class="section" id="sec-incidents">
+        <div class="page-header"><div class="page-title">Incidents</div><div class="page-subtitle">Active and historical DR incidents requiring attention</div></div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Active Incidents</div>
+            <button class="btn btn-outline" onclick="notify('New incident created')">New Incident</button>
+          </div>
+          <table>
+            <thead><tr><th>ID</th><th>Severity</th><th>Workload</th><th>Description</th><th>Opened</th><th>Assigned</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><span style="font-family:monospace;font-size:11px">INC-0094</span></td><td><span class="badge badge-red">P1</span></td><td>PAY-DB-02</td><td>Recovery test failed &mdash; agent timeout. Payments DB at risk.</td><td>Jun 25</td><td>j.miller</td><td><span class="badge badge-red">Open</span></td></tr>
+              <tr><td><span style="font-family:monospace;font-size:11px">INC-0093</span></td><td><span class="badge badge-amber">P2</span></td><td>CRM-APP-03</td><td>RTO exceeded target by 33 minutes. Escalated to DR team.</td><td>Jun 25</td><td>t.chen</td><td><span class="badge badge-amber">In Progress</span></td></tr>
+              <tr><td><span style="font-family:monospace;font-size:11px">INC-0092</span></td><td><span class="badge badge-amber">P2</span></td><td>ARC-FS-01</td><td>Workload not validated in 9 days. SLA breach risk.</td><td>Jun 17</td><td>t.chen</td><td><span class="badge badge-amber">In Progress</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CONTINUOUS VALIDATION -->
+      <div class="section" id="sec-cv">
+        <div class="page-header"><div class="page-title">Continuous Validation</div><div class="page-subtitle">Automated schedules ensuring every workload is validated on cadence</div></div>
+        <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi-card"><div class="kpi-label">Active Schedules</div><div class="kpi-value">18</div></div>
+          <div class="kpi-card"><div class="kpi-label">Tests This Week</div><div class="kpi-value green">47</div></div>
+          <div class="kpi-card"><div class="kpi-label">Pass Rate</div><div class="kpi-value green">94.7%</div></div>
+          <div class="kpi-card"><div class="kpi-label">SLA Breaches</div><div class="kpi-value red">2</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Validation Schedules</div>
+            <button class="btn btn-green" onclick="notify('New schedule created')">Add Schedule</button>
+          </div>
+          <table>
+            <thead><tr><th>Schedule</th><th>Workloads</th><th>Frequency</th><th>Next Run</th><th>Last Pass Rate</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Critical Tier 1</strong></td><td>12 workloads</td><td>Daily 02:00</td><td>Tomorrow 02:00</td><td>100%</td><td><span class="badge badge-green">Active</span></td></tr>
+              <tr><td><strong>Database Servers</strong></td><td>22 workloads</td><td>Every 3 days</td><td>Jun 28 03:00</td><td>95.5%</td><td><span class="badge badge-green">Active</span></td></tr>
+              <tr><td><strong>File Servers</strong></td><td>38 workloads</td><td>Weekly Sunday</td><td>Jun 29 01:00</td><td>97.4%</td><td><span class="badge badge-green">Active</span></td></tr>
+              <tr><td><strong>Cloud Workloads</strong></td><td>22 workloads</td><td>Weekly Friday</td><td>Jun 27 22:00</td><td>90.9%</td><td><span class="badge badge-green">Active</span></td></tr>
+              <tr><td><strong>Payment Systems</strong></td><td>8 workloads</td><td>Daily 00:00</td><td>Tomorrow 00:00</td><td>87.5%</td><td><span class="badge badge-amber">Degraded</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- COMPLIANCE -->
+      <div class="section" id="sec-compliance">
+        <div class="page-header"><div class="page-title">Compliance Reports</div><div class="page-subtitle">Framework alignment based on validated recovery evidence</div></div>
+        <div class="tab-row">
+          <div class="tab active" id="tab-nist" onclick="switchTab('nist')">NIST CSF 2.0</div>
+          <div class="tab" id="tab-iso" onclick="switchTab('iso')">ISO 27001</div>
+          <div class="tab" id="tab-soc2" onclick="switchTab('soc2')">SOC 2 Type II</div>
+          <div class="tab" id="tab-pci" onclick="switchTab('pci')">PCI DSS 4.0</div>
+        </div>
+        <div id="compliance-content">
+          <div class="cards-row">
+            <div class="card">
+              <div class="card-header"><div class="card-title">NIST CSF 2.0 &mdash; Recover Function</div><div class="card-action" onclick="notify('Generating NIST CSF compliance report PDF...')">Export PDF</div></div>
+              <div style="padding:16px">
+                <div class="compliance-item"><div class="compliance-header"><span>RC.RP &mdash; Incident Recovery Plan Execution</span><strong style="color:#00B336">96%</strong></div><div class="compliance-bar"><div class="compliance-fill" style="width:96%;background:#00B336"></div></div></div>
+                <div class="compliance-item"><div class="compliance-header"><span>RC.CO &mdash; Improvements from Recovery</span><strong style="color:#00B336">88%</strong></div><div class="compliance-bar"><div class="compliance-fill" style="width:88%;background:#00B336"></div></div></div>
+                <div class="compliance-item"><div class="compliance-header"><span>ID.RA &mdash; Risk Assessment</span><strong style="color:#F59E0B">72%</strong></div><div class="compliance-bar"><div class="compliance-fill" style="width:72%;background:#F59E0B"></div></div></div>
+                <div class="compliance-item"><div class="compliance-header"><span>PR.IP &mdash; Information Protection Processes</span><strong style="color:#00B336">91%</strong></div><div class="compliance-bar"><div class="compliance-fill" style="width:91%;background:#00B336"></div></div></div>
+                <div class="compliance-item"><div class="compliance-header"><span>DE.CM &mdash; Security Monitoring</span><strong style="color:#00B336">84%</strong></div><div class="compliance-bar"><div class="compliance-fill" style="width:84%;background:#00B336"></div></div></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">Evidence Coverage</div></div>
+              <div style="padding:16px">
+                <div style="text-align:center;margin-bottom:16px">
+                  <div style="font-size:42px;font-weight:800;color:#00B336">91%</div>
+                  <div style="font-size:12px;color:#64748B">Overall NIST CSF Recover score</div>
+                </div>
+                <div style="font-size:12px;color:#475569;line-height:2">
+                  <div>&#10003; 128 of 142 workloads have validated restore evidence</div>
+                  <div>&#10003; 47 tests run this week with evidence captured</div>
+                  <div>&#9888; 14 workloads pending validation (PAY, ARC tiers)</div>
+                  <div>&#10003; Audit trail complete for last 12 months</div>
+                </div>
+                <button class="btn btn-primary" style="width:100%;margin-top:14px;padding:9px" onclick="notify('Scheduled delivery configured for NIST CSF report')">Schedule Delivery</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCORECARD -->
+      <div class="section" id="sec-scorecard">
+        <div class="page-header"><div class="page-title">Readiness Scorecard</div><div class="page-subtitle">Overall cyber recovery posture at a glance</div></div>
+        <div style="text-align:center;background:#fff;border-radius:12px;border:1px solid #E2E8F0;padding:32px;margin-bottom:20px">
+          <div style="font-size:72px;font-weight:900;color:#00B336;line-height:1">91</div>
+          <div style="font-size:14px;color:#64748B;margin-top:6px">Recovery Readiness Score</div>
+          <div style="font-size:12px;color:#94A3B8;margin-top:4px">+4 points vs last month &bull; Industry benchmark: 74</div>
+          <div style="margin:20px auto 0;max-width:360px;background:#F8FAFC;border-radius:8px;padding:12px 16px;font-size:12px;color:#475569">
+            You are in the <strong style="color:#00B336">Top 15%</strong> of organizations in your sector for cyber recovery readiness.
+          </div>
+        </div>
+        <div class="score-grid">
+          <div class="score-card"><div style="font-size:11px;color:#64748B">Backup Coverage</div><div class="score-card-value" style="color:#00B336">98%</div><div class="score-card-sub">142 / 145 workloads protected</div></div>
+          <div class="score-card"><div style="font-size:11px;color:#64748B">Validation Rate</div><div class="score-card-value" style="color:#00B336">90%</div><div class="score-card-sub">128 tested in last 30 days</div></div>
+          <div class="score-card"><div style="font-size:11px;color:#64748B">RTO Compliance</div><div class="score-card-value" style="color:#00B336">89%</div><div class="score-card-sub">114 / 128 within target</div></div>
+          <div class="score-card"><div style="font-size:11px;color:#64748B">RPO Compliance</div><div class="score-card-value" style="color:#00B336">94%</div><div class="score-card-sub">120 / 128 within target</div></div>
+          <div class="score-card"><div style="font-size:11px;color:#F59E0B">Threat Posture</div><div class="score-card-value" style="color:#F59E0B">76%</div><div class="score-card-sub">3 backup chains flagged</div></div>
+          <div class="score-card"><div style="font-size:11px;color:#64748B">Evidence Coverage</div><div class="score-card-value" style="color:#00B336">96%</div><div class="score-card-sub">Full audit trail maintained</div></div>
+        </div>
+      </div>
+
+      <!-- EVIDENCE VAULT -->
+      <div class="section" id="sec-evidence">
+        <div class="page-header"><div class="page-title">Evidence Vault</div><div class="page-subtitle">Immutable audit artifacts from all recovery validation tests</div></div>
+        <div class="toolbar">
+          <input class="search-bar" placeholder="Search evidence by workload, date, type...">
+          <button class="btn btn-outline" onclick="notify('Exporting evidence manifest...')">Export Manifest</button>
+        </div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Artifact</th><th>Type</th><th>Test Run</th><th>Workload</th><th>Captured</th><th>Hash (SHA-256)</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>vm-boot-screenshot.png</td><td><span class="badge badge-blue">Screenshot</span></td><td>TR-2006-0041</td><td>SQLPROD-01</td><td>Jun 26 12:28</td><td><span style="font-family:monospace;font-size:9px;color:#94A3B8">a3f9d2...c841</span></td><td><span class="badge badge-slate" style="cursor:pointer" onclick="notify('Downloading artifact...')">Download</span></td></tr>
+              <tr><td>health-check-report.pdf</td><td><span class="badge badge-green">Report</span></td><td>TR-2006-0041</td><td>SQLPROD-01</td><td>Jun 26 12:29</td><td><span style="font-family:monospace;font-size:9px;color:#94A3B8">b7e1a4...f220</span></td><td><span class="badge badge-slate" style="cursor:pointer" onclick="notify('Downloading artifact...')">Download</span></td></tr>
+              <tr><td>sql-integrity-check.log</td><td><span class="badge badge-slate">Log</span></td><td>TR-2006-0041</td><td>SQLPROD-01</td><td>Jun 26 11:45</td><td><span style="font-family:monospace;font-size:9px;color:#94A3B8">c2d8f1...9a03</span></td><td><span class="badge badge-slate" style="cursor:pointer" onclick="notify('Downloading artifact...')">Download</span></td></tr>
+              <tr><td>vm-boot-screenshot.png</td><td><span class="badge badge-blue">Screenshot</span></td><td>TR-2006-0040</td><td>EXCHG-02</td><td>Jun 26 10:54</td><td><span style="font-family:monospace;font-size:9px;color:#94A3B8">d1f7c3...8b12</span></td><td><span class="badge badge-slate" style="cursor:pointer" onclick="notify('Downloading artifact...')">Download</span></td></tr>
+              <tr><td>health-check-report.pdf</td><td><span class="badge badge-green">Report</span></td><td>TR-2006-0040</td><td>EXCHG-02</td><td>Jun 26 10:55</td><td><span style="font-family:monospace;font-size:9px;color:#94A3B8">e5a2b6...7c44</span></td><td><span class="badge badge-slate" style="cursor:pointer" onclick="notify('Downloading artifact...')">Download</span></td></tr>
+              <tr><td>failure-log.txt</td><td><span class="badge badge-red">Error Log</span></td><td>TR-2006-0038</td><td>PAY-DB-02</td><td>Jun 25 14:08</td><td><span style="font-family:monospace;font-size:9px;color:#94A3B8">f9c3d7...1e55</span></td><td><span class="badge badge-slate" style="cursor:pointer" onclick="notify('Downloading artifact...')">Download</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RUNBOOKS -->
+      <div class="section" id="sec-runbooks">
+        <div class="page-header"><div class="page-title">DR Runbooks</div><div class="page-subtitle">Automated recovery playbooks linked to workloads and test evidence</div></div>
+        <div class="toolbar">
+          <button class="btn btn-green" onclick="notify('Runbook editor opened')">New Runbook</button>
+          <button class="btn btn-outline" onclick="notify('Importing runbook template...')">Import Template</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="card" style="cursor:pointer" onclick="notify('Opening runbook: SQL Server Full Recovery...')">
+            <div style="padding:16px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                <div style="font-size:14px;font-weight:700">SQL Server Full Recovery</div>
+                <span class="badge badge-green">Tested</span>
+              </div>
+              <div style="font-size:12px;color:#64748B;margin-bottom:10px">12 steps &bull; Avg execution: 2h 18m &bull; Last run: Jun 26</div>
+              <div style="font-size:11px;color:#475569;line-height:1.7">Covers Instant VM Recovery, SQL integrity verification, transaction log application, application health validation, and sandbox teardown. Mapped to SQLPROD-01, SQLPROD-02, ORACL-FIN-02.</div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer" onclick="notify('Opening runbook: Exchange/Mail Recovery...')">
+            <div style="padding:16px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                <div style="font-size:14px;font-weight:700">Exchange / Mail Recovery</div>
+                <span class="badge badge-green">Tested</span>
+              </div>
+              <div style="font-size:12px;color:#64748B;margin-bottom:10px">9 steps &bull; Avg execution: 3h 44m &bull; Last run: Jun 26</div>
+              <div style="font-size:11px;color:#475569;line-height:1.7">Exchange restore from Veeam agent backup. Validates mail flow, ActiveSync, OWA connectivity. Mapped to EXCHG-01, EXCHG-02.</div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer" onclick="notify('Opening runbook: Domain Controller Recovery...')">
+            <div style="padding:16px">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                <div style="font-size:14px;font-weight:700">Domain Controller Recovery</div>
+                <span class="badge badge-green">Tested</span>
+              </div>
+              <div style="font-size:12px;color:#64748B;margin-bottom:10px">7 steps &bull; Avg execution: 1h 08m &bull; Last run: Jun 25</div>
+              <div style="font-size:11px;color:#475569;line-height:1.7">Authoritative AD restore in isolated sandbox. Validates LDAP, Kerberos, DNS. Covers DC-WEST-01, DC-EAST-01.</div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;border:1px dashed #CBD5E1;background:#FAFAFA" onclick="notify('Runbook editor opened for Payment Systems template')">
+            <div style="padding:16px;display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:8px;color:#94A3B8">
+              <div style="font-size:28px">+</div>
+              <div style="font-size:13px;font-weight:600">Create Payment Systems Runbook</div>
+              <div style="font-size:11px">PAY-DB-02 currently has no runbook &mdash; P1 incident open</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FLEET -->
+      <div class="section" id="sec-fleet">
+        <div class="page-header"><div class="page-title">Fleet Management</div><div class="page-subtitle">All R3VP appliances across customer sites and cloud deployments</div></div>
+        <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi-card"><div class="kpi-label">Total Appliances</div><div class="kpi-value">3</div></div>
+          <div class="kpi-card"><div class="kpi-label">Online</div><div class="kpi-value green">3</div></div>
+          <div class="kpi-card"><div class="kpi-label">Pending Update</div><div class="kpi-value amber">1</div></div>
+          <div class="kpi-card"><div class="kpi-label">Total Workloads</div><div class="kpi-value">164</div></div>
+        </div>
+        <div class="fleet-grid">
+          <div class="appliance-card"><div class="appliance-header"><div><div class="appliance-name">R3VP-PROD-01</div><div class="appliance-meta">HQ DC &bull; v2.6.0</div></div><span class="badge badge-green">Online</span></div><div class="appliance-stat"><span>CPU</span><span>12%</span></div><div class="appliance-stat"><span>Memory</span><span>3.2 / 8 GB</span></div><div class="appliance-stat"><span>Disk</span><span>42 / 200 GB</span></div></div>
+          <div class="appliance-card"><div class="appliance-header"><div><div class="appliance-name">R3VP-DR-01</div><div class="appliance-meta">DR West &bull; v2.6.0</div></div><span class="badge badge-green">Online</span></div><div class="appliance-stat"><span>CPU</span><span>4%</span></div><div class="appliance-stat"><span>Memory</span><span>2.1 / 8 GB</span></div><div class="appliance-stat"><span>Disk</span><span>28 / 200 GB</span></div></div>
+          <div class="appliance-card"><div class="appliance-header"><div><div class="appliance-name">R3VP-CLOUD-01</div><div class="appliance-meta">Azure East &bull; v2.5.1</div></div><span class="badge badge-amber">Update</span></div><div class="appliance-stat"><span>CPU</span><span>8%</span></div><div class="appliance-stat"><span>Memory</span><span>1.8 / 4 GB</span></div><div class="appliance-stat"><span>Disk</span><span>19 / 100 GB</span></div></div>
+        </div>
+      </div>
+
+      <!-- MSSP -->
+      <div class="section" id="sec-mssp">
+        <div class="page-header"><div class="page-title">MSSP Console</div><div class="page-subtitle">Multi-tenant management &mdash; Managed by SecureIT Partners</div></div>
+        <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi-card"><div class="kpi-label">Managed Tenants</div><div class="kpi-value">12</div></div>
+          <div class="kpi-card"><div class="kpi-label">Total Workloads</div><div class="kpi-value">1,842</div></div>
+          <div class="kpi-card"><div class="kpi-label">Avg Readiness Score</div><div class="kpi-value green">83</div></div>
+          <div class="kpi-card"><div class="kpi-label">Open P1 Incidents</div><div class="kpi-value red">4</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Tenant Overview</div><div class="card-action" onclick="notify('Generating MSSP portfolio report...')">Export Report</div></div>
+          <table class="tenant-row">
+            <thead><tr><th>Tenant</th><th>Sector</th><th>Workloads</th><th>Validated</th><th>Score</th><th>P1 Alerts</th><th>Last Activity</th></tr></thead>
+            <tbody>
+              <tr><td>Contoso Financial</td><td>Finance</td><td>142</td><td><span style="color:#00B336">90%</span></td><td><span class="badge badge-green">91</span></td><td>1</td><td>2h ago</td></tr>
+              <tr><td>Northwind Healthcare</td><td>Healthcare</td><td>218</td><td><span style="color:#00B336">88%</span></td><td><span class="badge badge-green">87</span></td><td>0</td><td>4h ago</td></tr>
+              <tr><td>Fabrikam Retail</td><td>Retail</td><td>96</td><td><span style="color:#F59E0B">74%</span></td><td><span class="badge badge-amber">71</span></td><td>2</td><td>1d ago</td></tr>
+              <tr><td>Alpine Manufacturing</td><td>Manufacturing</td><td>184</td><td><span style="color:#00B336">92%</span></td><td><span class="badge badge-green">89</span></td><td>0</td><td>6h ago</td></tr>
+              <tr><td>Proseware Legal</td><td>Legal</td><td>72</td><td><span style="color:#EF4444">61%</span></td><td><span class="badge badge-red">58</span></td><td>1</td><td>3d ago</td></tr>
+              <tr><td>City of Springfield</td><td>Government</td><td>312</td><td><span style="color:#00B336">95%</span></td><td><span class="badge badge-green">94</span></td><td>0</td><td>1h ago</td></tr>
+              <tr><td>WingTip Hospitality</td><td>Hospitality</td><td>54</td><td><span style="color:#F59E0B">78%</span></td><td><span class="badge badge-amber">76</span></td><td>0</td><td>8h ago</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PROVIDERS -->
+      <div class="section" id="sec-providers">
+        <div class="page-header"><div class="page-title">Providers</div><div class="page-subtitle">10 platform integrations active</div></div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px">
+          <div class="card" style="padding:16px;text-align:center;cursor:pointer" onclick="notify('VMware vCenter connection settings opened')"><div style="font-size:24px;margin-bottom:8px">&#9729;</div><div style="font-size:13px;font-weight:700">VMware vCenter</div><div style="margin:8px 0"><span class="badge badge-green">Connected</span></div><div style="font-size:10px;color:#64748B">58 workloads</div></div>
+          <div class="card" style="padding:16px;text-align:center;cursor:pointer" onclick="notify('Hyper-V connection settings opened')"><div style="font-size:24px;margin-bottom:8px">&#9633;</div><div style="font-size:13px;font-weight:700">Hyper-V</div><div style="margin:8px 0"><span class="badge badge-green">Connected</span></div><div style="font-size:10px;color:#64748B">24 workloads</div></div>
+          <div class="card" style="padding:16px;text-align:center;cursor:pointer" onclick="notify('Azure provider settings opened')"><div style="font-size:24px;margin-bottom:8px">&#9650;</div><div style="font-size:13px;font-weight:700">Microsoft Azure</div><div style="margin:8px 0"><span class="badge badge-green">Connected</span></div><div style="font-size:10px;color:#64748B">22 workloads</div></div>
+          <div class="card" style="padding:16px;text-align:center;cursor:pointer" onclick="notify('AWS provider settings opened')"><div style="font-size:24px;margin-bottom:8px">&#9670;</div><div style="font-size:13px;font-weight:700">Amazon AWS</div><div style="margin:8px 0"><span class="badge badge-green">Connected</span></div><div style="font-size:10px;color:#64748B">18 workloads</div></div>
+          <div class="card" style="padding:16px;text-align:center;cursor:pointer" onclick="notify('Proxmox provider settings opened')"><div style="font-size:24px;margin-bottom:8px">&#9635;</div><div style="font-size:13px;font-weight:700">Proxmox VE</div><div style="margin:8px 0"><span class="badge badge-green">Connected</span></div><div style="font-size:10px;color:#64748B">8 workloads</div></div>
+          <div class="card" style="padding:16px;text-align:center;cursor:pointer" onclick="notify('Nutanix provider settings opened')"><div style="font-size:24px;margin-bottom:8px">&#9679;</div><div style="font-size:13px;font-weight:700">Nutanix AHV</div><div style="margin:8px 0"><span class="badge badge-green">Connected</span></div><div style="font-size:10px;color:#64748B">6 workloads</div></div>
+          <div class="card" style="padding:16px;text-align:center;cursor:pointer" onclick="notify('RHV provider settings opened')"><div style="font-size:24px;margin-bottom:8px">&#9632;</div><div style="font-size:13px;font-weight:700">Red Hat RHV</div><div style="margin:8px 0"><span class="badge badge-amber">Degraded</span></div><div style="font-size:10px;color:#64748B">4 workloads</div></div>
+          <div class="card" style="padding:16px;text-align:center;cursor:pointer" onclick="notify('XenServer provider settings opened')"><div style="font-size:24px;margin-bottom:8px">&#9671;</div><div style="font-size:13px;font-weight:700">XenServer</div><div style="margin:8px 0"><span class="badge badge-green">Connected</span></div><div style="font-size:10px;color:#64748B">2 workloads</div></div>
+          <div class="card" style="padding:16px;text-align:center;cursor:pointer" onclick="notify('GCP provider settings opened')"><div style="font-size:24px;margin-bottom:8px">&#9734;</div><div style="font-size:13px;font-weight:700">Google Cloud</div><div style="margin:8px 0"><span class="badge badge-green">Connected</span></div><div style="font-size:10px;color:#64748B">0 workloads</div></div>
+          <div class="card" style="padding:16px;text-align:center;cursor:pointer;border:1px dashed #CBD5E1;background:#FAFAFA" onclick="notify('Add new provider wizard opened')"><div style="font-size:24px;margin-bottom:8px;color:#CBD5E1">+</div><div style="font-size:13px;font-weight:700;color:#94A3B8">Add Provider</div><div style="font-size:10px;color:#CBD5E1;margin-top:8px">Sangfor, OpenStack...</div></div>
+        </div>
+      </div>
+
+      <!-- AI INSIGHTS -->
+      <div class="section" id="sec-insights">
+        <div class="page-header"><div class="page-title">AI Insights</div><div class="page-subtitle">Machine learning analysis of your recovery patterns and risks</div></div>
+        <div class="insight-card">
+          <div class="insight-icon">&#128683;</div>
+          <div><div class="insight-title">Critical: PAY-DB-02 recovery failure pattern detected</div><div class="insight-body">This workload has failed its last 2 recovery tests. Root cause analysis suggests the Veeam agent on the guest is timing out during the application-aware processing phase. Similar failures have been seen in 3 other environments using the same Windows Server 2019 + SQL 2019 combination after a specific Windows Update (KB5034123). Recommend applying the Veeam agent hotfix v12.2.1 patch 1.</div><div class="insight-action" onclick="notify('AI recommendation accepted — ticket created for PAY-DB-02 remediation')">Accept &amp; Create Ticket &rarr;</div></div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-icon">&#9888;&#65039;</div>
+          <div><div class="insight-title">RTO trend degradation: CRM-APP-03</div><div class="insight-body">CRM-APP-03 RTO has increased 28% over the last 60 days (3h 12m &rarr; 4h 33m). The slowdown correlates with the VM growing from 180GB to 310GB disk consumption. At the current growth rate, this workload will breach its 4h RTO SLA within 45 days. Recommend increasing snapshot frequency or enabling CBT for faster incrementals.</div><div class="insight-action" onclick="notify('Opening CBT configuration for CRM-APP-03...')">Configure CBT &rarr;</div></div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-icon">&#128200;</div>
+          <div><div class="insight-title">Recovery score improvement opportunity: 91 &rarr; 96</div><div class="insight-body">Validating the 14 currently unvalidated workloads (primarily in PAY and ARC tiers) would push your overall readiness score from 91 to approximately 96. These workloads account for the largest gap in your NIST CSF and ISO 27001 compliance posture. A 3-day validation sprint using the existing 2 active appliances can clear the backlog.</div><div class="insight-action" onclick="notify('Validation sprint schedule created for 14 workloads')">Schedule Sprint &rarr;</div></div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-icon">&#127881;</div>
+          <div><div class="insight-title">Congratulations: 30-day pass rate improved to 94.7%</div><div class="insight-body">Your team resolved 6 of 8 chronic validation failures from last month. Domain Controllers and Exchange servers are now consistently passing within SLA. The investments in dedicated sandbox VLANs and agent updates are showing measurable results. You are now above the industry benchmark of 82% for organizations in Financial Services.</div></div>
+        </div>
+      </div>
+
+      <!-- TEAM -->
+      <div class="section" id="sec-team">
+        <div class="page-header"><div class="page-title">Team</div><div class="page-subtitle">User access and roles for Contoso Financial Group</div></div>
+        <div class="toolbar"><button class="btn btn-green" onclick="notify('Invite sent to new team member')">Invite Member</button></div>
+        <div class="card">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Last Login</th><th>MFA</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><strong>Jennifer Miller</strong></td><td>j.miller@contoso.com</td><td><span class="badge badge-blue">Admin</span></td><td>Today 10:14</td><td><span class="badge badge-green">Enabled</span></td><td><span class="badge badge-slate" style="cursor:pointer" onclick="notify('User settings opened')">Edit</span></td></tr>
+              <tr><td><strong>Thomas Chen</strong></td><td>t.chen@contoso.com</td><td><span class="badge badge-slate">DR Engineer</span></td><td>Today 08:30</td><td><span class="badge badge-green">Enabled</span></td><td><span class="badge badge-slate" style="cursor:pointer" onclick="notify('User settings opened')">Edit</span></td></tr>
+              <tr><td><strong>Sarah Kim</strong></td><td>s.kim@contoso.com</td><td><span class="badge badge-slate">Compliance Analyst</span></td><td>Yesterday</td><td><span class="badge badge-green">Enabled</span></td><td><span class="badge badge-slate" style="cursor:pointer" onclick="notify('User settings opened')">Edit</span></td></tr>
+              <tr><td><strong>Marcus Webb</strong></td><td>m.webb@contoso.com</td><td><span class="badge badge-slate">Read Only</span></td><td>Jun 20</td><td><span class="badge badge-amber">Pending</span></td><td><span class="badge badge-slate" style="cursor:pointer" onclick="notify('User settings opened')">Edit</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- INTEGRATIONS -->
+      <div class="section" id="sec-integrations">
+        <div class="page-header"><div class="page-title">Integrations</div><div class="page-subtitle">Connect R3VP to your existing toolchain</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="card" style="padding:16px;display:flex;align-items:center;justify-content:space-between">
+            <div><div style="font-size:13px;font-weight:700">ServiceNow</div><div style="font-size:11px;color:#64748B;margin-top:3px">Auto-create incidents from failed test runs</div></div>
+            <span class="badge badge-green">Connected</span>
+          </div>
+          <div class="card" style="padding:16px;display:flex;align-items:center;justify-content:space-between">
+            <div><div style="font-size:13px;font-weight:700">Microsoft Teams</div><div style="font-size:11px;color:#64748B;margin-top:3px">Alert notifications to #dr-ops channel</div></div>
+            <span class="badge badge-green">Connected</span>
+          </div>
+          <div class="card" style="padding:16px;display:flex;align-items:center;justify-content:space-between">
+            <div><div style="font-size:13px;font-weight:700">PagerDuty</div><div style="font-size:11px;color:#64748B;margin-top:3px">P1/P2 incident escalation</div></div>
+            <span class="badge badge-green">Connected</span>
+          </div>
+          <div class="card" style="padding:16px;display:flex;align-items:center;justify-content:space-between">
+            <div><div style="font-size:13px;font-weight:700">Splunk</div><div style="font-size:11px;color:#64748B;margin-top:3px">Forward audit logs and test events</div></div>
+            <span class="badge badge-amber">Configuring</span>
+          </div>
+          <div class="card" style="padding:16px;display:flex;align-items:center;justify-content:space-between">
+            <div><div style="font-size:13px;font-weight:700">Azure Sentinel</div><div style="font-size:11px;color:#64748B;margin-top:3px">SIEM integration for threat correlation</div></div>
+            <span class="badge badge-slate" style="cursor:pointer" onclick="notify('Azure Sentinel setup wizard opened')">Connect</span>
+          </div>
+          <div class="card" style="padding:16px;display:flex;align-items:center;justify-content:space-between">
+            <div><div style="font-size:13px;font-weight:700">Jira</div><div style="font-size:11px;color:#64748B;margin-top:3px">Create remediation tickets from AI insights</div></div>
+            <span class="badge badge-slate" style="cursor:pointer" onclick="notify('Jira integration setup opened')">Connect</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end content -->
+  </div><!-- end main -->
+</div><!-- end layout -->
+
+<!-- Notification toast -->
+<div class="notif" id="notif"></div>
+
+<script>
+// Workloads data
+const WORKLOADS = [
+  {name:'SQLPROD-01',platform:'VMware',type:'VM Backup',last:'Jun 26',rto_t:'4h',rto_a:'2h 14m',rpo:'18m',status:'pass',tags:'db,tier1'},
+  {name:'SQLPROD-02',platform:'VMware',type:'VM Backup',last:'Jun 25',rto_t:'4h',rto_a:'2h 41m',rpo:'22m',status:'pass',tags:'db,tier1'},
+  {name:'EXCHG-01',platform:'Hyper-V',type:'Agent Backup',last:'Jun 24',rto_t:'6h',rto_a:'3h 18m',rpo:'28m',status:'pass',tags:'email,tier1'},
+  {name:'EXCHG-02',platform:'Hyper-V',type:'Agent Backup',last:'Jun 26',rto_t:'6h',rto_a:'3h 52m',rpo:'32m',status:'pass',tags:'email,tier1'},
+  {name:'DC-WEST-01',platform:'Azure',type:'VM Backup',last:'Jun 25',rto_t:'2h',rto_a:'1h 08m',rpo:'12m',status:'pass',tags:'ad,tier1'},
+  {name:'DC-EAST-01',platform:'VMware',type:'VM Backup',last:'Jun 23',rto_t:'2h',rto_a:'1h 22m',rpo:'14m',status:'pass',tags:'ad,tier1'},
+  {name:'PAY-DB-02',platform:'VMware',type:'VM Backup',last:'Jun 25',rto_t:'2h',rto_a:'--',rpo:'--',status:'fail',tags:'payments,tier1'},
+  {name:'PAY-APP-01',platform:'VMware',type:'VM Backup',last:'Jun 22',rto_t:'4h',rto_a:'3h 14m',rpo:'24m',status:'pass',tags:'payments,tier1'},
+  {name:'CRM-APP-03',platform:'AWS',type:'Cloud Backup',last:'Jun 25',rto_t:'4h',rto_a:'4h 33m',rpo:'45m',status:'warn',tags:'crm,tier2'},
+  {name:'SAP-ERP-01',platform:'Nutanix',type:'VM Backup',last:'Jun 24',rto_t:'8h',rto_a:'5h 12m',rpo:'55m',status:'pass',tags:'erp,tier1'},
+  {name:'ORACL-FIN-02',platform:'VMware',type:'VM Backup',last:'Jun 24',rto_t:'6h',rto_a:'3h 44m',rpo:'28m',status:'pass',tags:'db,finance,tier1'},
+  {name:'FILE-SRV-07',platform:'Proxmox',type:'NAS Backup',last:'Jun 24',rto_t:'2h',rto_a:'0h 52m',rpo:'8m',status:'pass',tags:'files,tier2'},
+  {name:'FILE-SRV-08',platform:'Proxmox',type:'NAS Backup',last:'Jun 23',rto_t:'2h',rto_a:'1h 04m',rpo:'11m',status:'pass',tags:'files,tier2'},
+  {name:'WEB-PROD-01',platform:'AWS',type:'Cloud Backup',last:'Jun 21',rto_t:'1h',rto_a:'0h 38m',rpo:'6m',status:'pass',tags:'web,tier2'},
+  {name:'ARC-FS-01',platform:'Hyper-V',type:'NAS Backup',last:'Jun 17',rto_t:'24h',rto_a:'--',rpo:'--',status:'warn',tags:'archive,tier3'},
+  {name:'LINUX-APP-04',platform:'VMware',type:'Agent Backup',last:'Jun 20',rto_t:'4h',rto_a:'2h 28m',rpo:'19m',status:'pass',tags:'linux,tier2'},
+];
+
+function renderWorkloads(data){
+  const tbody=document.getElementById('workloads-tbody');
+  tbody.innerHTML=data.map(w=>`
+    <tr style="cursor:pointer" onclick="nav('rundetail',null,'Test Run Detail')">
+      <td><input type="checkbox"></td>
+      <td><strong>${w.name}</strong></td>
+      <td><span class="badge badge-slate">${w.platform}</span></td>
+      <td>${w.type}</td>
+      <td>${w.last}</td>
+      <td>${w.rto_t}</td>
+      <td>${w.rto_a}</td>
+      <td>${w.rpo}</td>
+      <td><span class="badge ${w.status==='pass'?'badge-green':w.status==='fail'?'badge-red':'badge-amber'}">${w.status==='pass'?'Passed':w.status==='fail'?'Failed':'Warning'}</span></td>
+      <td style="font-size:10px;color:#94A3B8">${w.tags}</td>
+    </tr>`).join('');
+}
+
+function filterWorkloads(v){
+  const q=v.toLowerCase();
+  renderWorkloads(WORKLOADS.filter(w=>w.name.toLowerCase().includes(q)||w.platform.toLowerCase().includes(q)||w.tags.toLowerCase().includes(q)));
+}
+
+function filterByStatus(s){
+  if(s==='all') renderWorkloads(WORKLOADS);
+  else if(s==='pass') renderWorkloads(WORKLOADS.filter(w=>w.status==='pass'));
+  else renderWorkloads(WORKLOADS.filter(w=>w.status!=='pass'));
+}
+
+function selectAll(cb){
+  document.querySelectorAll('#workloads-tbody input[type=checkbox]').forEach(c=>c.checked=cb.checked);
+}
+
+// Nav
+let currentSection = 'dashboard';
+function nav(id, el, label){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const target = document.getElementById('sec-'+id);
+  if(target) target.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('bc-current').textContent = label;
+  currentSection = id;
+  // Scroll content to top
+  document.getElementById('content-area').scrollTop=0;
+}
+
+// Chart bars
+function buildChart(){
+  const area=document.getElementById('chart-bars');
+  if(!area) return;
+  const data=[
+    [80,0,0],[90,0,0],[75,0,10],[85,0,5],[95,0,0],[80,5,0],
+    [70,10,0],[90,0,5],[85,0,0],[95,0,0],[80,0,0],[88,0,8],
+    [92,0,0],[85,0,0],[90,5,0],[95,0,0],[88,0,0],[84,0,12],
+    [90,0,0],[92,0,0],[85,0,0],[88,8,0],[90,0,0],[94,0,0],
+    [88,0,0],[90,0,0],[92,0,0],[85,12,0],[88,0,0],[90,0,0]
+  ];
+  area.innerHTML='';
+  data.forEach(([p,f,w])=>{
+    const col=document.createElement('div');
+    col.style.cssText='display:flex;flex-direction:column;align-items:center;gap:1px;height:100%;justify-content:flex-end;width:100%';
+    if(f>0){const b=document.createElement('div');b.className='bar bar-red';b.style.cssText=`height:${f*1.2}%;width:80%`;b.title='Failed';col.appendChild(b);}
+    if(w>0){const b=document.createElement('div');b.className='bar bar-amber';b.style.cssText=`height:${w*1.2}%;width:80%`;b.title='Warning';col.appendChild(b);}
+    const g=document.createElement('div');g.className='bar bar-green';g.style.cssText=`height:${p*0.8}%;width:80%`;g.title='Passed';col.appendChild(g);
+    area.appendChild(col);
+  });
+}
+
+// Compliance tabs
+function switchTab(t){
+  ['nist','iso','soc2','pci'].forEach(id=>{
+    document.getElementById('tab-'+id).classList.toggle('active',id===t);
+  });
+  const titles={nist:'NIST CSF 2.0',iso:'ISO 27001:2022',soc2:'SOC 2 Type II',pci:'PCI DSS 4.0'};
+  const scores={nist:{rc:96,co:88,ra:72,ip:91,cm:84,total:91},iso:{rc:88,co:82,ra:68,ip:94,cm:80,total:86},soc2:{rc:92,co:86,ra:75,ip:90,cm:88,total:89},pci:{rc:94,co:78,ra:82,ip:96,cm:91,total:88}};
+  const s=scores[t];
+  const labels={nist:['RC.RP - Plan Execution','RC.CO - Improvements','ID.RA - Risk Assessment','PR.IP - Info Protection','DE.CM - Monitoring'],iso:['A.17.1 - BC Planning','A.17.2 - Redundancies','A.12.3 - Backup','A.12.4 - Logging','A.18.1 - Compliance'],soc2:['CC9.1 - Risk Mitigation','CC7.5 - Incident Response','A1.2 - Recovery','CC6.8 - Malware Controls','CC4.1 - Monitoring'],pci:['12.3 - DR Testing','12.4 - Risk Management','12.10 - IR Procedures','10.7 - Audit Logs','11.6 - Change Detection']};
+  const vals=Object.values(s).slice(0,-1);
+  const lab=labels[t];
+  const colors=vals.map(v=>v>=85?'#00B336':v>=70?'#F59E0B':'#EF4444');
+  document.getElementById('compliance-content').innerHTML=`
+    <div class="cards-row">
+      <div class="card">
+        <div class="card-header"><div class="card-title">${titles[t]}</div><div class="card-action" onclick="notify('Generating ${titles[t]} compliance report PDF...')">Export PDF</div></div>
+        <div style="padding:16px">
+          ${lab.map((l,i)=>`<div class="compliance-item"><div class="compliance-header"><span>${l}</span><strong style="color:${colors[i]}">${vals[i]}%</strong></div><div class="compliance-bar"><div class="compliance-fill" style="width:${vals[i]}%;background:${colors[i]}"></div></div></div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Evidence Coverage</div></div>
+        <div style="padding:16px">
+          <div style="text-align:center;margin-bottom:16px">
+            <div style="font-size:42px;font-weight:800;color:${s.total>=85?'#00B336':s.total>=70?'#F59E0B':'#EF4444'}">${s.total}%</div>
+            <div style="font-size:12px;color:#64748B">Overall ${titles[t]} score</div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;padding:9px" onclick="notify('Report scheduled for delivery')">Schedule Delivery</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// Notification
+function notify(msg){
+  const n=document.getElementById('notif');
+  n.textContent=msg;
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),3000);
+}
+
+// Init
+renderWorkloads(WORKLOADS);
+buildChart();
+</script>
+</body>
+</html>
