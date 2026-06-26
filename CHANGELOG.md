@@ -7,6 +7,33 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Firebase Analytics + User Guide + Security Hardening
+
+### Added
+- Firebase Analytics integration in Next.js portal (free Spark plan, no billing required)
+- `apps/portal/lib/firebase.ts` - lazy initialisation with graceful no-op when env vars are absent
+- `apps/portal/lib/track.ts` - typed event helpers: trackLogin(), trackPageView(), and 10 named domain events
+- `apps/portal/components/firebase-init.tsx` - client component wired into root layout; fires login event on Auth0 session start
+- Firebase environment variables added to `.env.local.example` with setup instructions
+- User Analytics portal page mockup showing 30-day login chart, top users table, feature usage bars, and live events feed
+- `analytics.png` screenshot added to docs/screenshots/
+- Comprehensive technical user guide at `docs/user-guide.md` covering all 21 features, architecture, installation, API reference, security design, and troubleshooting
+- User Guide section added to README linking to `docs/user-guide.md`
+- All 26 portal screenshots refreshed at 1440x900
+- Screenshot helper script at `scripts/screenshot_mockups.py` for re-capturing all mockups
+
+### Changed
+- Next.js upgraded from 14.2.3 to 15.5.18 (closes all 27 Dependabot security alerts)
+- `eslint-config-next` upgraded to 15.5.18 to match
+- README tech stack updated: "Next.js 15 + Auth0 + Recharts + Firebase Analytics"
+
+### Security
+- 27 Next.js CVEs fixed by upgrade to 15.5.18 (includes CVE-2025-29927 auth bypass and 26 others)
+- master branch protection enabled: force pushes and deletions blocked
+- GitHub Security Advisories enabled with private vulnerability reporting
+
+---
+
 ## [Unreleased] - Phase 18: Continuous Validation Mode
 
 ### Added

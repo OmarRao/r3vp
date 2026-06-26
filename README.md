@@ -285,6 +285,32 @@ The compliance framework page ships six built-in frameworks: SOC 2 Type II, ISO/
 
 Continuous validation runs six lightweight micro-checks against every workload on a configurable interval (default: every 15 minutes) without triggering full instant recovery. Checks cover restore point freshness, mount endpoint reachability, Veeam job status, appliance heartbeat, vCenter connectivity, and RPO compliance. Active alerts show severity-coded left borders with one-click resolution. A rolling pass rate and consecutive failure counter provide early warning before a scheduled full recovery test would catch the issue.
 
+### User Analytics
+
+![User Analytics](docs/screenshots/analytics.png)
+
+The user analytics page tracks login activity, session counts, and feature usage across the portal using Firebase Analytics (free Spark plan). KPIs show total users, active users this week, logins today, and average session duration. A 30-day login activity chart, top-users table by session count, feature usage breakdown, and a live login events feed give administrators full visibility into how the platform is being used without any external paid service.
+
+---
+
+## User Guide
+
+A comprehensive technical user guide covering every feature, architecture details, installation walkthroughs, API reference, security design, and troubleshooting is maintained at:
+
+**[docs/user-guide.md](docs/user-guide.md)**
+
+The guide is versioned alongside the codebase. Every release that adds or changes a feature also updates the corresponding section in the guide. The guide includes:
+
+- Full architecture diagram and component data flows
+- Step-by-step appliance deployment (Docker, OVA, AWS EC2)
+- Veeam and vCenter service account configuration
+- All 21 portal features documented with screenshots
+- RBAC permissions matrix (24 permissions across 5 roles)
+- API reference summary per module
+- Environment variables reference
+- Security architecture notes
+- Troubleshooting guide
+
 ---
 
 ## Architecture
@@ -343,7 +369,7 @@ Customer Environment                          Cloud (SaaS)
 | Veeam integration | Veeam B&R REST API v1.1 |
 | VMware integration | pyVmomi |
 | SaaS backend | FastAPI + SQLAlchemy async + PostgreSQL 16 |
-| SaaS frontend | Next.js 14 + Auth0 + Recharts |
+| SaaS frontend | Next.js 15 + Auth0 + Recharts + Firebase Analytics |
 | Credential security | SOPS + age (credentials encrypted at rest, never leave customer environment) |
 | mTLS | httpx with client certificates, thumbprint verified on every request |
 | Evidence storage | AWS S3 with KMS encryption |
