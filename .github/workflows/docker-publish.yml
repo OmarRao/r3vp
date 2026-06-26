@@ -94,7 +94,7 @@ jobs:
           IMAGE_NAME: ${{ matrix.image }}
           SHORT_SHA: ${{ github.sha }}
         run: |
-          echo "SCAN_IMAGE=${REGISTRY}/${REPO_OWNER}/${IMAGE_NAME}:sha-${SHORT_SHA:0:7}" >> "$GITHUB_ENV"
+          echo "SCAN_IMAGE=${REGISTRY}/${REPO_OWNER,,}/${IMAGE_NAME}:sha-${SHORT_SHA:0:7}" >> "$GITHUB_ENV"
 
       - name: Run Trivy vulnerability scan
         uses: aquasecurity/trivy-action@master
