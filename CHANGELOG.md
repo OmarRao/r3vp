@@ -7,6 +7,19 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Code Scanning Remediation
+
+### Security
+- Migrated API JWT verification from `python-jose` to `PyJWT` (`pyjwt[crypto]`), removing the transitive `ecdsa` dependency and closing CVE-2024-23342 (Minerva timing attack, which has no upstream fix in `ecdsa`). `auth.py` now uses `PyJWKClient` for JWKS fetching and RS256 verification
+- Both container images (`r3vp-api`, `r3vp-appliance`) now apply Debian security patches via `apt-get upgrade` and upgrade `pip`/`setuptools` during build, closing the fixable base-image CVEs
+- Trivy container scan now uses `ignore-unfixed: true`, so only vulnerabilities with an available fix are reported. This removes the large volume of non-actionable Debian CVEs (no upstream patch) from the code scanning dashboard
+
+### Changed
+- `apps/api/pyproject.toml`: replaced `python-jose[cryptography]>=3.3` with `pyjwt[crypto]>=2.10`
+- `apps/api/mypy.ini`: updated module override from `jose.*` to `jwt.*`
+
+---
+
 ## [Unreleased] - Live Demo Enhancements
 
 ### Added

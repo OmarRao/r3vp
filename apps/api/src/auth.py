@@ -12,10 +12,10 @@ import uuid
 from functools import lru_cache
 from typing import Annotated
 
-import httpx
+import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError, jwt
+from jwt import InvalidTokenError, PyJWKClient
 from pydantic import BaseModel
 
 from src.config import settings
@@ -31,45 +31,27 @@ class CurrentUser(BaseModel):
 
 
 @lru_cache(maxsize=1)
-def _get_jwks() -> dict:
-    """Fetch JWKS from Auth0 (cached per process lifetime)."""
+def _jwk_client() -> PyJWKClient:
+    """JWKS client for Auth0 (caches signing keys per process lifetime)."""
     url = f"https://{settings.auth0_domain}/.well-known/jwks.json"
-    resp = httpx.get(url, timeout=10)
-    resp.raise_for_status()
-    return resp.json()
+    return PyJWKClient(url)
 
 
 def _decode_token(token: str) -> dict:
-    jwks = _get_jwks()
     try:
-        unverified_header = jwt.get_unverified_header(token)
-    except JWTError as exc:
+        signing_key = _jwk_client().get_signing_key_from_jwt(token)
+    except (InvalidTokenError, jwt.PyJWKClientError) as exc:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, f"Invalid token header: {exc}")
 
-    rsa_key = {}
-    for key in jwks.get("keys", []):
-        if key.get("kid") == unverified_header.get("kid"):
-            rsa_key = {
-                "kty": key["kty"],
-                "kid": key["kid"],
-                "use": key["use"],
-                "n": key["n"],
-                "e": key["e"],
-            }
-            break
-
-    if not rsa_key:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Unable to find matching JWKS key")
-
     try:
-        payload = jwt.decode(
+        payload: dict = jwt.decode(
             token,
-            rsa_key,
+            signing_key.key,
             algorithms=["RS256"],
             audience=settings.auth0_audience,
             issuer=f"https://{settings.auth0_domain}/",
         )
-    except JWTError as exc:
+    except InvalidTokenError as exc:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, f"Token validation failed: {exc}")
 
     return payload

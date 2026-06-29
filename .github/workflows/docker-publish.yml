@@ -103,6 +103,9 @@ jobs:
           format: sarif
           output: trivy-results.sarif
           severity: CRITICAL,HIGH
+          # Only report vulnerabilities that have an available fix. CVEs with no
+          # upstream patch are not actionable and only add noise to the dashboard.
+          ignore-unfixed: true
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
