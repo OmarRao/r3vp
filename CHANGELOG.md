@@ -7,6 +7,21 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Live Demo Enhancements
+
+### Added
+- Printable compliance reports in the live demo: the "Print Report" action now opens a fully formatted, print-ready report (branded header, summary cards, control assessment table, evidence summary, signed footer) for NIST CSF 2.0, ISO 27001:2022, SOC 2 Type II, and PCI DSS 4.0
+- New "Trends & Risk" section in the live demo: 12-week RTO trend chart vs target SLA, readiness score trajectory with 30-day projection, and 90-day trend KPIs
+- Risk heatmap (business criticality x days since last validation) with color-graded, clickable cells and a five-band legend
+- Alert Channels card in the Continuous Validation section documenting Teams, Slack, Email, PagerDuty, and SIEM webhook delivery
+- `r3vp-demo` static-server configuration for local preview of `docs/demo.html`
+- Phase 19 documentation at `docs/phases/phase-19.md`
+
+### Fixed
+- Live demo "Print Report" buttons previously showed only a placeholder toast; they now generate the actual report document and trigger print/save-to-PDF
+
+---
+
 ## [Unreleased] - Firebase Analytics + User Guide + Security Hardening
 
 ### Added

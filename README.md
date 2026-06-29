@@ -13,7 +13,7 @@ R3VP is an automated recovery validation platform that connects to your Veeam Ba
 
 &nbsp;&nbsp;&nbsp;**[&#127760; Live Sample Demo](https://omarrao.github.io/r3vp/demo.html)**&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;**[&#11015; Installing the Appliance](#installation)**
 
-> Interactive demo &mdash; full portal with live navigation, workloads, test runs, compliance reports, MSSP console, AI insights, and more. No login required.
+> Interactive demo &mdash; full portal with live navigation, workloads, test runs, printable compliance reports, trends &amp; risk heatmap, MSSP console, AI insights, and more. No login required.
 
 ---
 
