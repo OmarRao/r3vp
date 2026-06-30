@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import type { Route } from "next";
 import Link from "next/link";
 import { api } from "@/lib/api";
 
@@ -140,7 +141,7 @@ export default function ProvidersPage() {
                   {configured && (
                     <div className="mt-3">
                       <Link
-                        href={`/dashboard/workloads?provider=${p.provider}`}
+                        href={`/dashboard/workloads?provider=${p.provider}` as Route}
                         className="text-xs text-veeam-green hover:underline font-medium"
                       >
                         View {p.total_workloads} workloads &rarr;

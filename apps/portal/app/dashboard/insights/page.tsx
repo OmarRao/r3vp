@@ -22,6 +22,73 @@ const LEVEL_COLORS: Record<string, string> = {
   low: "bg-green-50 text-green-700 border-green-200",
 };
 
+// Risk heatmap: business criticality (rows) vs days since last validation (cols).
+const HEATMAP_TIERS = ["Tier 1 (Critical)", "Tier 2 (High)", "Tier 3 (Standard)"];
+const HEATMAP_AGES = ["0-3 days", "4-7 days", "8-14 days", "15-30 days", "30+ days"];
+const HEATMAP_COUNTS = [
+  [38, 8, 2, 1, 1],
+  [42, 14, 5, 2, 0],
+  [18, 6, 3, 1, 0],
+];
+
+function cellColor(tierIdx: number, ageIdx: number): string {
+  const crit = tierIdx === 0 ? 3 : tierIdx === 1 ? 2 : 1;
+  const risk = crit + ageIdx;
+  if (risk >= 7) return "#EF4444";
+  if (risk >= 6) return "#FECACA";
+  if (risk >= 5) return "#FED7AA";
+  if (risk >= 4) return "#FEF3C7";
+  return "#DCFCE7";
+}
+
+function RiskHeatmap() {
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-5">
+      <div className="px-5 py-3.5 border-b border-slate-100">
+        <span className="text-sm font-bold text-slate-900">Risk Heatmap</span>
+        <span className="text-xs text-slate-400 ml-2">Business criticality vs days since last validation</span>
+      </div>
+      <div className="p-5 overflow-x-auto">
+        <table className="border-separate" style={{ borderSpacing: "6px" }}>
+          <thead>
+            <tr>
+              <th />
+              {HEATMAP_AGES.map((a) => (
+                <th key={a} className="text-[10px] font-semibold text-slate-400 text-center px-1">{a}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {HEATMAP_TIERS.map((tier, t) => (
+              <tr key={tier}>
+                <td className="text-xs font-semibold text-slate-600 whitespace-nowrap pr-3">{tier}</td>
+                {HEATMAP_AGES.map((age, a) => (
+                  <td
+                    key={age}
+                    title={`${HEATMAP_COUNTS[t][a]} workloads, ${tier}, ${age}`}
+                    className="text-center font-bold text-sm text-slate-900 rounded-md"
+                    style={{ background: cellColor(t, a), width: 84, height: 48 }}
+                  >
+                    {HEATMAP_COUNTS[t][a]}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="flex gap-4 mt-3 text-[10px] text-slate-500">
+          {[["Low", "#DCFCE7"], ["Moderate", "#FEF3C7"], ["Elevated", "#FED7AA"], ["High", "#FECACA"], ["Critical", "#EF4444"]].map(([label, color]) => (
+            <span key={label} className="flex items-center gap-1.5">
+              <span className="inline-block w-3 h-3 rounded-sm" style={{ background: color }} />
+              {label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function InsightsPage() {
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
@@ -77,6 +144,8 @@ export default function InsightsPage() {
             </div>
           )}
         </div>
+
+        <RiskHeatmap />
 
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-5">
           <div className="px-5 py-3.5 border-b border-slate-100">

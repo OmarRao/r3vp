@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -55,7 +56,7 @@ export function Breadcrumb() {
           {crumb.isLast ? (
             <span style={{ color: "#0F172A", fontWeight: 600 }}>{crumb.label}</span>
           ) : (
-            <Link href={crumb.href} style={{ color: "#64748B", fontWeight: 500, textDecoration: "none" }}>
+            <Link href={crumb.href as Route} style={{ color: "#64748B", fontWeight: 500, textDecoration: "none" }}>
               {crumb.label}
             </Link>
           )}

@@ -16,7 +16,9 @@ type EventName =
 export function track(event: EventName, params?: Record<string, string | number | boolean>) {
   const fb = initFirebase();
   if (!fb) return;
-  logEvent(fb.analytics, event, params);
+  // Cast to the generic custom-event overload (string name) to avoid clashing
+  // with firebase's typed standard-event overloads.
+  logEvent(fb.analytics, event as string, params);
 }
 
 export function trackLogin(userEmail: string, method: string = "auth0") {

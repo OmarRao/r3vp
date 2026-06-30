@@ -7,6 +7,27 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Portal Reports, Scheduled Delivery, Alerting
+
+### Added
+- Portal: "Generate PDF" on the Compliance Reports page now produces a real, formatted, print-ready report (matching the live-demo layout) for SOC 2, ISO 27001, NIST CSF, Monthly Summary, and Cyber Insurance
+- Portal: graphical risk heatmap on the AI Insights page (business criticality vs days since last validation, color-graded with legend), above the existing risk-ranking table
+- Backend: scheduled compliance report delivery. The APScheduler now registers cron jobs for enabled `ReportSchedule` rows and dispatches reports to configured recipients, updating last_run_at/next_run_at
+- Backend: PagerDuty (Events API v2) and generic webhook alert channel types in the notification dispatcher
+- Backend: `send_report_delivery()` notifies report recipients (email, Slack, Teams, webhook) when a scheduled report is generated
+- Tests: `tests/test_auth_jwt.py` covering the PyJWT migration and the new PagerDuty/webhook senders
+- Phase 20 documentation at `docs/phases/phase-20.md`
+
+### Fixed
+- Added `python-multipart` to API dependencies (required by the evidence-upload route; its absence blocked app import and the test suite)
+- Fixed a `SyntaxError` in `src/services/executive_report.py` (backslash-escaped quotes in an f-string) that broke app import
+- Resolved three pre-existing portal type errors that were failing CI's `pnpm type-check` (typed-route casts in `breadcrumb.tsx` and `providers/page.tsx`, custom-event cast in `track.ts`)
+
+### Changed
+- Pinned `sops` to `v3.13.1` in the appliance Dockerfile (was fetching `latest`) for reproducible builds
+
+---
+
 ## [Unreleased] - Code Scanning Remediation
 
 ### Security

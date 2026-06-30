@@ -68,6 +68,10 @@ async def _dispatch(ch: NotificationChannel, workload_name: str, run_id: str,
         await _send_teams(ch.destination, workload_name, run_id, summary)
     elif ch.channel_type == "email":
         await _send_email_ses(ch.destination, workload_name, run_id, summary)
+    elif ch.channel_type == "pagerduty":
+        await _send_pagerduty(ch.destination, workload_name, run_id, summary)
+    elif ch.channel_type == "webhook":
+        await _send_webhook(ch.destination, workload_name, run_id, summary, sorted(events))
     else:
         log.warning("unknown notification channel type", channel_type=ch.channel_type)
 
@@ -113,6 +117,41 @@ async def _send_teams(webhook_url: str, workload_name: str, run_id: str, summary
     log.info("teams notification sent", workload=workload_name)
 
 
+async def _send_pagerduty(routing_key: str, workload_name: str, run_id: str, summary: str) -> None:
+    """Trigger a PagerDuty incident via the Events API v2. destination is the routing key."""
+    payload = {
+        "routing_key": routing_key,
+        "event_action": "trigger",
+        "dedup_key": f"r3vp-{run_id}",
+        "payload": {
+            "summary": f"R3VP Alert - {workload_name}: {summary}",
+            "source": "r3vp",
+            "severity": "critical",
+            "custom_details": {"workload": workload_name, "run_id": run_id, "detail": summary},
+        },
+    }
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.post("https://events.pagerduty.com/v2/enqueue", json=payload)
+        resp.raise_for_status()
+    log.info("pagerduty notification sent", workload=workload_name)
+
+
+async def _send_webhook(url: str, workload_name: str, run_id: str, summary: str, events: list) -> None:
+    """POST a generic JSON payload to an arbitrary webhook (e.g. SIEM ingest)."""
+    payload = {
+        "source": "r3vp",
+        "event": "recovery_validation_alert",
+        "workload": workload_name,
+        "run_id": run_id,
+        "triggers": events,
+        "summary": summary,
+    }
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.post(url, json=payload)
+        resp.raise_for_status()
+    log.info("webhook notification sent", workload=workload_name)
+
+
 async def _send_email_ses(to_address: str, workload_name: str, run_id: str, summary: str) -> None:
     try:
         import boto3
@@ -135,3 +174,30 @@ async def _send_email_ses(to_address: str, workload_name: str, run_id: str, summ
         log.info("email notification sent via SES", to=to_address)
     except Exception as exc:
         log.warning("SES email failed", error=str(exc))
+
+
+async def send_report_delivery(recipients: list[dict], report_type: str, period: str) -> None:
+    """Notify recipients that a scheduled compliance report has been generated.
+
+    recipients is a list of {"type": "email"|"slack"|"teams"|"webhook", "destination": "..."}.
+    """
+    summary = f"Scheduled {report_type} compliance report generated for period {period}"
+    label = f"{report_type} report"
+    for r in recipients:
+        rtype = r.get("type")
+        dest = r.get("destination")
+        if not rtype or not dest:
+            continue
+        try:
+            if rtype == "slack":
+                await _send_slack(dest, label, period, summary)
+            elif rtype == "teams":
+                await _send_teams(dest, label, period, summary)
+            elif rtype == "email":
+                await _send_email_ses(dest, label, period, summary)
+            elif rtype == "webhook":
+                await _send_webhook(dest, label, period, summary, ["report_generated"])
+            else:
+                log.warning("unknown report recipient type", recipient_type=rtype)
+        except Exception as exc:
+            log.warning("report delivery failed", recipient_type=rtype, error=str(exc))

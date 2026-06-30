@@ -55,7 +55,7 @@ def render_scorecard_pdf(
     )
 
     top_risks_rows = "".join(
-        f"<tr><td>{r['workload']}</td><td><span style='color:{\"#DC2626\" if r[\"severity\"]==\"high\" else \"#D97706\"}'>{r['severity'].upper()}</span></td><td>{r['reason']}</td></tr>"
+        f"<tr><td>{r['workload']}</td><td><span style='color:{('#DC2626' if r['severity'] == 'high' else '#D97706')}'>{r['severity'].upper()}</span></td><td>{r['reason']}</td></tr>"
         for r in snapshot.get("top_risks", [])[:5]
     )
 
