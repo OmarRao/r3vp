@@ -19,6 +19,9 @@ TEST_DB_URL = os.environ["R3VP_API_DATABASE_URL"]
 async def db_engine():
     engine = create_async_engine(TEST_DB_URL, echo=False)
     async with engine.begin() as conn:
+        # Drop first so the fixture is idempotent even when the database was
+        # already populated (e.g. by a prior "alembic upgrade head" CI step).
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     yield engine
     async with engine.begin() as conn:

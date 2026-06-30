@@ -18,6 +18,11 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ### Fixed
 - Real bug: `incident_response.py` called the Slack/Teams/email notification senders with missing positional arguments (would raise at runtime on incident dispatch)
+- Real migration bug: `0001_initial_schema` created an explicit `uq_users_auth0_sub` index that collided with the unique constraint auto-named by the metadata naming convention from the column's `unique=True` (broke `alembic upgrade head` on a fresh database)
+- Veeam connector models were out of sync with their tests; added the expected snake_case fields/aliases (`is_enabled`, `last_run`, `restore_points_count`, `is_consistent`, `backup_size_bytes`)
+- Portal CI used pnpm against a non-existent `pnpm-lock.yaml`; switched to npm with `package-lock.json`
+- Added a portal ESLint config (`next/core-web-vitals`) so `next lint` runs non-interactively, and escaped unescaped quotes flagged by it
+- Integration test fixture now drops before creating the schema so it is idempotent against a pre-migrated database
 
 ---
 

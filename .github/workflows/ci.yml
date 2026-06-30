@@ -88,17 +88,14 @@ jobs:
         working-directory: apps/portal
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
-          cache-dependency-path: apps/portal/pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile || pnpm install
-      - run: pnpm type-check
-      - run: pnpm lint
+          cache: npm
+          cache-dependency-path: apps/portal/package-lock.json
+      - run: npm ci || npm install
+      - run: npm run type-check
+      - run: npm run lint
 
   docker-build:
     name: Docker builds

@@ -49,7 +49,9 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
     op.create_index("ix_users_org_id", "users", ["org_id"])
-    op.create_index("uq_users_auth0_sub", "users", ["auth0_sub"], unique=True)
+    # The auth0_sub column is declared unique above; with the metadata naming
+    # convention that already creates a "uq_users_auth0_sub" constraint, so an
+    # explicit index of the same name would collide on upgrade.
 
     op.create_table(
         "workloads",
