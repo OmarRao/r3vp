@@ -7,6 +7,22 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - SecureScope Findings Remediation
+
+### Security
+- Containers no longer run as root: both `apps/api` and `apps/appliance` Dockerfiles add a dedicated non-root `appuser` (UID 10001) and `chown` the app (and `/certs`, `/vault`) before switching with `USER` (CWE-250)
+- XXE hardening: `dependency_scanner.py` now imports `defusedxml` unconditionally (added as a dependency) and no longer references the vulnerable stdlib `xml` parser at all (CWE-611)
+- Jinja2 `Environment` instances in `reports.py` (x2) and `test_runs.py` now set `autoescape=True` (CWE-116)
+- All GitHub Actions in `ci.yml` and `docker-publish.yml` are pinned to full commit SHAs instead of mutable tags, with the version retained as a comment (CWE-1357)
+- CloudFront viewer certificate now uses an ACM cert with `minimum_protocol_version = TLSv1.2_2021` instead of the default certificate (which forces TLSv1) (CWE-326)
+- RDS instance now exports `postgresql` and `upgrade` logs to CloudWatch (CWE-311)
+- Portal dependency override forces `postcss` to the project's patched version across the tree (including Next.js's vendored copy); `npm audit` now reports 0 vulnerabilities
+
+### Notes
+- `pip-audit` reports no known vulnerabilities in the API or appliance production (or dev) dependencies; the SecureScope "29 dependency CVEs" figure was not reproducible against the current pinned dependency set and appears to predate the earlier CVE remediation
+
+---
+
 ## [Unreleased] - Lint/Type Cleanup and CI Enablement
 
 ### Changed

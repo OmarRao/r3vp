@@ -19,6 +19,10 @@ resource "aws_db_instance" "r3vp" {
   deletion_protection = true
   skip_final_snapshot = false
 
+  # Ship Postgres logs to CloudWatch so security-relevant events are retained
+  # and auditable (CWE-311: missing logging).
+  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
+
   tags = { Environment = var.environment }
 }
 

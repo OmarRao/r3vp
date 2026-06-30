@@ -3,6 +3,10 @@
 
 variable "environment" {}
 variable "alb_dns_name" { default = "" }
+variable "acm_certificate_arn" {
+  description = "ACM certificate ARN for the viewer certificate (enables TLS 1.2+ minimum protocol)."
+  default     = ""
+}
 
 resource "aws_cloudfront_distribution" "api" {
   enabled         = true
@@ -80,7 +84,9 @@ resource "aws_cloudfront_distribution" "api" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = var.acm_certificate_arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 
   tags = { Project = "r3vp", Environment = var.environment, ManagedBy = "terraform" }
