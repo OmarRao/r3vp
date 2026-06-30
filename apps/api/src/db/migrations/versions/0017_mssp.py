@@ -36,7 +36,7 @@ def upgrade() -> None:
         sa.Column("display_name", sa.String(200), nullable=False),
         sa.Column("industry", sa.String(100), nullable=True),
         sa.Column("tier", sa.String(50), server_default="standard"),
-        sa.Column("tags", postgresql.JSONB, server_default="'[]'"),
+        sa.Column("tags", postgresql.JSONB, server_default=sa.text("'[]'::jsonb")),
         sa.Column("notes", sa.String(1000), nullable=True),
         sa.Column("onboarded_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),

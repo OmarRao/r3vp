@@ -37,7 +37,7 @@ def upgrade() -> None:
         sa.Column("title", sa.String(300), nullable=False),
         sa.Column("description", sa.String(2000), nullable=True),
         sa.Column("category", sa.String(100), nullable=True),
-        sa.Column("r3vp_evidence_types", postgresql.JSONB, server_default="'[]'"),
+        sa.Column("r3vp_evidence_types", postgresql.JSONB, server_default=sa.text("'[]'::jsonb")),
         sa.Column("r3vp_metric", sa.String(100), nullable=True),
         sa.Column("pass_threshold", sa.Integer, nullable=True),
         sa.Column("weight", sa.Integer, server_default="1"),
@@ -55,7 +55,7 @@ def upgrade() -> None:
         sa.Column("overall_score", sa.Integer, nullable=False),
         sa.Column("controls_assessed", sa.Integer, server_default="0"),
         sa.Column("controls_passing", sa.Integer, server_default="0"),
-        sa.Column("control_results", postgresql.JSONB, server_default="'{}'"),
+        sa.Column("control_results", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")),
         sa.Column("pdf_path", sa.String(512), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
