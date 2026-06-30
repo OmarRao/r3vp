@@ -48,7 +48,7 @@ def upgrade() -> None:
         sa.Column("host", sa.String(255), nullable=False),
         sa.Column("indicator_type", sa.String(50), nullable=False),
         sa.Column("indicator_value", sa.String(1024), nullable=False),
-        sa.Column("context", postgresql.JSONB, server_default="{}"),
+        sa.Column("context", postgresql.JSONB, server_default="'{}'"),
         sa.Column("mitre_technique", sa.String(50)),
         sa.Column("status", sa.String(50), server_default="'active'"),
         sa.Column("detected_at", sa.DateTime(timezone=True), nullable=False),

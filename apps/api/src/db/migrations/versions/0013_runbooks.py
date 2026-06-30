@@ -22,7 +22,7 @@ def upgrade() -> None:
         sa.Column("description", sa.String(1000), server_default=""),
         sa.Column("scenario", sa.String(50), nullable=False),
         sa.Column("rto_target_mins", sa.Integer, nullable=True),
-        sa.Column("tags", postgresql.JSONB, server_default="[]"),
+        sa.Column("tags", postgresql.JSONB, server_default="'[]'"),
         sa.Column("enabled", sa.Boolean, server_default="true"),
         sa.Column("last_executed_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("last_execution_status", sa.String(20), nullable=True),
@@ -39,10 +39,10 @@ def upgrade() -> None:
         sa.Column("name", sa.String(200), nullable=False),
         sa.Column("step_type", sa.String(50), nullable=False),
         sa.Column("workload_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("workloads.id"), nullable=True),
-        sa.Column("depends_on_seq", postgresql.JSONB, server_default="[]"),
+        sa.Column("depends_on_seq", postgresql.JSONB, server_default="'[]'"),
         sa.Column("parallel", sa.Boolean, server_default="false"),
         sa.Column("timeout_mins", sa.Integer, server_default="60"),
-        sa.Column("config", postgresql.JSONB, server_default="{}"),
+        sa.Column("config", postgresql.JSONB, server_default="'{}'"),
         sa.Column("on_failure", sa.String(20), server_default="stop"),
     )
     op.create_index("ix_runbook_steps_runbook_id", "runbook_steps", ["runbook_id"])
@@ -60,7 +60,7 @@ def upgrade() -> None:
         sa.Column("actual_rto_mins", sa.Integer, nullable=True),
         sa.Column("target_rto_mins", sa.Integer, nullable=True),
         sa.Column("rto_met", sa.Boolean, nullable=True),
-        sa.Column("summary", postgresql.JSONB, server_default="{}"),
+        sa.Column("summary", postgresql.JSONB, server_default="'{}'"),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
     op.create_index("ix_runbook_executions_org_id", "runbook_executions", ["org_id"])
@@ -78,7 +78,7 @@ def upgrade() -> None:
         sa.Column("started_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("completed_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("duration_secs", sa.Integer, nullable=True),
-        sa.Column("output", postgresql.JSONB, server_default="{}"),
+        sa.Column("output", postgresql.JSONB, server_default="'{}'"),
         sa.Column("error", sa.String(2000), nullable=True),
     )
     op.create_index("ix_runbook_execution_steps_execution_id", "runbook_execution_steps", ["execution_id"])
