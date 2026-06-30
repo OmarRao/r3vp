@@ -13,6 +13,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir --upgrade pip setuptools
 
+# Run as a dedicated non-root user (CWE-250: avoid running the container as root).
+RUN useradd --create-home --uid 10001 appuser
+
 # Pin sops to a specific release for reproducible builds (update deliberately).
 ARG SOPS_VERSION=v3.13.1
 RUN curl -fsSL "https://github.com/getsops/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.amd64" \
@@ -26,6 +29,10 @@ RUN uv sync --no-dev --no-editable
 
 COPY health_checks/ health_checks/
 COPY src/ src/
+
+RUN mkdir -p /certs /vault \
+    && chown -R appuser:appuser /app /certs /vault
+USER appuser
 
 VOLUME ["/certs", "/vault"]
 

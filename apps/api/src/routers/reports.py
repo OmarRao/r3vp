@@ -97,7 +97,7 @@ async def cyber_insurance_report(
     avg_rto_mins = round(rto_sum / rto_count) if rto_count else 0
 
     templates_dir = os.path.join(os.path.dirname(__file__), "..", "templates")
-    env = Environment(loader=FileSystemLoader(os.path.abspath(templates_dir)))
+    env = Environment(loader=FileSystemLoader(os.path.abspath(templates_dir)), autoescape=True)
     template = env.get_template("cyber_insurance_report.html")
 
     html = template.render(
@@ -258,7 +258,7 @@ async def generate_compliance_report(
     from jinja2 import Environment, FileSystemLoader
 
     templates_dir = os.path.join(os.path.dirname(__file__), "..", "templates")
-    env = Environment(loader=FileSystemLoader(os.path.abspath(templates_dir)))
+    env = Environment(loader=FileSystemLoader(os.path.abspath(templates_dir)), autoescape=True)
     template = env.get_template("compliance_report.html")
 
     html = template.render(

@@ -204,7 +204,7 @@ async def download_report(
     rpo_target = workload.rpo_target_mins or 0 if workload else 0
 
     templates_dir = os.path.join(os.path.dirname(__file__), "..", "templates")
-    env = Environment(loader=FileSystemLoader(os.path.abspath(templates_dir)))
+    env = Environment(loader=FileSystemLoader(os.path.abspath(templates_dir)), autoescape=True)
     template = env.get_template("report.html")
 
     html = template.render(

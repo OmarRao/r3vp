@@ -10,6 +10,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir --upgrade pip setuptools
 
+# Run as a dedicated non-root user (CWE-250: avoid running the container as root).
+RUN useradd --create-home --uid 10001 appuser
+
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 COPY pyproject.toml .
@@ -17,6 +20,9 @@ RUN uv sync --no-dev --no-editable
 
 COPY src/ src/
 COPY alembic.ini .
+
+RUN chown -R appuser:appuser /app
+USER appuser
 
 EXPOSE 8000
 

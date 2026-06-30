@@ -4,28 +4,11 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-try:
-    import defusedxml.ElementTree as ET  # type: ignore[import]
-except ImportError:
-    # Fallback: use the stdlib parser but explicitly disable entity resolution
-    # to prevent XML External Entity (XXE) injection (CWE-611).
-    import xml.etree.ElementTree as _stdlib_ET  # noqa: N812
-
-    class _SafeET:  # minimal shim
-        @staticmethod
-        def parse(source: Any) -> Any:
-            parser = _stdlib_ET.XMLParser()
-            # Prevent DTD / entity expansion
-            parser.entity = {}  # type: ignore[attr-defined]
-            return _stdlib_ET.parse(source, parser=parser)
-
-        @staticmethod
-        def fromstring(text: str) -> Any:
-            parser = _stdlib_ET.XMLParser()
-            parser.entity = {}  # type: ignore[attr-defined]
-            return _stdlib_ET.fromstring(text, parser=parser)  # type: ignore[call-arg]
-
-    ET = _SafeET()  # type: ignore[assignment]
+# Always use defusedxml to parse untrusted NVD/OSV feeds; it hardens against
+# XML External Entity (XXE) injection and entity-expansion bombs (CWE-611).
+# defusedxml is a declared dependency, so the vulnerable stdlib xml parser is
+# never imported here.
+import defusedxml.ElementTree as ET  # type: ignore[import]
 
 logger = logging.getLogger(__name__)
 
