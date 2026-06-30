@@ -13,8 +13,8 @@ Create Date: 2026-06-17
 Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
 https://www.linkedin.com/in/omarrao/
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision = "0007"
 down_revision = "0006"

@@ -1,10 +1,11 @@
 """Evidence vault: bundle test run artifacts into a signed ZIP archive."""
 from __future__ import annotations
+
 import hashlib
 import io
 import json
 import zipfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 
@@ -68,7 +69,7 @@ def build_evidence_bundle(
                 add_file(prefix + "steps.json", json.dumps(run["steps"], indent=2).encode())
 
         manifest = {
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "org": org_name,
             "framework": framework,
             "r3vp_version": "0.7.0",

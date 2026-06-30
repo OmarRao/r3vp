@@ -11,14 +11,14 @@ from __future__ import annotations
 import hashlib
 import socket
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import psutil
 import structlog
 
 from .database import ThreatDatabase
-from .models import ScanFinding, ScanResult, ThreatSeverity, ThreatType
+from .models import ScanFinding, ScanResult
 from .yara_engine import YaraEngine
 
 log = structlog.get_logger()
@@ -52,7 +52,7 @@ class ThreatScanner:
     ) -> ScanResult:
         """Run a complete threat scan and return findings."""
         scan_id = str(uuid.uuid4())
-        started = datetime.now(timezone.utc)
+        started = datetime.now(UTC)
         findings: list[ScanFinding] = []
         hostname = socket.gethostname()
 
@@ -62,7 +62,6 @@ class ThreatScanner:
         proc_sigs = self._db.get_process_signatures()
         hash_sigs = self._db.get_hash_signatures()
         net_sigs = self._db.get_network_signatures()
-        all_sigs = self._db.get_all_signatures()
         sig_count = self._db.signature_count()
 
         # 1. Process scan
@@ -83,7 +82,7 @@ class ThreatScanner:
             yara_findings, yara_count = self._yara.scan_paths(self._scan_paths, hostname)
             findings.extend(yara_findings)
 
-        completed = datetime.now(timezone.utc)
+        completed = datetime.now(UTC)
         result = ScanResult(
             scan_id=scan_id,
             appliance_id=appliance_id,

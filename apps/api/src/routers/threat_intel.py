@@ -8,18 +8,17 @@ Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy -- http
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
-from typing import Annotated
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth import AuthUser, AdminUser, CurrentUser
+from src.auth import AdminUser, AuthUser, CurrentUser
 from src.db.session import get_db
-from src.models.threat_scan import ThreatFinding, ThreatIncident, ThreatScan
 from src.models.appliance import Appliance
+from src.models.threat_scan import ThreatFinding, ThreatIncident, ThreatScan
 
 router = APIRouter(prefix="/v1/threat-intel", tags=["threat-intel"])
 
@@ -248,8 +247,7 @@ async def resolve_incident(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     """Mark an incident as resolved."""
-    from datetime import timezone
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     result = await db.execute(
         update(ThreatIncident)
         .where(

@@ -1,12 +1,12 @@
 """Hash-chained audit log for tamper-evident test run evidence."""
 from __future__ import annotations
+
 import hashlib
 import json
 import sqlite3
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from pathlib import Path
-
 
 CHAIN_DB = Path("/data/audit_chain.db")
 

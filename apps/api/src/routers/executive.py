@@ -1,7 +1,9 @@
 """Executive reporting: CISO scorecard, trend data, digest schedule."""
 from __future__ import annotations
+
 import uuid
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import Response
 from pydantic import BaseModel
@@ -11,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth import AuthUser
 from src.db.session import get_db
 from src.models.executive_report import DigestSchedule, ScorecardSnapshot
-from src.services.executive_report import compute_scorecard, render_scorecard_pdf
+from src.services.executive_report import render_scorecard_pdf
 from src.services.rbac import require_permission
 
 router = APIRouter()
@@ -117,7 +119,7 @@ async def download_scorecard_pdf(
     db: AsyncSession = Depends(get_db),
 ):
     require_permission(getattr(user, "permissions", []), "reports:generate")
-    period_label = period if period != "current" else datetime.now(timezone.utc).strftime("%B %Y")
+    period_label = period if period != "current" else datetime.now(UTC).strftime("%B %Y")
     pdf_bytes = render_scorecard_pdf(
         org_name="Your Organization",
         period_label=period_label,

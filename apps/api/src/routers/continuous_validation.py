@@ -1,7 +1,9 @@
 """Continuous validation API: policies, micro-validation runs, alerts, live health."""
 from __future__ import annotations
+
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -9,7 +11,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import AuthUser
 from src.db.session import get_db
-from src.models.continuous_validation import ContinuousValidationPolicy, MicroValidationRun, ValidationAlert
+from src.models.continuous_validation import (
+    ContinuousValidationPolicy,
+    MicroValidationRun,
+    ValidationAlert,
+)
 from src.services.continuous_validation import MICRO_CHECKS, compute_continuous_health
 from src.services.rbac import require_permission
 
@@ -162,6 +168,6 @@ async def resolve_alert(alert_id: uuid.UUID, user: AuthUser, db: AsyncSession = 
     if not alert:
         raise HTTPException(404, "Alert not found")
     alert.resolved = True
-    alert.resolved_at = datetime.now(timezone.utc)
+    alert.resolved_at = datetime.now(UTC)
     await db.commit()
     return {"id": str(alert.id), "resolved": True}

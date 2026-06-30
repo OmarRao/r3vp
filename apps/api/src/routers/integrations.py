@@ -2,7 +2,9 @@
 # Author: Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
 # https://www.linkedin.com/in/omarrao/
 from __future__ import annotations
+
 import uuid
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select

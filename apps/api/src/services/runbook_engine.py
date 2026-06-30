@@ -1,5 +1,6 @@
 """Runbook execution engine: step sequencing and dependency resolution."""
 from __future__ import annotations
+
 from typing import Any
 
 
@@ -9,7 +10,7 @@ def resolve_execution_order(steps: list[dict[str, Any]]) -> list[list[dict[str, 
     Returns a list of waves, where each wave is a list of steps
     that can run concurrently (all their dependencies are in prior waves).
     """
-    seq_map = {s["seq"]: s for s in steps}
+    {s["seq"]: s for s in steps}
     completed: set[int] = set()
     remaining = list(steps)
     waves: list[list[dict]] = []
@@ -74,8 +75,7 @@ def build_execution_plan(runbook: dict, steps: list[dict]) -> dict[str, Any]:
 
 def compute_rto(started_at_iso: str, completed_at_iso: str) -> int:
     """Compute actual RTO in minutes from ISO timestamps."""
-    from datetime import datetime, timezone
-    fmt = "%Y-%m-%dT%H:%M:%S.%f%z"
+    from datetime import datetime
     try:
         start = datetime.fromisoformat(started_at_iso)
         end = datetime.fromisoformat(completed_at_iso)

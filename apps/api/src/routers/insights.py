@@ -2,13 +2,18 @@
 # Author: Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
 # https://www.linkedin.com/in/omarrao/
 from __future__ import annotations
+
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import AuthUser
 from src.db.session import get_db
-from src.services.ai_insights import predict_rto_trend, detect_anomalies, rank_workload_risks, answer_nl_query
+from src.services.ai_insights import (
+    answer_nl_query,
+    detect_anomalies,
+    predict_rto_trend,
+    rank_workload_risks,
+)
 from src.services.rbac import require_permission
 
 router = APIRouter()

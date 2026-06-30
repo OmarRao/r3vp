@@ -10,6 +10,8 @@ from src.models.appliance import Org, Appliance
 from src.models.workload import Workload
 from src.models.test_run import TestRun
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.mark.asyncio
 async def test_readiness_score_calculation(db_session):

@@ -2,6 +2,7 @@
 # Author: Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
 # https://www.linkedin.com/in/omarrao/
 from __future__ import annotations
+
 import logging
 import time
 from typing import Any

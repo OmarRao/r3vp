@@ -1,5 +1,6 @@
 """Report delivery service: email, Slack, and Teams."""
 from __future__ import annotations
+
 import logging
 from dataclasses import dataclass
 
@@ -48,9 +49,9 @@ async def deliver_report(
 async def _send_email(pdf_bytes: bytes, filename: str, subject: str, body: str, address: str) -> DeliveryResult:
     import os
     import smtplib
+    from email.mime.application import MIMEApplication
     from email.mime.multipart import MIMEMultipart
     from email.mime.text import MIMEText
-    from email.mime.application import MIMEApplication
 
     smtp_host = os.getenv("SMTP_HOST", "localhost")
     smtp_port = int(os.getenv("SMTP_PORT", "587"))

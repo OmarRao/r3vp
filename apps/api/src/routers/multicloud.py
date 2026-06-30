@@ -6,17 +6,14 @@ https://www.linkedin.com/in/omarrao/
 """
 from __future__ import annotations
 
-import uuid
-from typing import Annotated
-
 from fastapi import APIRouter, Depends
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import AuthUser, CurrentUser
 from src.db.session import get_db
-from src.models.workload import Workload
 from src.models.test_run import TestRun
+from src.models.workload import Workload
 
 router = APIRouter(prefix="/v1/multicloud", tags=["multicloud"])
 

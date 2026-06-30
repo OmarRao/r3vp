@@ -1,10 +1,13 @@
 """Custom compliance framework and control mapping models."""
 from __future__ import annotations
+
 import uuid
 from datetime import datetime
-from sqlalchemy import String, ForeignKey, DateTime, Boolean, Integer, func
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
+
 from .base import Base
 
 

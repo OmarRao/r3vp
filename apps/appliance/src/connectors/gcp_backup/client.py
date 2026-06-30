@@ -10,6 +10,7 @@ https://www.linkedin.com/in/omarrao/
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+
 import structlog
 
 from src.config import settings
@@ -59,8 +60,8 @@ class GCPBackupClient:
     def connect(self) -> bool:
         """Initialize GCP clients. Returns True on success."""
         try:
-            import google.cloud.compute_v1 as compute_v1  # type: ignore
             import google.auth  # type: ignore
+            import google.cloud.compute_v1 as compute_v1  # type: ignore
         except ImportError:
             log.warning(
                 "google-cloud-compute not installed, run: pip install google-cloud-compute"

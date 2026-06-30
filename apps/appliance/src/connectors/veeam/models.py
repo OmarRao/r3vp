@@ -7,8 +7,10 @@ Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
 https://www.linkedin.com/in/omarrao/
 """
 from __future__ import annotations
+
 from datetime import datetime
-from pydantic import BaseModel, Field
+
+from pydantic import BaseModel
 
 
 class VeeamJob(BaseModel):

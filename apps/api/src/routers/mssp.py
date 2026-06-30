@@ -1,7 +1,9 @@
 """MSSP console API: partner management, customer org rollup, cross-org insights."""
 from __future__ import annotations
+
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -9,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import AuthUser
 from src.db.session import get_db
-from src.models.mssp import MsspPartner, MsspCustomerOrg, MsspAlertRule
+from src.models.mssp import MsspAlertRule, MsspCustomerOrg
 from src.services.rbac import require_permission
 
 router = APIRouter()
@@ -91,7 +93,7 @@ async def add_customer(body: AddCustomerRequest, user: AuthUser, db: AsyncSessio
         tier=body.tier,
         tags=body.tags,
         notes=body.notes,
-        onboarded_at=datetime.now(timezone.utc),
+        onboarded_at=datetime.now(UTC),
     )
     db.add(customer)
     await db.commit()

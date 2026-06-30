@@ -1,7 +1,9 @@
 """API key management for programmatic/service account access."""
 from __future__ import annotations
+
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -27,7 +29,7 @@ class CreateKeyRequest(BaseModel):
 async def list_keys(user: AuthUser, db: AsyncSession = Depends(get_db)):
     require_permission(getattr(user, "permissions", []), "api_keys:read")
     rows = await db.execute(
-        select(ApiKey).where(ApiKey.org_id == user.org_id, ApiKey.revoked == False).order_by(ApiKey.created_at.desc())
+        select(ApiKey).where(ApiKey.org_id == user.org_id, not ApiKey.revoked).order_by(ApiKey.created_at.desc())
     )
     return [
         {
@@ -56,7 +58,7 @@ async def create_key(body: CreateKeyRequest, user: AuthUser, db: AsyncSession = 
     expires_at = None
     if body.expires_days:
         from datetime import timedelta
-        expires_at = datetime.now(timezone.utc) + timedelta(days=body.expires_days)
+        expires_at = datetime.now(UTC) + timedelta(days=body.expires_days)
 
     key = ApiKey(
         org_id=user.org_id,

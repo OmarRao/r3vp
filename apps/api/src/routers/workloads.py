@@ -1,11 +1,13 @@
 from __future__ import annotations
+
 import uuid
+
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth import AuthUser, AdminUser
+from src.auth import AdminUser, AuthUser
 from src.db.session import get_db
 from src.models.workload import Workload
 
@@ -77,9 +79,9 @@ async def set_targets(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     from sqlalchemy import update
-    from src.models.appliance import Appliance
+
     # Verify ownership then update
-    workload = await get_workload(workload_id, user, db)
+    await get_workload(workload_id, user, db)
     await db.execute(
         update(Workload)
         .where(Workload.id == workload_id)

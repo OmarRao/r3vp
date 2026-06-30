@@ -1,15 +1,17 @@
 """Team management: members, invites, roles."""
 from __future__ import annotations
+
 import uuid
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
+
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import AuthUser
 from src.db.session import get_db
-from src.models.rbac import OrgMember, OrgInvite, Role
+from src.models.rbac import OrgInvite, OrgMember, Role
 from src.services.rbac import SYSTEM_ROLES, require_permission
 
 router = APIRouter()
@@ -35,7 +37,7 @@ async def list_members(user: AuthUser, db: AsyncSession = Depends(get_db)):
     rows = await db.execute(
         select(OrgMember, Role)
         .join(Role, OrgMember.role_id == Role.id)
-        .where(OrgMember.org_id == user.org_id, OrgMember.is_active == True)
+        .where(OrgMember.org_id == user.org_id, OrgMember.is_active)
         .order_by(OrgMember.joined_at)
     )
     return [
@@ -59,7 +61,7 @@ async def invite_member(body: InviteRequest, user: AuthUser, db: AsyncSession = 
         raise HTTPException(400, "Cannot invite as owner")
 
     role = await db.scalar(
-        select(Role).where(Role.name == body.role_name, Role.is_system == True)
+        select(Role).where(Role.name == body.role_name, Role.is_system)
     )
     if not role:
         raise HTTPException(400, f"Role not found: {body.role_name}")
@@ -70,7 +72,7 @@ async def invite_member(body: InviteRequest, user: AuthUser, db: AsyncSession = 
         role_id=role.id,
         token=OrgInvite.generate_token(),
         invited_by=getattr(user, "user_id", None),
-        expires_at=datetime.now(timezone.utc) + timedelta(days=7),
+        expires_at=datetime.now(UTC) + timedelta(days=7),
     )
     db.add(invite)
     await db.commit()
@@ -83,7 +85,7 @@ async def list_invites(user: AuthUser, db: AsyncSession = Depends(get_db)):
     require_permission(getattr(user, "permissions", []), "team:read")
     rows = await db.execute(
         select(OrgInvite)
-        .where(OrgInvite.org_id == user.org_id, OrgInvite.accepted_at == None)
+        .where(OrgInvite.org_id == user.org_id, OrgInvite.accepted_at is None)
         .order_by(OrgInvite.created_at.desc())
     )
     return [
@@ -110,7 +112,7 @@ async def update_member_role(
     if not member:
         raise HTTPException(404, "Member not found")
 
-    role = await db.scalar(select(Role).where(Role.name == role_name, Role.is_system == True))
+    role = await db.scalar(select(Role).where(Role.name == role_name, Role.is_system))
     if not role:
         raise HTTPException(400, "Role not found")
 

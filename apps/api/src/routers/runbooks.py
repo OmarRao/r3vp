@@ -1,7 +1,9 @@
 """DR Runbook CRUD, execution trigger, and live status."""
 from __future__ import annotations
+
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -9,9 +11,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import AuthUser
 from src.db.session import get_db
-from src.models.runbook import Runbook, RunbookStep, RunbookExecution, RunbookExecutionStep
-from src.services.runbook_engine import build_execution_plan, resolve_execution_order
+from src.models.runbook import (
+    Runbook,
+    RunbookExecution,
+    RunbookExecutionStep,
+    RunbookStep,
+)
 from src.services.rbac import require_permission
+from src.services.runbook_engine import build_execution_plan, resolve_execution_order
 
 router = APIRouter()
 
@@ -45,7 +52,7 @@ async def list_runbooks(user: AuthUser, db: AsyncSession = Depends(get_db)):
     require_permission(getattr(user, "permissions", []), "workloads:read")
     rows = await db.execute(
         select(Runbook)
-        .where(Runbook.org_id == user.org_id, Runbook.enabled == True)
+        .where(Runbook.org_id == user.org_id, Runbook.enabled)
         .order_by(Runbook.created_at.desc())
     )
     return [
@@ -77,7 +84,7 @@ async def create_runbook(body: CreateRunbookRequest, user: AuthUser, db: AsyncSe
         try:
             resolve_execution_order([s.model_dump() for s in body.steps])
         except ValueError as exc:
-            raise HTTPException(400, str(exc))
+            raise HTTPException(400, str(exc)) from exc
 
     runbook = Runbook(
         org_id=user.org_id,
@@ -201,7 +208,7 @@ async def trigger_execution(
         )
         db.add(exec_step)
 
-    runbook.last_executed_at = datetime.now(timezone.utc)
+    runbook.last_executed_at = datetime.now(UTC)
     runbook.last_execution_status = "running"
     await db.commit()
     await db.refresh(execution)

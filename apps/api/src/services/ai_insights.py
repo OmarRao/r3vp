@@ -2,6 +2,7 @@
 # Author: Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
 # https://www.linkedin.com/in/omarrao/
 from __future__ import annotations
+
 import statistics
 from typing import Any
 
@@ -20,7 +21,7 @@ def predict_rto_trend(rto_readings: list[float], target_mins: float) -> dict[str
     x_mean = sum(x) / n
     y_mean = sum(rto_readings) / n
 
-    slope_num = sum((xi - x_mean) * (yi - y_mean) for xi, yi in zip(x, rto_readings))
+    slope_num = sum((xi - x_mean) * (yi - y_mean) for xi, yi in zip(x, rto_readings, strict=False))
     slope_den = sum((xi - x_mean) ** 2 for xi in x)
     slope = slope_num / slope_den if slope_den else 0
     intercept = y_mean - slope * x_mean

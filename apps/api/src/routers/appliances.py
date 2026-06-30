@@ -8,9 +8,8 @@ processing the request.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File, status
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,8 +29,8 @@ def _appliance_id_header(request: Request) -> uuid.UUID:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Missing X-Appliance-ID header")
     try:
         return uuid.UUID(raw)
-    except ValueError:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid X-Appliance-ID")
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid X-Appliance-ID") from exc
 
 
 def _org_id_header(request: Request) -> uuid.UUID:
@@ -40,8 +39,8 @@ def _org_id_header(request: Request) -> uuid.UUID:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Missing X-Org-ID header")
     try:
         return uuid.UUID(raw)
-    except ValueError:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid X-Org-ID")
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid X-Org-ID") from exc
 
 
 async def _verified_appliance(

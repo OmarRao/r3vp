@@ -1,6 +1,8 @@
 """Compliance framework builder API: custom frameworks, control mapping, assessment."""
 from __future__ import annotations
+
 import uuid
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -8,8 +10,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import AuthUser
 from src.db.session import get_db
-from src.models.compliance_framework import ComplianceFramework, ComplianceControl, FrameworkAssessment
-from src.services.compliance_framework import BUILTIN_FRAMEWORKS, R3VP_METRICS, R3VP_EVIDENCE_TYPES, evaluate_framework
+from src.models.compliance_framework import (
+    ComplianceControl,
+    ComplianceFramework,
+    FrameworkAssessment,
+)
+from src.services.compliance_framework import (
+    BUILTIN_FRAMEWORKS,
+    R3VP_EVIDENCE_TYPES,
+    R3VP_METRICS,
+    evaluate_framework,
+)
 from src.services.rbac import require_permission
 
 router = APIRouter()
@@ -113,8 +124,8 @@ async def list_controls(framework_id: str, user: AuthUser, db: AsyncSession = De
         return builtin["controls"]
     try:
         fid = uuid.UUID(framework_id)
-    except ValueError:
-        raise HTTPException(404, "Framework not found")
+    except ValueError as exc:
+        raise HTTPException(404, "Framework not found") from exc
     rows = await db.execute(
         select(ComplianceControl)
         .where(ComplianceControl.framework_id == fid)

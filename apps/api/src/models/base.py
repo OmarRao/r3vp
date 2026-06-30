@@ -1,5 +1,5 @@
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import MetaData
+from sqlalchemy.orm import DeclarativeBase
 
 NAMING_CONVENTION = {
     "ix": "ix_%(column_0_label)s",

@@ -1,13 +1,38 @@
 from contextlib import asynccontextmanager
+
+import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import structlog
 from temporalio.client import Client, TLSConfig
 
 from src.config import settings
-from src.routers import appliances, workloads, test_runs, readiness, evidence, audit, notifications, users, portal_appliances, reports, report_schedules, team, api_keys, sso, executive, integrations, insights, runbooks, onboarding, fleet, mssp, compliance_frameworks, continuous_validation
-from src.routers.threat_intel import router as threat_intel_router
+from src.routers import (
+    api_keys,
+    appliances,
+    audit,
+    compliance_frameworks,
+    continuous_validation,
+    evidence,
+    executive,
+    fleet,
+    insights,
+    integrations,
+    mssp,
+    notifications,
+    onboarding,
+    portal_appliances,
+    readiness,
+    report_schedules,
+    reports,
+    runbooks,
+    sso,
+    team,
+    test_runs,
+    users,
+    workloads,
+)
 from src.routers.multicloud import router as multicloud_router
+from src.routers.threat_intel import router as threat_intel_router
 
 log = structlog.get_logger()
 
@@ -24,10 +49,13 @@ def get_temporal_client() -> Client:
 async def lifespan(app: FastAPI):
     global _temporal_client
     try:
-        tls = TLSConfig(
-            client_cert=open(settings.temporal_cert_path, "rb").read(),
-            client_private_key=open(settings.temporal_key_path, "rb").read(),
-        ) if settings.temporal_cert_path else None
+        tls = None
+        if settings.temporal_cert_path:
+            with open(settings.temporal_cert_path, "rb") as cert_f:
+                client_cert = cert_f.read()
+            with open(settings.temporal_key_path, "rb") as key_f:
+                client_private_key = key_f.read()
+            tls = TLSConfig(client_cert=client_cert, client_private_key=client_private_key)
         _temporal_client = await Client.connect(
             settings.temporal_address,
             namespace=settings.temporal_namespace,
@@ -38,8 +66,8 @@ async def lifespan(app: FastAPI):
         log.warning("temporal unavailable at startup", error=str(exc))
 
     try:
-        from src.scheduler import load_schedules, get_scheduler
         from src.db.session import async_session_factory
+        from src.scheduler import get_scheduler, load_schedules
         await load_schedules(async_session_factory)
     except Exception as exc:
         log.warning("scheduler startup failed", error=str(exc))

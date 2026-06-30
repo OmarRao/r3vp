@@ -1,6 +1,7 @@
 from __future__ import annotations
+
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,12 +9,12 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth import AuthUser, AdminUser
+from src.auth import AdminUser, AuthUser
 from src.config import settings
 from src.db.session import get_db
+from src.models.appliance import Appliance
 from src.models.test_run import TestRun, TestRunStep
 from src.models.workload import Workload
-from src.models.appliance import Appliance
 
 log = structlog.get_logger()
 
@@ -93,7 +94,7 @@ async def trigger_test_run(
             update(TestRun).where(TestRun.id == run.id).values(
                 workflow_run_id=wf_handle.first_execution_run_id,
                 status="running",
-                started_at=datetime.now(timezone.utc),
+                started_at=datetime.now(UTC),
             )
         )
         await db.commit()
@@ -159,10 +160,12 @@ async def download_report(
     user: AuthUser,
     db: AsyncSession = Depends(get_db),
 ):
+    import os
+
+    import weasyprint
     from fastapi.responses import Response
     from jinja2 import Environment, FileSystemLoader
-    import weasyprint
-    import os
+
     from src.models.test_run import HealthCheckResult
 
     run_data = await get_test_run(run_id, user, db)
@@ -206,7 +209,7 @@ async def download_report(
 
     html = template.render(
         org_name=str(user.org_id),
-        generated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        generated_at=datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
         workload_name=workload.name if workload else "Unknown",
         test_date=run_data.get("started_at") or "",
         passed=run_data.get("status") == "passed",

@@ -2,10 +2,11 @@
 # Author: Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
 # https://www.linkedin.com/in/omarrao/
 from __future__ import annotations
-import httpx
-import json
+
 import time
 from typing import Any
+
+import httpx
 
 
 async def send_hec_event(config: dict, event_type: str, payload: dict[str, Any]) -> None:

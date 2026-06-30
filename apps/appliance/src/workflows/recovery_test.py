@@ -8,29 +8,29 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import timedelta
 
-from temporalio import workflow, activity
+from temporalio import workflow
 from temporalio.common import RetryPolicy
 
 from src.workflows.activities import (
-    SyncInventoryInput,
-    SelectRestorePointInput,
-    ProvisionNetworkInput,
-    StartRecoveryInput,
-    WaitForBootInput,
-    RunHealthChecksInput,
     CaptureEvidenceInput,
-    TeardownInput,
+    ProvisionNetworkInput,
     ReportResultInput,
-    sync_inventory,
-    select_restore_point,
-    provision_isolated_network,
-    start_instant_recovery,
-    wait_for_vm_boot,
-    run_health_checks,
+    RunHealthChecksInput,
+    SelectRestorePointInput,
+    StartRecoveryInput,
+    SyncInventoryInput,
+    TeardownInput,
+    WaitForBootInput,
     capture_evidence,
+    provision_isolated_network,
     record_rto_rpo,
     report_results,
+    run_health_checks,
+    select_restore_point,
+    start_instant_recovery,
+    sync_inventory,
     teardown_isolated_env,
+    wait_for_vm_boot,
 )
 
 
@@ -71,7 +71,6 @@ class RecoveryTestWorkflow:
         isolated_network: str | None = None
         recovery_session_id: str | None = None
         recovered_vm_moref: str | None = None
-        start_time = workflow.now()
         passed = False
         failure_reason: str | None = None
         health_results: list[dict] = []
