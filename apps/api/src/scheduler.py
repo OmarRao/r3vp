@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -23,11 +23,11 @@ def get_scheduler() -> AsyncIOScheduler:
 
 async def _trigger_scheduled_run(workload_id: str, org_id: str) -> None:
     """Called by APScheduler. Creates a TestRun and enqueues the Temporal workflow."""
+    from src.config import settings
     from src.db.session import async_session_factory
+    from src.main import get_temporal_client
     from src.models.test_run import TestRun
     from src.models.workload import Workload
-    from src.main import get_temporal_client
-    from src.config import settings
 
     async with async_session_factory() as db:
         workload = await db.scalar(select(Workload).where(Workload.id == uuid.UUID(workload_id)))
@@ -53,7 +53,7 @@ async def _trigger_scheduled_run(workload_id: str, org_id: str) -> None:
                 update(TestRun).where(TestRun.id == run.id).values(
                     workflow_run_id=wf_handle.first_execution_run_id,
                     status="running",
-                    started_at=datetime.now(timezone.utc),
+                    started_at=datetime.now(UTC),
                 )
             )
             await db.commit()
@@ -79,7 +79,7 @@ async def _run_report_schedule(schedule_id: str) -> None:
         if not schedule or not schedule.enabled:
             return
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         to_date = now.date()
         from_date = to_date - timedelta(days=schedule.period_days)
         period = f"{from_date.isoformat()} to {to_date.isoformat()}"
@@ -105,9 +105,9 @@ async def _run_report_schedule(schedule_id: str) -> None:
 
 async def load_schedules(db_session_factory) -> None:
     """Load workload and report schedules from DB and register APScheduler jobs."""
-    from src.models.workload import Workload
     from src.models.appliance import Appliance
     from src.models.report_schedule import ReportSchedule
+    from src.models.workload import Workload
 
     scheduler = get_scheduler()
     scheduler.remove_all_jobs()

@@ -1,8 +1,8 @@
 """Notification dispatch: email (SES), Slack webhook, Teams webhook."""
 from __future__ import annotations
 
-import structlog
 import httpx
+import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

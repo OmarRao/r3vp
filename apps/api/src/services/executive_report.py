@@ -1,8 +1,7 @@
 """Executive report generation: CISO scorecard and digest email."""
 from __future__ import annotations
-import hashlib
-import io
-from datetime import datetime, timezone, timedelta
+
+from datetime import UTC, datetime
 from typing import Any
 
 
@@ -43,7 +42,6 @@ def render_scorecard_pdf(
     trend: list[dict[str, Any]],
 ) -> bytes:
     """Render the CISO scorecard as a PDF via weasyprint."""
-    from jinja2 import Environment, BaseLoader
     import weasyprint
 
     score = snapshot.get("overall_score", 0)
@@ -89,7 +87,7 @@ def render_scorecard_pdf(
 </head>
 <body>
 <h1>CISO Scorecard</h1>
-<div class="sub">{org_name} &mdash; {period_label} &mdash; Generated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}</div>
+<div class="sub">{org_name} &mdash; {period_label} &mdash; Generated {datetime.now(UTC).strftime('%Y-%m-%d %H:%M UTC')}</div>
 
 <div class="score-block">
   <div class="score-num">{score}</div>
@@ -135,9 +133,9 @@ async def send_digest_email(
     """Send digest email with scorecard PDF attached."""
     import os
     import smtplib
+    from email.mime.application import MIMEApplication
     from email.mime.multipart import MIMEMultipart
     from email.mime.text import MIMEText
-    from email.mime.application import MIMEApplication
 
     smtp_host = os.getenv("SMTP_HOST", "localhost")
     smtp_port = int(os.getenv("SMTP_PORT", "587"))
