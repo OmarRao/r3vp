@@ -7,8 +7,8 @@ Create Date: 2026-06-14
 """
 from __future__ import annotations
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "0001"
@@ -49,7 +49,9 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
     op.create_index("ix_users_org_id", "users", ["org_id"])
-    op.create_index("uq_users_auth0_sub", "users", ["auth0_sub"], unique=True)
+    # The auth0_sub column is declared unique above; with the metadata naming
+    # convention that already creates a "uq_users_auth0_sub" constraint, so an
+    # explicit index of the same name would collide on upgrade.
 
     op.create_table(
         "workloads",
@@ -66,7 +68,7 @@ def upgrade() -> None:
         sa.Column("last_backup_at", sa.DateTime(timezone=True)),
         sa.Column("rto_target_mins", sa.Integer),
         sa.Column("rpo_target_mins", sa.Integer),
-        sa.Column("tags", postgresql.JSONB, server_default="{}"),
+        sa.Column("tags", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
         sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
@@ -92,7 +94,8 @@ def upgrade() -> None:
         sa.Column("rto_actual_mins", sa.Integer),
         sa.Column("rpo_actual_mins", sa.Integer),
         sa.Column("readiness_score", sa.Integer,
-                  sa.CheckConstraint("readiness_score BETWEEN 0 AND 100")),
+                  sa.CheckConstraint("readiness_score BETWEEN 0 AND 100",
+                                     name="readiness_score_range")),
         sa.Column("failure_reason", sa.Text),
         sa.Column("evidence_path", sa.String(512)),
         sa.Column("workflow_run_id", sa.String(255)),
@@ -110,7 +113,7 @@ def upgrade() -> None:
         sa.Column("status", sa.String(50), nullable=False),
         sa.Column("started_at", sa.DateTime(timezone=True)),
         sa.Column("ended_at", sa.DateTime(timezone=True)),
-        sa.Column("detail", postgresql.JSONB, server_default="{}"),
+        sa.Column("detail", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")),
     )
     op.create_index("ix_test_run_steps_run_id", "test_run_steps", ["run_id"])
 
@@ -134,7 +137,7 @@ def upgrade() -> None:
         sa.Column("actor_type", sa.String(50), nullable=False),
         sa.Column("event_type", sa.String(100), nullable=False),
         sa.Column("resource_id", postgresql.UUID(as_uuid=True)),
-        sa.Column("detail", postgresql.JSONB, server_default="{}"),
+        sa.Column("detail", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")),
         sa.Column("occurred_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
     op.create_index("ix_audit_events_org_id", "audit_events", ["org_id"])

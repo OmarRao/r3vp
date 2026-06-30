@@ -1,8 +1,10 @@
 """Temporal workflow for DR runbook execution."""
 from __future__ import annotations
+
 import logging
 from datetime import timedelta
-from temporalio import workflow, activity
+
+from temporalio import activity, workflow
 from temporalio.common import RetryPolicy
 
 logger = logging.getLogger(__name__)
@@ -14,7 +16,9 @@ NO_RETRY = RetryPolicy(maximum_attempts=1)
 @activity.defn
 async def fetch_execution_plan(execution_id: str) -> dict:
     """Fetch the execution plan and all steps from the SaaS API."""
-    import httpx, os
+    import os
+
+    import httpx
     base = os.getenv("R3VP_API_URL", "https://api.r3vp.io")
     token = os.getenv("R3VP_APPLIANCE_TOKEN", "")
     async with httpx.AsyncClient(verify=True, timeout=30) as client:
@@ -35,7 +39,11 @@ async def fetch_execution_plan(execution_id: str) -> dict:
 @activity.defn
 async def execute_step(execution_id: str, step: dict) -> dict:
     """Execute a single runbook step and return the result."""
-    import httpx, os, asyncio, time
+    import asyncio
+    import os
+    import time
+
+    import httpx
     base = os.getenv("R3VP_API_URL", "https://api.r3vp.io")
     token = os.getenv("R3VP_APPLIANCE_TOKEN", "")
     step_type = step["step_type"]
@@ -61,7 +69,7 @@ async def execute_step(execution_id: str, step: dict) -> dict:
             return {"status": "completed", "output": {"checks_passed": True}, "duration_secs": round(time.monotonic() - start)}
 
         elif step_type == "notify":
-            from src.services.delivery import deliver_report, DeliveryRecipient
+            from src.services.delivery import DeliveryRecipient, deliver_report
             channel = step.get("config", {}).get("channel", "slack")
             destination = step.get("config", {}).get("destination", "")
             message = step.get("config", {}).get("message", f"DR Runbook step completed: {step['name']}")
@@ -98,7 +106,9 @@ async def execute_step(execution_id: str, step: dict) -> dict:
 @activity.defn
 async def update_step_status(execution_id: str, step_id: str, result: dict) -> None:
     """Post step result back to the SaaS API."""
-    import httpx, os
+    import os
+
+    import httpx
     base = os.getenv("R3VP_API_URL", "https://api.r3vp.io")
     token = os.getenv("R3VP_APPLIANCE_TOKEN", "")
     async with httpx.AsyncClient(verify=True, timeout=15) as client:
@@ -112,7 +122,9 @@ async def update_step_status(execution_id: str, step_id: str, result: dict) -> N
 @activity.defn
 async def finalize_execution(execution_id: str, status: str, actual_rto_mins: int) -> None:
     """Mark the execution complete or failed in the SaaS API."""
-    import httpx, os
+    import os
+
+    import httpx
     base = os.getenv("R3VP_API_URL", "https://api.r3vp.io")
     token = os.getenv("R3VP_APPLIANCE_TOKEN", "")
     async with httpx.AsyncClient(verify=True, timeout=15) as client:

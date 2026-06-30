@@ -224,7 +224,7 @@ export default function WorkloadDetailPage() {
         {historyLoading ? (
           <p className="text-sm text-gray-400">Loading history...</p>
         ) : history.length === 0 ? (
-          <p className="text-sm text-gray-400">No test runs yet. Click "Run Test Now" to start.</p>
+          <p className="text-sm text-gray-400">No test runs yet. Click &quot;Run Test Now&quot; to start.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">

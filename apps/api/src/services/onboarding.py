@@ -1,5 +1,6 @@
 """Onboarding wizard step definitions and progress logic."""
 from __future__ import annotations
+
 from typing import Any
 
 STEPS = [
@@ -71,9 +72,7 @@ def is_step_complete(step_id: str, step_data: dict[str, Any]) -> bool:
         return (step_data.get("workload_count", 0) or 0) > 0
     if step_id == "first_test":
         return bool(step_data.get("first_test_run_id"))
-    if step_id == "complete":
-        return True
-    return False
+    return step_id == "complete"
 
 
 def compute_progress(session_step_data: dict[str, Any]) -> dict[str, Any]:

@@ -1,5 +1,6 @@
 """Continuous validation check engine."""
 from __future__ import annotations
+
 from typing import Any
 
 MICRO_CHECKS = {

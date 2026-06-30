@@ -1,12 +1,13 @@
 from __future__ import annotations
+
 import uuid
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth import AuthUser, AdminUser
+from src.auth import AdminUser, AuthUser
 from src.db.session import get_db
 from src.models.test_run import User
 

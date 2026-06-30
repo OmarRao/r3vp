@@ -1,8 +1,10 @@
 """Reporting endpoints: cyber insurance PDF, compliance PDFs, and report history."""
 from __future__ import annotations
 
+from datetime import UTC
+
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import AuthUser
@@ -18,22 +20,23 @@ async def cyber_insurance_report(
     to_date: str = Query(..., description="End date YYYY-MM-DD"),
     db: AsyncSession = Depends(get_db),
 ):
+    import os
+    from datetime import datetime
+
+    import weasyprint
     from fastapi import HTTPException
     from fastapi.responses import Response
-    from datetime import datetime, timezone
     from jinja2 import Environment, FileSystemLoader
-    import weasyprint
-    import os
 
     try:
-        from_dt = datetime.fromisoformat(from_date).replace(tzinfo=timezone.utc)
-        to_dt = datetime.fromisoformat(to_date).replace(tzinfo=timezone.utc)
-    except ValueError:
-        raise HTTPException(400, "Invalid date format. Use YYYY-MM-DD")
+        from_dt = datetime.fromisoformat(from_date).replace(tzinfo=UTC)
+        to_dt = datetime.fromisoformat(to_date).replace(tzinfo=UTC)
+    except ValueError as exc:
+        raise HTTPException(400, "Invalid date format. Use YYYY-MM-DD") from exc
 
+    from src.models.appliance import Appliance, Org
     from src.models.test_run import TestRun
     from src.models.workload import Workload
-    from src.models.appliance import Appliance, Org
 
     org = await db.scalar(select(Org).where(Org.id == user.org_id))
     org_name = org.name if org else str(user.org_id)
@@ -101,7 +104,7 @@ async def cyber_insurance_report(
         org_name=org_name,
         from_date=from_date,
         to_date=to_date,
-        generated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        generated_at=datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
         total_tested=len(set(r[1].id for r in results)),
         total_runs=total_runs,
         pass_rate_pct=pass_rate_pct,
@@ -171,25 +174,25 @@ async def generate_compliance_report(
 ):
     """Generate a signed compliance PDF report and persist the record."""
     import hashlib
-    import uuid as _uuid
+    from datetime import datetime
+
     from fastapi import HTTPException
     from fastapi.responses import Response
-    from datetime import datetime, timezone
 
     VALID_TYPES = {"soc2", "iso27001", "nist_csf", "monthly_summary"}
     if report_type not in VALID_TYPES:
         raise HTTPException(400, f"report_type must be one of: {', '.join(sorted(VALID_TYPES))}")
 
     try:
-        from_dt = datetime.fromisoformat(from_date).replace(tzinfo=timezone.utc)
-        to_dt = datetime.fromisoformat(to_date).replace(tzinfo=timezone.utc)
-    except ValueError:
-        raise HTTPException(400, "Invalid date format. Use YYYY-MM-DD")
+        from_dt = datetime.fromisoformat(from_date).replace(tzinfo=UTC)
+        to_dt = datetime.fromisoformat(to_date).replace(tzinfo=UTC)
+    except ValueError as exc:
+        raise HTTPException(400, "Invalid date format. Use YYYY-MM-DD") from exc
 
-    from src.models.test_run import TestRun
-    from src.models.workload import Workload
     from src.models.appliance import Appliance, Org
     from src.models.report import ComplianceReport
+    from src.models.test_run import TestRun
+    from src.models.workload import Workload
 
     org = await db.scalar(select(Org).where(Org.id == user.org_id))
     org_name = org.name if org else str(user.org_id)
@@ -250,8 +253,9 @@ async def generate_compliance_report(
         })
 
     import os
-    from jinja2 import Environment, FileSystemLoader
+
     import weasyprint
+    from jinja2 import Environment, FileSystemLoader
 
     templates_dir = os.path.join(os.path.dirname(__file__), "..", "templates")
     env = Environment(loader=FileSystemLoader(os.path.abspath(templates_dir)))
@@ -262,7 +266,7 @@ async def generate_compliance_report(
         report_type=report_type,
         from_date=from_date,
         to_date=to_date,
-        generated_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        generated_at=datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
         total_runs=total_runs,
         pass_rate=pass_rate,
         rto_compliance=rto_rate,
@@ -351,21 +355,21 @@ async def generate_evidence_bundle(
     db: AsyncSession = Depends(get_db),
 ):
     """Generate a signed ZIP evidence bundle containing PDF, audit chain, and per-workload artifacts."""
-    import uuid as _uuid
+    from datetime import datetime
+
     from fastapi import HTTPException
     from fastapi.responses import Response
-    from datetime import datetime, timezone
+
+    from src.models.appliance import Appliance, Org
     from src.models.test_run import TestRun
     from src.models.workload import Workload
-    from src.models.appliance import Appliance, Org
-    from src.models.report import ComplianceReport
     from src.services.evidence_vault import build_evidence_bundle
 
     try:
-        from_dt = datetime.fromisoformat(from_date).replace(tzinfo=timezone.utc)
-        to_dt = datetime.fromisoformat(to_date).replace(tzinfo=timezone.utc)
-    except ValueError:
-        raise HTTPException(400, "Invalid date format. Use YYYY-MM-DD")
+        from_dt = datetime.fromisoformat(from_date).replace(tzinfo=UTC)
+        to_dt = datetime.fromisoformat(to_date).replace(tzinfo=UTC)
+    except ValueError as exc:
+        raise HTTPException(400, "Invalid date format. Use YYYY-MM-DD") from exc
 
     org = await db.scalar(select(Org).where(Org.id == user.org_id))
     org_name = org.name if org else str(user.org_id)

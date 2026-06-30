@@ -2,8 +2,10 @@
 # Author: Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
 # https://www.linkedin.com/in/omarrao/
 from __future__ import annotations
-import httpx
+
 from typing import Any
+
+import httpx
 
 
 async def create_issue(config: dict, event_type: str, payload: dict[str, Any]) -> None:

@@ -9,17 +9,15 @@ Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy -- http
 from __future__ import annotations
 
 import json
-import logging
 import sqlite3
-import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import httpx
 import structlog
 
-from .models import ThreatSignature, ThreatSeverity, ThreatType
+from .models import ThreatSeverity, ThreatSignature, ThreatType
 
 if TYPE_CHECKING:
     pass
@@ -198,7 +196,7 @@ class ThreatDatabase:
 
     def _seed_signatures(self) -> None:
         assert self._conn
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         for sig in SEED_SIGNATURES:
             self._conn.execute(
                 """
@@ -270,7 +268,7 @@ class ThreatDatabase:
 
     def upsert_yara_rule(self, rule_id: str, name: str, source: str, rule_text: str) -> None:
         assert self._conn
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         self._conn.execute(
             """
             INSERT INTO yara_rules (id, name, source, rule_text, enabled, updated_at)
@@ -298,7 +296,7 @@ class ThreatDatabase:
                 resp.raise_for_status()
                 data = resp.json()
                 signatures = data.get("signatures", [])
-                now = datetime.now(timezone.utc).isoformat()
+                now = datetime.now(UTC).isoformat()
                 assert self._conn
                 for sig in signatures:
                     existing = self._conn.execute(
@@ -347,7 +345,7 @@ class ThreatDatabase:
             assert self._conn
             self._conn.execute(
                 "INSERT INTO sync_log (synced_at, signatures_added, signatures_updated, error) VALUES (?, ?, ?, ?)",
-                (datetime.now(timezone.utc).isoformat(), added, updated, error),
+                (datetime.now(UTC).isoformat(), added, updated, error),
             )
             self._conn.commit()
         return {"added": added, "updated": updated, "error": error}

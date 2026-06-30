@@ -5,6 +5,7 @@ mutual TLS — the appliance presents its client cert, the SaaS platform
 verifies it against the registered thumbprint.
 """
 import ssl
+
 import httpx
 import structlog
 

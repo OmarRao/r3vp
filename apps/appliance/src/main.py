@@ -1,10 +1,11 @@
 """Appliance entry point: loads secrets from vault, starts Temporal worker."""
-import asyncio
 import argparse
+import asyncio
+
 import structlog
 
-from src.vault.loader import load_secrets_into_settings
 from src.relay.client import RelayClient
+from src.vault.loader import load_secrets_into_settings
 from src.workers.runner import run_worker
 
 log = structlog.get_logger()

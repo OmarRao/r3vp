@@ -11,8 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-import socket
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 
@@ -42,7 +41,7 @@ def build_cef_event(
 ) -> str:
     """Build a CEF-formatted event string."""
     cef_sev = _SEVERITY_CEF.get(severity, "5")
-    ts = datetime.now(timezone.utc).strftime("%b %d %Y %H:%M:%S")
+    ts = datetime.now(UTC).strftime("%b %d %Y %H:%M:%S")
     extension = (
         f"rt={ts} "
         f"dhost={affected_host} "
@@ -77,7 +76,7 @@ def build_leef_event(
 ) -> str:
     """Build a LEEF-formatted event string for IBM QRadar."""
     leef_sev = _SEVERITY_LEEF.get(severity, "5")
-    ts = datetime.now(timezone.utc).isoformat()
+    ts = datetime.now(UTC).isoformat()
     return (
         f"LEEF:2.0|{_VENDOR}|{_PRODUCT}|{_VERSION}|{signature_id}|"
         f"devTime={ts}\t"
@@ -101,7 +100,7 @@ async def send_syslog(
     try:
         # RFC 5424 syslog header: <priority>version timestamp hostname appname procid msgid
         priority = 134  # facility=local0 (16), severity=info (6) -> (16*8)+6=134
-        ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        ts = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         syslog_msg = f"<{priority}>1 {ts} r3vp-appliance R3VP - - - {message}\n"
         data = syslog_msg.encode("utf-8")
 

@@ -5,3 +5,21 @@ ignore = ["E501"]
 [lint.per-file-ignores]
 "tests/*" = ["S101"]
 "src/db/migrations/*" = ["E402"]
+# __init__ modules re-export symbols for convenient imports and to register
+# SQLAlchemy models with the metadata; unused-import is expected there.
+"**/__init__.py" = ["F401"]
+
+# FastAPI dependency-injection helpers are intentionally called in argument
+# defaults (Depends, Query, etc.); B008 is a false positive for these.
+[lint.flake8-bugbear]
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Query",
+    "fastapi.Path",
+    "fastapi.Body",
+    "fastapi.Header",
+    "fastapi.Form",
+    "fastapi.File",
+    "fastapi.Cookie",
+    "fastapi.Security",
+]

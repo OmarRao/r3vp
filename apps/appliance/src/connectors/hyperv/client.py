@@ -15,11 +15,9 @@ https://www.linkedin.com/in/omarrao/
 """
 from __future__ import annotations
 
-import asyncio
-import socket
 import uuid
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -135,9 +133,9 @@ class HyperVClient:
                 creation_str = snap.CreationTime or ""
                 try:
                     # WMI datetime: yyyymmddHHMMSS.ffffff+UUU
-                    creation_dt = datetime.strptime(creation_str[:14], "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
+                    creation_dt = datetime.strptime(creation_str[:14], "%Y%m%d%H%M%S").replace(tzinfo=UTC)
                 except ValueError:
-                    creation_dt = datetime.now(timezone.utc)
+                    creation_dt = datetime.now(UTC)
                 result.append(
                     HyperVCheckpoint(
                         checkpoint_id=snap.InstanceID,
@@ -157,7 +155,7 @@ class HyperVClient:
         if not self._wmi:
             return None
         try:
-            name = checkpoint_name or f"R3VP-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+            name = checkpoint_name or f"R3VP-{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}"
             svc = self._wmi.ExecQuery(
                 "SELECT * FROM Msvm_VirtualSystemSnapshotService"
             )[0]

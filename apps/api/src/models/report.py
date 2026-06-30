@@ -1,10 +1,13 @@
 """Persisted compliance report records."""
 from __future__ import annotations
+
 import uuid
 from datetime import datetime
-from sqlalchemy import String, ForeignKey, DateTime, func
+
+from sqlalchemy import DateTime, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
+
 from .base import Base
 
 

@@ -4,8 +4,8 @@ Revision ID: 0005
 Revises: 0004
 Create Date: 2026-06-15
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "0005"
@@ -48,7 +48,7 @@ def upgrade() -> None:
         sa.Column("host", sa.String(255), nullable=False),
         sa.Column("indicator_type", sa.String(50), nullable=False),
         sa.Column("indicator_value", sa.String(1024), nullable=False),
-        sa.Column("context", postgresql.JSONB, server_default="{}"),
+        sa.Column("context", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")),
         sa.Column("mitre_technique", sa.String(50)),
         sa.Column("status", sa.String(50), server_default="'active'"),
         sa.Column("detected_at", sa.DateTime(timezone=True), nullable=False),
@@ -77,7 +77,7 @@ def upgrade() -> None:
         sa.Column("siem_dispatched", sa.Boolean, server_default="false"),
         sa.Column("veeamone_reported", sa.Boolean, server_default="false"),
         sa.Column("notifications_sent", sa.Boolean, server_default="false"),
-        sa.Column("ir_log", postgresql.JSONB, server_default="'[]'"),
+        sa.Column("ir_log", postgresql.JSONB, server_default=sa.text("'[]'::jsonb")),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.text("now()")),
         sa.Column("resolved_at", sa.DateTime(timezone=True)),
     )

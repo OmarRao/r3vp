@@ -1,6 +1,9 @@
 [lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
-ignore = ["E501"]
+# E501: line length handled by formatter.
+# UP042: str+Enum mix-ins are intentional for JSON-serialisable enum values
+# (switching to StrEnum would change str() semantics).
+ignore = ["E501", "UP042"]
 
 [lint.per-file-ignores]
 "tests/*" = ["S101"]

@@ -1,12 +1,15 @@
 """RBAC models: roles, permissions, team memberships, and API keys."""
 from __future__ import annotations
+
 import hashlib
 import secrets
 import uuid
-from datetime import datetime, timezone
-from sqlalchemy import String, ForeignKey, DateTime, Boolean, UniqueConstraint, func
+from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
+
 from .base import Base
 
 

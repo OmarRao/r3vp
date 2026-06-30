@@ -9,6 +9,8 @@ from src.models.appliance import Org, Appliance
 from src.models.workload import Workload
 from src.services.appliance import accept_inventory_sync
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.mark.asyncio
 async def test_inventory_sync_upsert(db_session):

@@ -6,13 +6,14 @@ provisioning, and VM power/tools state polling for recovery validation.
 from __future__ import annotations
 
 import ssl
+
 import structlog
-from pyVim.connect import SmartConnect, Disconnect
-from pyVmomi import vim, vmodl
-from contextlib import contextmanager
+from pyVim.connect import Disconnect, SmartConnect
+from pyVmomi import vim
 
 from src.config import settings
-from .models import VCenterVM, VCenterNetwork, VCenterDatastore
+
+from .models import VCenterDatastore, VCenterNetwork, VCenterVM
 
 log = structlog.get_logger()
 
@@ -151,7 +152,8 @@ class VCenterClient:
             vim.TaskInfo.State.success,
             vim.TaskInfo.State.error,
         ):
-            import time; time.sleep(2)
+            import time
+            time.sleep(2)
         if task.info.state == vim.TaskInfo.State.error:
             raise RuntimeError(f"Screenshot failed: {task.info.error.localizedMessage}")
         # Download the screenshot file from the datastore

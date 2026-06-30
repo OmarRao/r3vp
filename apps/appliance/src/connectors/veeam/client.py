@@ -10,13 +10,19 @@ https://www.linkedin.com/in/omarrao/
 """
 from __future__ import annotations
 
+from datetime import datetime, timedelta
+
 import httpx
 import structlog
-from datetime import datetime, timedelta
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from src.config import settings
-from .models import VeeamJob, VeeamVM, VeeamRestorePoint, VeeamRepository, VeeamMalwareEvent, VeeamJobSession
+
+from .models import (
+    VeeamJob,
+    VeeamRestorePoint,
+    VeeamVM,
+)
 
 log = structlog.get_logger()
 

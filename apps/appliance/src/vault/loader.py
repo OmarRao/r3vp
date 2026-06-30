@@ -4,6 +4,7 @@ Secrets are encrypted with age using a customer-managed key that never
 leaves the customer environment. The plaintext is held only in memory.
 """
 import subprocess
+
 import yaml
 from pydantic import SecretStr
 

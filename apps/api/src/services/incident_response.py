@@ -14,11 +14,11 @@ Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy -- http
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
 
 from src.models.threat_scan import ThreatFinding, ThreatIncident
 
@@ -69,7 +69,7 @@ async def handle_threat_finding(
             "step": step,
             "detail": detail,
             "success": success,
-            "ts": datetime.now(timezone.utc).isoformat(),
+            "ts": datetime.now(UTC).isoformat(),
         }
         ir_log.append(entry)
         log.info("incident_response.step", incident=incident_number, step=step, success=success)
@@ -141,7 +141,11 @@ async def _trigger_backup(host: str) -> str:
 
 
 async def _dispatch_soar(finding: ThreatFinding, incident_number: str, config: dict) -> str | None:
-    from src.integrations.soar import dispatch_to_splunk_soar, dispatch_to_xsoar, dispatch_generic_webhook
+    from src.integrations.soar import (
+        dispatch_generic_webhook,
+        dispatch_to_splunk_soar,
+        dispatch_to_xsoar,
+    )
     platform = config.get("platform", "generic")
     kwargs = dict(
         incident_title=f"R3VP {incident_number} - {finding.threat_name}",
@@ -213,7 +217,7 @@ async def _send_incident_notifications(
     incident_number: str,
     channels: list[dict],
 ) -> None:
-    from src.services.notifications import _send_slack, _send_teams, _send_email_ses
+    from src.services.notifications import _send_email_ses, _send_slack, _send_teams
     msg = (
         f"*INCIDENT {incident_number}*: {finding.threat_name} detected on {finding.host}. "
         f"Severity: {finding.severity.upper()}. "
@@ -229,10 +233,10 @@ async def _send_incident_notifications(
             ch_type = ch.get("channel_type", "")
             dest = ch.get("destination", "")
             if ch_type == "slack":
-                await _send_slack(dest, msg, "critical")
+                await _send_slack(dest, f"Incident {incident_number}", str(incident_number), msg)
             elif ch_type == "teams":
-                await _send_teams(dest, msg, "critical")
+                await _send_teams(dest, f"Incident {incident_number}", str(incident_number), msg)
             elif ch_type == "email":
-                await _send_email_ses(dest, f"R3VP Incident: {incident_number}", msg)
+                await _send_email_ses(dest, f"R3VP Incident: {incident_number}", str(incident_number), msg)
         except Exception as exc:
             log.warning("ir.notification.failed", channel=ch.get("name"), error=str(exc))

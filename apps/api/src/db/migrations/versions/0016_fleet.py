@@ -3,8 +3,8 @@
 Revision ID: 0016
 Revises: 0014
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "0016"
@@ -22,8 +22,8 @@ def upgrade() -> None:
         sa.Column("description", sa.String(500), server_default=""),
         sa.Column("site_name", sa.String(200), nullable=True),
         sa.Column("region", sa.String(100), nullable=True),
-        sa.Column("tags", postgresql.JSONB, server_default="[]"),
-        sa.Column("config_template", postgresql.JSONB, server_default="{}"),
+        sa.Column("tags", postgresql.JSONB, server_default=sa.text("'[]'::jsonb")),
+        sa.Column("config_template", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
         sa.Column("created_by", postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id"), nullable=True),
     )
@@ -54,7 +54,7 @@ def upgrade() -> None:
         sa.Column("last_test_run_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("version", sa.String(20), nullable=True),
         sa.Column("uptime_hours", sa.Integer, nullable=True),
-        sa.Column("alerts", postgresql.JSONB, server_default="[]"),
+        sa.Column("alerts", postgresql.JSONB, server_default=sa.text("'[]'::jsonb")),
         sa.Column("recorded_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
     op.create_index("ix_appliance_health_snapshots_appliance_id", "appliance_health_snapshots", ["appliance_id"])
@@ -65,10 +65,10 @@ def upgrade() -> None:
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column("org_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("group_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("appliance_groups.id"), nullable=True),
-        sa.Column("config", postgresql.JSONB, server_default="{}"),
-        sa.Column("target_appliance_ids", postgresql.JSONB, server_default="[]"),
+        sa.Column("config", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")),
+        sa.Column("target_appliance_ids", postgresql.JSONB, server_default=sa.text("'[]'::jsonb")),
         sa.Column("status", sa.String(20), server_default="pending"),
-        sa.Column("results", postgresql.JSONB, server_default="[]"),
+        sa.Column("results", postgresql.JSONB, server_default=sa.text("'[]'::jsonb")),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
         sa.Column("completed_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("created_by", postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id"), nullable=True),

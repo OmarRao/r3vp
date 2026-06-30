@@ -1,5 +1,6 @@
 """Custom compliance framework evaluation engine."""
 from __future__ import annotations
+
 from typing import Any
 
 BUILTIN_FRAMEWORKS = [

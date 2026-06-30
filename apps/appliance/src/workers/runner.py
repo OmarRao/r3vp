@@ -3,19 +3,19 @@ from temporalio.client import Client, TLSConfig
 from temporalio.worker import Worker
 
 from src.config import settings
-from src.workflows.recovery_test import RecoveryTestWorkflow
 from src.workflows.activities import (
-    sync_inventory,
-    select_restore_point,
-    provision_isolated_network,
-    start_instant_recovery,
-    wait_for_vm_boot,
-    run_health_checks,
     capture_evidence,
+    provision_isolated_network,
     record_rto_rpo,
     report_results,
+    run_health_checks,
+    select_restore_point,
+    start_instant_recovery,
+    sync_inventory,
     teardown_isolated_env,
+    wait_for_vm_boot,
 )
+from src.workflows.recovery_test import RecoveryTestWorkflow
 
 
 async def run_worker() -> None:

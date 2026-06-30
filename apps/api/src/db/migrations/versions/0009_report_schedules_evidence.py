@@ -3,8 +3,8 @@
 Revision ID: 0009
 Revises: 0008
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "0009"
@@ -22,7 +22,7 @@ def upgrade() -> None:
         sa.Column("report_type", sa.String(50), nullable=False),
         sa.Column("cron", sa.String(100), nullable=False),
         sa.Column("period_days", sa.Integer, nullable=False, server_default="30"),
-        sa.Column("recipients", postgresql.JSONB, nullable=False, server_default="[]"),
+        sa.Column("recipients", postgresql.JSONB, nullable=False, server_default=sa.text("'[]'::jsonb")),
         sa.Column("enabled", sa.Boolean, nullable=False, server_default="true"),
         sa.Column("last_run_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("next_run_at", sa.DateTime(timezone=True), nullable=True),

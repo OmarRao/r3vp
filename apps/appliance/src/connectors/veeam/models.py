@@ -7,25 +7,34 @@ Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
 https://www.linkedin.com/in/omarrao/
 """
 from __future__ import annotations
+
 from datetime import datetime
-from pydantic import BaseModel, Field
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class VeeamJob(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
+
     id: str
     name: str
     type: str = ""
-    isDisabled: bool = False
     description: str = ""
+    is_enabled: bool = Field(default=True, alias="isEnabled")
+    last_run: datetime | None = Field(default=None, alias="lastRun")
+    status: str = ""
 
 
 class VeeamVM(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
+
     objectId: str
     name: str
     platform: str = "vmware"
     osType: str | None = None
     isProtected: bool = True
     backupJobsCount: int = 0
+    restore_points_count: int = Field(default=0, alias="restorePointsCount")
 
     # Keep legacy aliases so existing code calling vm.object_id / vm.last_backup still works
     @property
@@ -38,20 +47,20 @@ class VeeamVM(BaseModel):
 
 
 class VeeamRestorePoint(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
+
     id: str
     name: str = ""
     creationTime: datetime
     objectId: str = ""
     backupSize: int = 0
+    is_consistent: bool = Field(default=True, alias="isConsistent")
+    backup_size_bytes: int = Field(default=0, alias="backupSizeBytes")
 
-    # Legacy aliases used by existing activities
+    # Legacy alias used by existing activities
     @property
     def creation_time(self) -> datetime:
         return self.creationTime
-
-    @property
-    def is_consistent(self) -> bool:
-        return True
 
 
 class VeeamRepository(BaseModel):

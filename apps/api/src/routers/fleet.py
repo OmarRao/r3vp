@@ -1,15 +1,20 @@
 """Appliance fleet management: groups, health, bulk config, cross-site view."""
 from __future__ import annotations
+
 import uuid
-from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import select, func as sqlfunc
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import AuthUser
 from src.db.session import get_db
-from src.models.fleet import ApplianceGroup, ApplianceGroupMember, ApplianceHealthSnapshot, BulkConfigJob
+from src.models.fleet import (
+    ApplianceGroup,
+    ApplianceHealthSnapshot,
+    BulkConfigJob,
+)
 from src.services.rbac import require_permission
 
 router = APIRouter()

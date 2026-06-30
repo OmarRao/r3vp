@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 import structlog
 from temporalio import activity
 
 from src.config import settings
-from src.connectors.veeam.client import VeeamClient
 from src.connectors.vcenter.client import VCenterClient
+from src.connectors.veeam.client import VeeamClient
 from src.relay.client import RelayClient
 
 log = structlog.get_logger()
@@ -105,7 +106,7 @@ async def select_restore_point(inp: SelectRestorePointInput) -> str:
     if not consistent:
         raise RuntimeError("No consistent restore points available")
     best = max(consistent, key=lambda p: p.creation_time)
-    age_mins = (datetime.now(timezone.utc) - best.creation_time).seconds // 60
+    age_mins = (datetime.now(UTC) - best.creation_time).seconds // 60
     log.info("restore point selected", id=best.id, age_mins=age_mins)
     return best.id
 
@@ -153,8 +154,8 @@ async def wait_for_vm_boot(inp: WaitForBootInput) -> str:
 
 @activity.defn
 async def run_health_checks(inp: RunHealthChecksInput) -> list[dict]:
-    from src.health_checks.windows_os import WindowsOSHealthCheck
     from src.health_checks.linux_os import LinuxOSHealthCheck
+    from src.health_checks.windows_os import WindowsOSHealthCheck
     checks = [WindowsOSHealthCheck(), LinuxOSHealthCheck()]
     results = []
     for check in checks:
@@ -281,6 +282,7 @@ async def detect_provider_vms(inp: SyncInventoryInput) -> list[dict]:
 
     elif provider == "proxmox":
         import asyncio
+
         from src.connectors.proxmox.client import ProxmoxClient
         client = ProxmoxClient()
         if await asyncio.to_thread(client.connect):
@@ -296,6 +298,7 @@ async def detect_provider_vms(inp: SyncInventoryInput) -> list[dict]:
 
     elif provider == "rhv":
         import asyncio
+
         from src.connectors.rhv.client import RHVClient
         client = RHVClient()
         if await asyncio.to_thread(client.connect):
@@ -304,6 +307,7 @@ async def detect_provider_vms(inp: SyncInventoryInput) -> list[dict]:
 
     elif provider == "xenserver":
         import asyncio
+
         from src.connectors.xenserver.client import XenServerClient
         client = XenServerClient()
         if await asyncio.to_thread(client.connect):
@@ -319,6 +323,7 @@ async def detect_provider_vms(inp: SyncInventoryInput) -> list[dict]:
 
     elif provider == "gcp":
         import asyncio
+
         from src.connectors.gcp_backup.client import GCPBackupClient
         client = GCPBackupClient()
         if await asyncio.to_thread(client.connect):

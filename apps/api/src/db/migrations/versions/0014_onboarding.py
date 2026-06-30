@@ -3,8 +3,8 @@
 Revision ID: 0014
 Revises: 0013
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "0014"
@@ -21,7 +21,7 @@ def upgrade() -> None:
         sa.Column("current_step", sa.Integer, server_default="1"),
         sa.Column("completed", sa.Boolean, server_default="false"),
         sa.Column("dismissed", sa.Boolean, server_default="false"),
-        sa.Column("step_data", postgresql.JSONB, server_default="{}"),
+        sa.Column("step_data", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")),
         sa.Column("started_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
         sa.Column("completed_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("created_by", postgresql.UUID(as_uuid=True), sa.ForeignKey("users.id"), nullable=True),

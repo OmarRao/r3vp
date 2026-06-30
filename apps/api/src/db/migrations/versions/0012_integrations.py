@@ -5,8 +5,8 @@ Revises: 0011
 """
 # Author: Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
 # https://www.linkedin.com/in/omarrao/
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "0012"
@@ -22,8 +22,8 @@ def upgrade() -> None:
         sa.Column("org_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("integration_type", sa.String(50), nullable=False),
         sa.Column("name", sa.String(200), nullable=False),
-        sa.Column("config", postgresql.JSONB, nullable=False, server_default="{}"),
-        sa.Column("trigger_events", postgresql.JSONB, nullable=False, server_default="[]"),
+        sa.Column("config", postgresql.JSONB, nullable=False, server_default=sa.text("'{}'::jsonb")),
+        sa.Column("trigger_events", postgresql.JSONB, nullable=False, server_default=sa.text("'[]'::jsonb")),
         sa.Column("enabled", sa.Boolean, server_default="true"),
         sa.Column("last_triggered_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("last_status", sa.String(20), nullable=True),
@@ -38,7 +38,7 @@ def upgrade() -> None:
         sa.Column("integration_id", postgresql.UUID(as_uuid=True), sa.ForeignKey("integrations.id"), nullable=False),
         sa.Column("org_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("event_type", sa.String(50), nullable=False),
-        sa.Column("payload", postgresql.JSONB, server_default="{}"),
+        sa.Column("payload", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")),
         sa.Column("status", sa.String(20), nullable=False),
         sa.Column("error_detail", sa.String(1000), nullable=True),
         sa.Column("triggered_at", sa.DateTime(timezone=True), server_default=sa.func.now()),

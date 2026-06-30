@@ -9,6 +9,7 @@ https://www.linkedin.com/in/omarrao/
 from __future__ import annotations
 
 from dataclasses import dataclass
+
 import structlog
 
 from src.config import settings

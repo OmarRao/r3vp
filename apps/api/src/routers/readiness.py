@@ -1,13 +1,16 @@
 from __future__ import annotations
+
+from datetime import UTC
+
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select, func, case
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import AuthUser
 from src.db.session import get_db
-from src.models.workload import Workload
 from src.models.appliance import Appliance
 from src.models.test_run import TestRun
+from src.models.workload import Workload
 
 router = APIRouter()
 
@@ -66,9 +69,9 @@ async def coverage(
     days: int = Query(30, ge=1, le=365),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timedelta
 
-    since = datetime.now(timezone.utc) - timedelta(days=days)
+    since = datetime.now(UTC) - timedelta(days=days)
 
     total_row = await db.scalar(
         select(func.count(Workload.id))

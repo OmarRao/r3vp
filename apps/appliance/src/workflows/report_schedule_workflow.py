@@ -1,8 +1,10 @@
 """Temporal workflow for scheduled compliance report delivery."""
 from __future__ import annotations
+
 import logging
-from datetime import timedelta
-from temporalio import workflow, activity
+from datetime import UTC, timedelta
+
+from temporalio import activity, workflow
 from temporalio.common import RetryPolicy
 
 logger = logging.getLogger(__name__)
@@ -13,9 +15,10 @@ RETRY = RetryPolicy(maximum_attempts=3, initial_interval=timedelta(seconds=30))
 @activity.defn
 async def fetch_schedule_config(schedule_id: str) -> dict:
     """Fetch schedule config and date range from the SaaS API."""
-    import httpx
     import os
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timedelta
+
+    import httpx
 
     base = os.getenv("R3VP_API_URL", "https://api.r3vp.io")
     token = os.getenv("R3VP_APPLIANCE_TOKEN", "")
@@ -27,7 +30,7 @@ async def fetch_schedule_config(schedule_id: str) -> dict:
         resp.raise_for_status()
         schedule = resp.json()
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     period_days = schedule.get("period_days", 30)
     to_date = now.strftime("%Y-%m-%d")
     from_date = (now - timedelta(days=period_days)).strftime("%Y-%m-%d")
@@ -45,9 +48,11 @@ async def fetch_schedule_config(schedule_id: str) -> dict:
 @activity.defn
 async def generate_and_deliver_report(config: dict) -> dict:
     """Generate the compliance PDF and deliver to all recipients."""
-    import httpx
     import os
-    from src.services.delivery import deliver_report, DeliveryRecipient
+
+    import httpx
+
+    from src.services.delivery import DeliveryRecipient, deliver_report
 
     base = os.getenv("R3VP_API_URL", "https://api.r3vp.io")
     token = os.getenv("R3VP_APPLIANCE_TOKEN", "")

@@ -1,6 +1,6 @@
 """SAML 2.0 SSO configuration endpoints."""
 from __future__ import annotations
-import uuid
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select

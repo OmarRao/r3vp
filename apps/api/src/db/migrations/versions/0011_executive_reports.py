@@ -3,8 +3,8 @@
 Revision ID: 0011
 Revises: 0010
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "0011"
@@ -19,7 +19,7 @@ def upgrade() -> None:
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column("org_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("cadence", sa.String(20), nullable=False),
-        sa.Column("recipients", postgresql.JSONB, nullable=False, server_default="[]"),
+        sa.Column("recipients", postgresql.JSONB, nullable=False, server_default=sa.text("'[]'::jsonb")),
         sa.Column("include_scorecard", sa.Boolean, server_default="true"),
         sa.Column("include_trend_chart", sa.Boolean, server_default="true"),
         sa.Column("include_provider_breakdown", sa.Boolean, server_default="true"),
@@ -43,8 +43,8 @@ def upgrade() -> None:
         sa.Column("rto_compliance_pct", sa.Integer, server_default="0"),
         sa.Column("active_threats", sa.Integer, server_default="0"),
         sa.Column("open_incidents", sa.Integer, server_default="0"),
-        sa.Column("provider_breakdown", postgresql.JSONB, server_default="{}"),
-        sa.Column("top_risks", postgresql.JSONB, server_default="[]"),
+        sa.Column("provider_breakdown", postgresql.JSONB, server_default=sa.text("'{}'::jsonb")),
+        sa.Column("top_risks", postgresql.JSONB, server_default=sa.text("'[]'::jsonb")),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )
     op.create_index("ix_scorecard_snapshots_org_id", "scorecard_snapshots", ["org_id"])

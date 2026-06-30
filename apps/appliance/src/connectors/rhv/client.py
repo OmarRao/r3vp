@@ -9,6 +9,7 @@ https://www.linkedin.com/in/omarrao/
 from __future__ import annotations
 
 from dataclasses import dataclass
+
 import structlog
 
 from src.config import settings
@@ -160,7 +161,6 @@ class RHVClient:
         try:
             if self._conn is None:
                 raise AttributeError("not connected")
-            import ovirtsdk4.types as types  # type: ignore
             vms_service = self._conn.system_service().vms_service()
             vm_service = vms_service.vm_service(vm_id)
             snaps_service = vm_service.snapshots_service()

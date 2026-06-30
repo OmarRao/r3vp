@@ -1,6 +1,9 @@
 from __future__ import annotations
+
+from datetime import UTC
+
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.auth import AuthUser
@@ -52,17 +55,18 @@ async def export_audit_csv(
     to_date: str = Query(..., description="ISO date e.g. 2026-12-31"),
     db: AsyncSession = Depends(get_db),
 ):
-    from fastapi.responses import StreamingResponse
-    from fastapi import HTTPException
-    from datetime import datetime, timezone
     import csv
     import io
+    from datetime import datetime
+
+    from fastapi import HTTPException
+    from fastapi.responses import StreamingResponse
 
     try:
-        from_dt = datetime.fromisoformat(from_date).replace(tzinfo=timezone.utc)
-        to_dt = datetime.fromisoformat(to_date).replace(tzinfo=timezone.utc)
-    except ValueError:
-        raise HTTPException(400, "Invalid date format. Use ISO 8601 e.g. 2026-01-01")
+        from_dt = datetime.fromisoformat(from_date).replace(tzinfo=UTC)
+        to_dt = datetime.fromisoformat(to_date).replace(tzinfo=UTC)
+    except ValueError as exc:
+        raise HTTPException(400, "Invalid date format. Use ISO 8601 e.g. 2026-01-01") from exc
 
     if (to_dt - from_dt).days > 90:
         raise HTTPException(400, "Date range cannot exceed 90 days")

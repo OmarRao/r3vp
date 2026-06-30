@@ -33,6 +33,11 @@ dev = [
     "mypy>=1.10",
 ]
 
+[tool.pytest.ini_options]
+markers = [
+    "integration: tests that require a real database (run in the integration CI job)",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

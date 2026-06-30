@@ -8,8 +8,8 @@ Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy -- http
 """
 from __future__ import annotations
 
-import structlog
 import httpx
+import structlog
 
 log = structlog.get_logger()
 

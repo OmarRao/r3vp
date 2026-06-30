@@ -11,7 +11,7 @@ https://www.linkedin.com/in/omarrao/
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -54,7 +54,7 @@ class AzureRestoreJob:
     job_id: str
     operation: str = "Restore"
     status: str = "InProgress"   # "InProgress", "Completed", "Failed", "Cancelled"
-    start_time: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    start_time: datetime = field(default_factory=lambda: datetime.now(UTC))
     end_time: datetime | None = None
     restored_vm_name: str = ""
 
@@ -155,7 +155,7 @@ class AzureBackupClient:
             result = []
             for rp in rps:
                 props = rp.properties
-                rp_time = getattr(props, "recovery_point_time", datetime.now(timezone.utc))
+                rp_time = getattr(props, "recovery_point_time", datetime.now(UTC))
                 rp_type = getattr(props, "recovery_point_type", "Full")
                 result.append(
                     AzureRecoveryPoint(

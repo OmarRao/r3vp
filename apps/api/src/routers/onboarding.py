@@ -1,6 +1,8 @@
 """Onboarding wizard API: session management and step progression."""
 from __future__ import annotations
-from datetime import datetime, timezone
+
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -9,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth import AuthUser
 from src.db.session import get_db
 from src.models.onboarding import OnboardingSession
-from src.services.onboarding import STEPS, get_step_definition, compute_progress
+from src.services.onboarding import STEPS, compute_progress, get_step_definition
 
 router = APIRouter()
 
@@ -70,7 +72,7 @@ async def update_step(body: UpdateStepRequest, user: AuthUser, db: AsyncSession 
         progress = compute_progress(session.step_data)
         if progress["percent"] >= 80:
             session.completed = True
-            session.completed_at = datetime.now(timezone.utc)
+            session.completed_at = datetime.now(UTC)
 
     await db.commit()
     await db.refresh(session)

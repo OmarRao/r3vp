@@ -3,8 +3,8 @@
 Revision ID: 0008
 Revises: 0007
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "0008"
@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column("status", sa.String(20), nullable=False, server_default="generating"),
         sa.Column("sha256", sa.String(64), nullable=True),
         sa.Column("storage_path", sa.String(512), nullable=True),
-        sa.Column("summary", postgresql.JSONB, nullable=False, server_default="{}"),
+        sa.Column("summary", postgresql.JSONB, nullable=False, server_default=sa.text("'{}'::jsonb")),
     )
     op.create_index("ix_compliance_reports_org_id", "compliance_reports", ["org_id"])
     op.create_index("ix_compliance_reports_generated_at", "compliance_reports", ["generated_at"])

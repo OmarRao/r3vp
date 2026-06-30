@@ -10,9 +10,8 @@ https://www.linkedin.com/in/omarrao/
 """
 from __future__ import annotations
 
-import asyncio
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -45,7 +44,7 @@ class AWSRestoreJob:
     recovery_point_arn: str
     status: str = "PENDING"
     created_resource_arn: str = ""
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 def _try_import_boto3() -> Any:

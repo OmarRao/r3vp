@@ -76,9 +76,12 @@ def is_false_positive(finding: dict[str, Any], fp_list: list[dict[str, Any]]) ->
     package = finding.get("package", "")
 
     for entry in fp_list:
-        if entry.get("cve_id") and entry["cve_id"] == cve_id:
-            if not entry.get("package") or entry["package"] == package:
-                return True
+        if (
+            entry.get("cve_id")
+            and entry["cve_id"] == cve_id
+            and (not entry.get("package") or entry["package"] == package)
+        ):
+            return True
     return False
 
 

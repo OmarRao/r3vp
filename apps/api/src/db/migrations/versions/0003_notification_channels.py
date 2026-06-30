@@ -4,8 +4,8 @@ Revision ID: 0003
 Revises: 0002
 Create Date: 2026-06-15
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "0003"
@@ -22,7 +22,7 @@ def upgrade() -> None:
         sa.Column("name", sa.String(100), nullable=False),
         sa.Column("channel_type", sa.String(50), nullable=False),
         sa.Column("destination", sa.String(512), nullable=False),
-        sa.Column("events", postgresql.JSONB, server_default="[]"),
+        sa.Column("events", postgresql.JSONB, server_default=sa.text("'[]'::jsonb")),
         sa.Column("enabled", sa.Boolean, server_default="true"),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now()),
     )

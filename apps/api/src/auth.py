@@ -41,7 +41,7 @@ def _decode_token(token: str) -> dict:
     try:
         signing_key = _jwk_client().get_signing_key_from_jwt(token)
     except (InvalidTokenError, jwt.PyJWKClientError) as exc:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, f"Invalid token header: {exc}")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, f"Invalid token header: {exc}") from exc
 
     try:
         payload: dict = jwt.decode(
@@ -52,7 +52,7 @@ def _decode_token(token: str) -> dict:
             issuer=f"https://{settings.auth0_domain}/",
         )
     except InvalidTokenError as exc:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, f"Token validation failed: {exc}")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, f"Token validation failed: {exc}") from exc
 
     return payload
 
@@ -69,8 +69,8 @@ async def get_current_user(
 
     try:
         org_id = uuid.UUID(str(org_raw))
-    except ValueError:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Invalid org_id in token")
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Invalid org_id in token") from exc
 
     return CurrentUser(
         sub=payload["sub"],

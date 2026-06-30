@@ -2,14 +2,14 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import select, update
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.appliance import Appliance, Org
-from src.models.test_run import TestRun, AuditEvent
+from src.models.test_run import AuditEvent, TestRun
 
 
 async def register_appliance(
@@ -35,7 +35,7 @@ async def register_appliance(
             mtls_thumbprint=mtls_thumbprint,
             version=version,
             status="active",
-            last_heartbeat=datetime.now(timezone.utc),
+            last_heartbeat=datetime.now(UTC),
         )
         .on_conflict_do_update(
             index_elements=["id"],
@@ -43,7 +43,7 @@ async def register_appliance(
                 "mtls_thumbprint": mtls_thumbprint,
                 "version": version,
                 "status": "active",
-                "last_heartbeat": datetime.now(timezone.utc),
+                "last_heartbeat": datetime.now(UTC),
             },
         )
         .returning(Appliance)
@@ -63,7 +63,7 @@ async def record_heartbeat(
     appliance_id: uuid.UUID,
     version: str,
 ) -> datetime:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     await db.execute(
         update(Appliance)
         .where(Appliance.id == appliance_id)
@@ -106,8 +106,9 @@ async def accept_inventory_sync(
     vms: list[dict],
 ) -> int:
     """Upsert workloads discovered by the appliance. Returns count upserted."""
-    from src.models.workload import Workload
     from sqlalchemy.dialects.postgresql import insert as pg_insert
+
+    from src.models.workload import Workload
 
     upserted = 0
     for vm in vms:
@@ -149,10 +150,11 @@ async def update_run_progress(
     status: str,
     detail: dict,
 ) -> None:
-    from src.models.test_run import TestRunStep
     from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-    now = datetime.now(timezone.utc)
+    from src.models.test_run import TestRunStep
+
+    now = datetime.now(UTC)
     await db.execute(
         pg_insert(TestRunStep)
         .values(run_id=run_id, step_name=step, status=status,
@@ -180,7 +182,7 @@ async def finalise_run(
     readiness_score: int,
     failure_reason: str | None,
 ) -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     await db.execute(
         update(TestRun)
         .where(TestRun.id == run_id)
@@ -197,8 +199,8 @@ async def finalise_run(
 
     # Send breach notifications (best-effort)
     try:
-        from src.models.workload import Workload
         from src.models.appliance import Appliance as App
+        from src.models.workload import Workload
         from src.services.notifications import send_breach_notifications
         run_row = await db.scalar(select(TestRun).where(TestRun.id == run_id))
         if run_row:

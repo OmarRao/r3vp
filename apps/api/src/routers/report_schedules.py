@@ -1,7 +1,9 @@
 """CRUD endpoints for scheduled compliance report delivery."""
 from __future__ import annotations
+
 import uuid
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -72,7 +74,7 @@ async def create_schedule(
         cron=cron,
         period_days=body.period_days,
         recipients=body.recipients,
-        next_run_at=datetime.now(timezone.utc) + timedelta(days=1),
+        next_run_at=datetime.now(UTC) + timedelta(days=1),
         created_by=getattr(user, "user_id", None),
     )
     db.add(schedule)
