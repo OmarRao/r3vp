@@ -119,6 +119,58 @@ th,td{padding:10px 16px}
     </div>
   </div>
 
+  <!-- Risk Heatmap -->
+  <div class="card">
+    <div class="card-hd">Risk Heatmap <span style="font-size:11px;font-weight:400;color:#94A3B8;margin-left:6px">Business criticality vs days since last validation</span></div>
+    <div class="card-body">
+      <table style="border-collapse:separate;border-spacing:6px">
+        <thead>
+          <tr>
+            <th></th>
+            <th style="font-size:10px;font-weight:600;color:#94A3B8;text-align:center;padding:0 4px">0-3 days</th>
+            <th style="font-size:10px;font-weight:600;color:#94A3B8;text-align:center;padding:0 4px">4-7 days</th>
+            <th style="font-size:10px;font-weight:600;color:#94A3B8;text-align:center;padding:0 4px">8-14 days</th>
+            <th style="font-size:10px;font-weight:600;color:#94A3B8;text-align:center;padding:0 4px">15-30 days</th>
+            <th style="font-size:10px;font-weight:600;color:#94A3B8;text-align:center;padding:0 4px">30+ days</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-size:12px;font-weight:600;color:#475569;white-space:nowrap;padding-right:10px">Tier 1 (Critical)</td>
+            <td style="background:#DCFCE7;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">38</td>
+            <td style="background:#FEF3C7;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">8</td>
+            <td style="background:#FED7AA;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">2</td>
+            <td style="background:#FECACA;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">1</td>
+            <td style="background:#EF4444;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#fff">1</td>
+          </tr>
+          <tr>
+            <td style="font-size:12px;font-weight:600;color:#475569;white-space:nowrap;padding-right:10px">Tier 2 (High)</td>
+            <td style="background:#DCFCE7;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">42</td>
+            <td style="background:#FEF3C7;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">14</td>
+            <td style="background:#FED7AA;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">5</td>
+            <td style="background:#FECACA;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">2</td>
+            <td style="background:#DCFCE7;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">0</td>
+          </tr>
+          <tr>
+            <td style="font-size:12px;font-weight:600;color:#475569;white-space:nowrap;padding-right:10px">Tier 3 (Standard)</td>
+            <td style="background:#DCFCE7;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">18</td>
+            <td style="background:#DCFCE7;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">6</td>
+            <td style="background:#FEF3C7;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">3</td>
+            <td style="background:#FED7AA;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">1</td>
+            <td style="background:#DCFCE7;border-radius:6px;text-align:center;width:84px;height:48px;font-weight:700;font-size:14px;color:#0F172A">0</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="display:flex;gap:16px;margin-top:14px;font-size:10px;color:#64748B">
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#DCFCE7;display:inline-block"></span>Low risk</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#FEF3C7;display:inline-block"></span>Moderate</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#FED7AA;display:inline-block"></span>Elevated</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#FECACA;display:inline-block"></span>High</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#EF4444;display:inline-block"></span>Critical</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Risk Ranking -->
   <div class="card">
     <div class="card-hd">Workload Risk Ranking <span style="font-size:11px;font-weight:400;color:#94A3B8;margin-left:6px">Scored by test recency, RTO ratio, and failure rate</span></div>
