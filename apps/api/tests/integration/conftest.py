@@ -4,6 +4,7 @@ from __future__ import annotations
 import os
 
 import pytest_asyncio
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 # Override settings before importing anything else
@@ -20,13 +21,18 @@ TEST_DB_URL = os.environ["R3VP_API_DATABASE_URL"]
 async def db_engine():
     engine = create_async_engine(TEST_DB_URL, echo=False)
     async with engine.begin() as conn:
-        # Drop first so the fixture is idempotent even when the database was
-        # already populated (e.g. by a prior "alembic upgrade head" CI step).
-        await conn.run_sync(Base.metadata.drop_all)
+        # Reset the whole schema so the fixture is idempotent even when the
+        # database was already populated by a prior "alembic upgrade head" CI
+        # step. A plain metadata.drop_all cannot drop migration-created tables
+        # that hold cross-table FKs (e.g. evidence_bundles -> compliance_reports)
+        # and are not part of the ORM metadata, so we drop the schema wholesale.
+        await conn.execute(text("DROP SCHEMA IF EXISTS public CASCADE"))
+        await conn.execute(text("CREATE SCHEMA public"))
         await conn.run_sync(Base.metadata.create_all)
     yield engine
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+        await conn.execute(text("DROP SCHEMA IF EXISTS public CASCADE"))
+        await conn.execute(text("CREATE SCHEMA public"))
     await engine.dispose()
 
 
