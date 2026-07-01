@@ -7,6 +7,17 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Source-Code Protection Hardening
+
+### Security / Supply Chain
+- Added `.github/CODEOWNERS` so the repository owner is a required reviewer, with explicit ownership of security-sensitive areas (auth, vault, relay, CI/CD, infra)
+- Corrected `SECURITY.md` staleness (supported branch is `master`, RBAC has 23 permissions)
+- Made the API integration-test CI job a blocking gate (removed the leftover `continue-on-error`), so DB/migration regressions fail CI
+- Renamed CI job names to remove em-dashes, giving clean status-check contexts for branch protection
+- Branch protection on `master` now requires all CI status checks to pass and changes to go through a pull request (in addition to blocking force-pushes and deletions). Secret scanning, push protection, and Dependabot remain enabled
+
+---
+
 ## [Unreleased] - QA Pass: Bug Fixes and Documentation Reconciliation
 
 ### Security
