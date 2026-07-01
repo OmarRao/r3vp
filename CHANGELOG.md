@@ -12,9 +12,9 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 ### Security / Supply Chain
 - Added `.github/CODEOWNERS` so the repository owner is a required reviewer, with explicit ownership of security-sensitive areas (auth, vault, relay, CI/CD, infra)
 - Corrected `SECURITY.md` staleness (supported branch is `master`, RBAC has 23 permissions)
-- Made the API integration-test CI job a blocking gate (removed the leftover `continue-on-error`), so DB/migration regressions fail CI
 - Renamed CI job names to remove em-dashes, giving clean status-check contexts for branch protection
-- Branch protection on `master` now requires all CI status checks to pass and changes to go through a pull request (in addition to blocking force-pushes and deletions). Secret scanning, push protection, and Dependabot remain enabled
+- Branch protection on `master` now requires the passing CI status checks (appliance lint/test, API unit lint/test, portal type-check/lint, Docker builds) and a pull request before merging, in addition to blocking force-pushes and deletions. Secret scanning, push protection, and Dependabot remain enabled
+- Fixed the integration-test fixture so it resets the schema wholesale (`metadata.drop_all` could not drop migration-created tables holding FKs). Promoting the integration job to a blocking gate surfaced that these two tests never actually passed (masked by `continue-on-error`) due to a pytest-asyncio fixture event-loop scope issue; the job remains advisory and running while that is repaired, and the `alembic upgrade head` migration step within it IS a hard gate
 
 ---
 
