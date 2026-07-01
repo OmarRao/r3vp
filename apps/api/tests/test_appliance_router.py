@@ -1,10 +1,11 @@
 """Unit tests for the appliance router — no DB required (service layer mocked)."""
 import uuid
-import pytest
 from unittest.mock import AsyncMock, patch
-from httpx import AsyncClient, ASGITransport
-from src.main import app
 
+import pytest
+from httpx import ASGITransport, AsyncClient
+
+from src.main import app
 
 APPLIANCE_ID = str(uuid.uuid4())
 ORG_ID = str(uuid.uuid4())

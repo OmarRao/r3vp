@@ -13,7 +13,7 @@ R3VP is an automated recovery validation platform that connects to your Veeam Ba
 
 &nbsp;&nbsp;&nbsp;**[&#127760; Live Sample Demo](https://omarrao.github.io/r3vp/demo.html)**&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;**[&#11015; Installing the Appliance](#installation)**
 
-> Interactive demo &mdash; full portal with live navigation, workloads, test runs, printable compliance reports, trends &amp; risk heatmap, MSSP console, AI insights, and more. No login required.
+> Interactive demo - full portal with live navigation, workloads, test runs, printable compliance reports, trends &amp; risk heatmap, MSSP console, AI insights, and more. No login required.
 
 ---
 
@@ -337,7 +337,7 @@ The guide is versioned alongside the codebase. Every release that adds or change
 - Step-by-step appliance deployment (Docker, OVA, AWS EC2)
 - Veeam and vCenter service account configuration
 - All 21 portal features documented with screenshots
-- RBAC permissions matrix (24 permissions across 5 roles)
+- RBAC permissions matrix (23 permissions across 5 roles)
 - API reference summary per module
 - Environment variables reference
 - Security architecture notes
@@ -398,7 +398,7 @@ Customer Environment                          Cloud (SaaS)
 |-------|-----------|
 | Appliance runtime | Python 3.12 + uv, Docker or OVA |
 | Workflow orchestration | Temporal.io (durable, saga teardown pattern) |
-| Veeam integration | Veeam B&R REST API v1.1 |
+| Veeam integration | Veeam B&R REST API v1.0 / v1.1 / v1.2 (auto-detected) |
 | VMware integration | pyVmomi |
 | SaaS backend | FastAPI + SQLAlchemy async + PostgreSQL 16 |
 | SaaS frontend | Next.js 15 + Auth0 + Recharts + Firebase Analytics |
@@ -485,7 +485,7 @@ R3VP_SAAS_BASE_URL=https://api.r3vp.io
 R3VP_MTLS_CERT_PATH=/certs/client.crt
 R3VP_MTLS_KEY_PATH=/certs/client.key
 R3VP_MTLS_CA_PATH=/certs/ca.crt
-R3VP_VEEAM_URL=https://your-veeam-server:9419
+R3VP_VEEAM_BASE_URL=https://your-veeam-server:9419
 R3VP_VEEAM_USERNAME=svc_r3vp@domain.local
 R3VP_VCENTER_HOST=your-vcenter.domain.local
 R3VP_VCENTER_USERNAME=svc_r3vp@vsphere.local
@@ -713,7 +713,7 @@ r3vp/
         models/         SQLAlchemy ORM models
         services/       Business logic
         db/             Alembic migrations
-    portal/             SaaS frontend (Next.js 14 + Auth0)
+    portal/             SaaS frontend (Next.js 15 + Auth0)
       app/              App Router pages
       components/       ReadinessGauge, RtoRpoChart, WorkloadGrid
   infra/

@@ -16,9 +16,8 @@ logger = logging.getLogger(__name__)
 def _parse_nvd_xml(xml_content: str) -> list[dict[str, Any]]:
     """Parse NVD CVE feed XML and return a list of vulnerability dicts.
 
-    Uses a safe XML parser to prevent XXE attacks (CWE-611).
-    The ``defusedxml`` library is preferred; when unavailable the stdlib
-    parser is used with entity expansion disabled.
+    Uses ``defusedxml`` to prevent XML External Entity (XXE) attacks and
+    entity-expansion bombs (CWE-611).
     """
     root = ET.fromstring(xml_content)
     entries: list[dict[str, Any]] = []

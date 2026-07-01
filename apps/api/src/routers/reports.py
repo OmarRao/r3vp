@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth import AuthUser
+from src.auth import AuthUser, resolve_local_user_id
 from src.db.session import get_db
 
 router = APIRouter()
@@ -114,7 +114,14 @@ async def cyber_insurance_report(
         workload_results=workload_results,
     )
 
-    pdf_bytes = weasyprint.HTML(string=html).write_pdf()
+    from fastapi.concurrency import run_in_threadpool
+
+    # write_pdf is CPU-bound and blocking; run it off the event loop and surface
+    # a clean 500 instead of an unhandled traceback if rendering fails.
+    try:
+        pdf_bytes = await run_in_threadpool(weasyprint.HTML(string=html).write_pdf)
+    except Exception as exc:
+        raise HTTPException(500, "Failed to generate cyber insurance report PDF") from exc
     filename = f"r3vp-cyber-insurance-{from_date}-{to_date}.pdf"
     return Response(
         content=pdf_bytes,
@@ -275,7 +282,12 @@ async def generate_compliance_report(
         workload_rows=workload_rows,
     )
 
-    pdf_bytes = weasyprint.HTML(string=html).write_pdf()
+    from fastapi.concurrency import run_in_threadpool
+
+    try:
+        pdf_bytes = await run_in_threadpool(weasyprint.HTML(string=html).write_pdf)
+    except Exception as exc:
+        raise HTTPException(500, "Failed to generate compliance report PDF") from exc
     sha256 = hashlib.sha256(pdf_bytes).hexdigest()
 
     record = ComplianceReport(
@@ -283,7 +295,7 @@ async def generate_compliance_report(
         report_type=report_type,
         from_date=from_date,
         to_date=to_date,
-        generated_by=user.user_id if hasattr(user, "user_id") else None,
+        generated_by=await resolve_local_user_id(db, user),
         status="ready",
         sha256=sha256,
         summary={

@@ -7,6 +7,27 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - QA Pass: Bug Fixes and Documentation Reconciliation
+
+### Security
+- Fixed a privilege-escalation gap: `CurrentUser.role` defaulted to `"admin"`, so `require_admin`/`AdminUser` passed for every authenticated user. Role is now read from the token claim and defaults to the non-privileged `viewer`. Added tests covering the default and `require_admin` enforcement
+
+### Fixed
+- API: scheduled test runs no longer orphan a row in `pending` when the Temporal enqueue fails; the run is marked `failed` with a reason
+- API: breach notifications used truthiness checks (`if rto_target and rto_actual ...`) that silently dropped a legitimate measured value of `0`; now use explicit `is not None`
+- API: `_send_email_ses` swallowed all errors, so callers wrongly recorded email delivery as successful; it now propagates failures
+- API: `generated_by` / `created_by` audit columns always stored `None` (looked up a nonexistent `user.user_id`); a new `resolve_local_user_id` helper maps the Auth0 `sub` to the local `users.id`
+- API: compliance/cyber-insurance PDF generation now runs `write_pdf` in a threadpool and returns a clean 500 on failure instead of blocking the event loop / raising an unhandled error
+- API: report-schedule creation now validates the cron expression and returns 400, instead of storing a schedule that silently never runs
+- Appliance: created the missing `src/services/delivery.py` (`DeliveryRecipient`, `deliver_report`) that `runbook_workflow` and `report_schedule_workflow` import; both would have raised `ModuleNotFoundError` at runtime
+- Appliance: AWS Backup restore passed `SecurityGroupIds` as a bare string; it must be a JSON-encoded array (`json.dumps([...])`) or the isolated-network SG is ignored
+- Appliance: vCenter datastore capacity read `info.maxFileSize` (a filesystem single-file limit) instead of `summary.capacity`
+
+### Documentation
+- Reconciled README and `docs/user-guide.md` with the code: RBAC section rewritten to the actual roles (`owner/admin/operator/auditor/viewer`) and 23 permissions from `rbac.py` (was a nonexistent `Analyst`/`MSSP Manager` set and "24 permissions"); corrected Next.js version (15), PostgreSQL version (16), Veeam API version range (v1.0/v1.1/v1.2), and the SaaS/portal environment-variable tables (correct `R3VP_API_` prefix and the real `AUTH0_*` + 7 Firebase vars); removed an em-dash entity from the README demo blurb
+
+---
+
 ## [Unreleased] - SecureScope Findings Remediation
 
 ### Security

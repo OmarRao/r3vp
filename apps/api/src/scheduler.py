@@ -59,7 +59,17 @@ async def _trigger_scheduled_run(workload_id: str, org_id: str) -> None:
             await db.commit()
             log.info("scheduled test run triggered", run_id=str(run.id), workload_id=workload_id)
         except Exception as exc:
-            log.warning("scheduled run: temporal enqueue failed", error=str(exc))
+            # Do not leave the run orphaned in "pending"; record the failure.
+            from sqlalchemy import update
+            await db.execute(
+                update(TestRun).where(TestRun.id == run.id).values(
+                    status="failed",
+                    failure_reason=f"Failed to enqueue recovery workflow: {exc}",
+                    completed_at=datetime.now(UTC),
+                )
+            )
+            await db.commit()
+            log.warning("scheduled run: temporal enqueue failed", run_id=str(run.id), error=str(exc))
 
 
 async def _run_report_schedule(schedule_id: str) -> None:

@@ -70,6 +70,23 @@ def test_valid_token_decodes(monkeypatch, rsa_keypair):
     assert payload["email"] == "j@contoso.com"
 
 
+def test_current_user_defaults_to_non_privileged_role():
+    """A user with no role claim must NOT default to admin (privilege escalation)."""
+    from fastapi import HTTPException
+
+    user = auth.CurrentUser(sub="auth0|x", org_id=uuid.uuid4(), email="a@b.com")
+    assert user.role == "viewer"
+    with pytest.raises(HTTPException) as exc:
+        auth.require_admin(user)
+    assert exc.value.status_code == 403
+
+
+def test_require_admin_allows_admin_role():
+    """An explicit admin role passes require_admin."""
+    user = auth.CurrentUser(sub="auth0|x", org_id=uuid.uuid4(), email="a@b.com", role="admin")
+    assert auth.require_admin(user) is user
+
+
 @pytest.mark.asyncio
 async def test_pagerduty_sender_posts_events_api(monkeypatch):
     """PagerDuty sender posts a trigger event to the Events API v2."""

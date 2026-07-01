@@ -87,12 +87,13 @@ class VCenterClient:
     def list_datastores(self) -> list[VCenterDatastore]:
         datastores = []
         for ds in self._get_all_objects(vim.Datastore):
-            info = ds.info
             datastores.append(VCenterDatastore(
                 moref=ds._moId,
                 name=ds.name,
-                free_bytes=info.freeSpace,
-                capacity_bytes=info.maxFileSize,
+                free_bytes=ds.summary.freeSpace,
+                # summary.capacity is the datastore capacity; info.maxFileSize is
+                # only the largest supported single-file size (a filesystem limit).
+                capacity_bytes=ds.summary.capacity,
             ))
         return datastores
 

@@ -1,6 +1,7 @@
 """Smoke test: verify the FastAPI app mounts and /health responds."""
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
+
 from src.main import app
 
 

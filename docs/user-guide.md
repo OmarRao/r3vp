@@ -165,9 +165,9 @@ R3VP auto-detects the Veeam Backup and Replication REST API version at connectio
 | Appliance credential encryption | SOPS + age |
 | Workflow engine | Temporal.io Cloud |
 | API backend | FastAPI (Python) |
-| API database | PostgreSQL 15+ |
+| API database | PostgreSQL 16 |
 | Evidence / report storage | S3-compatible object store |
-| Portal framework | Next.js 14+ |
+| Portal framework | Next.js 15 |
 | Portal authentication | Auth0 (SAML, OIDC) |
 | Portal analytics | Firebase Analytics |
 
@@ -867,11 +867,11 @@ To enable MSSP mode:
 1. Contact support@r3vp.io or submit a request through the Portal.
 2. Your organization will be upgraded to MSSP tier.
 3. The **MSSP Portal** tab becomes visible in the navigation.
-4. Assign the `MSSP Manager` role to partner staff members (see Section 19).
+4. Grant partner staff the `owner` or `admin` role, which carries MSSP console access (see Section 19).
 
 ### Customer Organization Onboarding
 
-MSSP Managers can create and onboard customer organizations without the customer needing to initiate the process.
+Owners and admins can create and onboard customer organizations without the customer needing to initiate the process.
 
 1. Navigate to **MSSP Portal** > **Customers** > **Add Customer**.
 2. Enter the customer organization name, primary contact email, and industry.
@@ -879,7 +879,7 @@ MSSP Managers can create and onboard customer organizations without the customer
 4. Set RTO and RPO defaults.
 5. Click **Create**. An organization is created and an invitation is sent to the customer contact.
 
-The MSSP Manager can complete appliance deployment and onboarding on behalf of the customer, or the customer can log in and complete it themselves.
+The MSSP owner or admin can complete appliance deployment and onboarding on behalf of the customer, or the customer can log in and complete it themselves.
 
 ### Multi-Tenant Dashboard
 
@@ -1207,7 +1207,7 @@ The run history tab shows all previous executions with:
 
 ## 19. Team and RBAC
 
-R3VP uses role-based access control with five predefined roles and 24 named permissions.
+R3VP uses role-based access control with five predefined system roles and 23 named permissions.
 
 ![Team](../docs/screenshots/team.png)
 
@@ -1215,40 +1215,41 @@ R3VP uses role-based access control with five predefined roles and 24 named perm
 
 | Role | Description |
 |---|---|
-| Owner | Full administrative access including billing, SSO configuration, and organization deletion |
-| Admin | Full operational access. Cannot delete the organization or modify billing. |
-| Analyst | Can view all data, trigger test runs, manage runbooks, and generate reports. Cannot modify settings or manage team members. |
-| Viewer | Read-only access to all data. Cannot trigger any actions. |
-| MSSP Manager | Access to the MSSP Portal for managing customer organizations. Scoped to MSSP functions and customer organizations assigned to them. |
+| Owner | Full access to every permission, including SSO configuration. |
+| Admin | Full operational access except SSO configuration (`sso:manage`). |
+| Operator | Manages workloads, triggers test runs, manages appliances, and works incidents. Cannot generate/schedule reports, manage the team, manage API keys, or change settings. |
+| Auditor | Read access plus the ability to generate compliance reports. Cannot modify workloads, trigger tests, or manage anything. |
+| Viewer | Read-only access to workloads, test runs, reports, threats, incidents, and team. |
 
 ### Permissions Matrix
 
-| Permission | Owner | Admin | Analyst | Viewer | MSSP Manager |
+23 permissions across the five roles (from `apps/api/src/services/rbac.py`):
+
+| Permission | Owner | Admin | Operator | Auditor | Viewer |
 |---|---|---|---|---|---|
-| `org:read` | Yes | Yes | Yes | Yes | Yes |
-| `org:update` | Yes | Yes | No | No | No |
-| `org:delete` | Yes | No | No | No | No |
-| `workload:read` | Yes | Yes | Yes | Yes | Yes |
-| `workload:update` | Yes | Yes | Yes | No | No |
-| `test_run:read` | Yes | Yes | Yes | Yes | Yes |
-| `test_run:create` | Yes | Yes | Yes | No | No |
-| `test_run:cancel` | Yes | Yes | Yes | No | No |
-| `evidence:read` | Yes | Yes | Yes | Yes | Yes |
-| `evidence:export` | Yes | Yes | Yes | No | No |
-| `compliance:read` | Yes | Yes | Yes | Yes | Yes |
-| `compliance:update` | Yes | Yes | No | No | No |
-| `report:read` | Yes | Yes | Yes | Yes | Yes |
-| `report:create` | Yes | Yes | Yes | No | No |
-| `runbook:read` | Yes | Yes | Yes | Yes | No |
-| `runbook:create` | Yes | Yes | Yes | No | No |
-| `runbook:execute` | Yes | Yes | Yes | No | No |
-| `team:read` | Yes | Yes | Yes | No | No |
-| `team:update` | Yes | Yes | No | No | No |
-| `api_key:manage` | Yes | Yes | No | No | No |
+| `workloads:read` | Yes | Yes | Yes | Yes | Yes |
+| `workloads:write` | Yes | Yes | Yes | No | No |
+| `workloads:delete` | Yes | Yes | No | No | No |
+| `test_runs:read` | Yes | Yes | Yes | Yes | Yes |
+| `test_runs:trigger` | Yes | Yes | Yes | No | No |
+| `reports:read` | Yes | Yes | Yes | Yes | Yes |
+| `reports:generate` | Yes | Yes | No | Yes | No |
+| `reports:schedule` | Yes | Yes | No | No | No |
+| `evidence:read` | Yes | Yes | Yes | Yes | No |
+| `threats:read` | Yes | Yes | Yes | Yes | Yes |
+| `incidents:read` | Yes | Yes | Yes | Yes | Yes |
+| `incidents:write` | Yes | Yes | Yes | No | No |
+| `audit:read` | Yes | Yes | Yes | Yes | No |
+| `team:read` | Yes | Yes | Yes | Yes | Yes |
+| `team:invite` | Yes | Yes | No | No | No |
+| `team:manage` | Yes | Yes | No | No | No |
+| `api_keys:read` | Yes | Yes | No | No | No |
+| `api_keys:write` | Yes | Yes | No | No | No |
+| `appliances:read` | Yes | Yes | Yes | No | No |
+| `appliances:manage` | Yes | Yes | Yes | No | No |
+| `settings:read` | Yes | Yes | Yes | No | No |
+| `settings:write` | Yes | Yes | No | No | No |
 | `sso:manage` | Yes | No | No | No | No |
-| `integration:manage` | Yes | Yes | No | No | No |
-| `audit_log:read` | Yes | Yes | Yes | No | No |
-| `mssp:manage` | Yes | Yes | No | No | Yes |
 
 ### Inviting Team Members
 
@@ -1279,7 +1280,7 @@ R3VP API keys allow programmatic access to the SaaS API from external systems, s
 - API keys are generated using a cryptographically secure random generator.
 - The full key is shown only once at creation time. It is immediately hashed (SHA-256) before storage.
 - R3VP stores only the SHA-256 hash. The original key cannot be recovered; if lost, the key must be rotated.
-- Each key can be scoped to a subset of the 24 named permissions.
+- Each key can be scoped to a subset of the 23 named permissions.
 
 ### Creating an API Key
 
@@ -1782,39 +1783,43 @@ The appliance `config.yaml` supports the following fields:
 
 The following environment variables configure the SaaS API deployment:
 
-| Variable | Required | Description |
+Settings are read by `apps/api/src/config.py` with the `R3VP_API_` prefix (pydantic-settings), so each field maps to an env var of that name in upper case.
+
+| Variable | Default | Description |
 |---|---|---|
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `REDIS_URL` | Yes | Redis connection string (for session cache) |
-| `TEMPORAL_NAMESPACE` | Yes | Temporal.io Cloud namespace |
-| `TEMPORAL_ENDPOINT` | Yes | Temporal.io Cloud gRPC endpoint |
-| `TEMPORAL_TLS_CERT` | Yes | mTLS certificate for Temporal connection |
-| `TEMPORAL_TLS_KEY` | Yes | mTLS private key for Temporal connection |
-| `S3_BUCKET_NAME` | Yes | Object storage bucket for evidence and reports |
-| `S3_ENDPOINT_URL` | No | S3-compatible endpoint (omit for AWS S3) |
-| `S3_ACCESS_KEY_ID` | Yes | Object storage access key |
-| `S3_SECRET_ACCESS_KEY` | Yes | Object storage secret key |
-| `AUTH0_DOMAIN` | Yes | Auth0 tenant domain |
-| `AUTH0_AUDIENCE` | Yes | Auth0 API audience identifier |
-| `AUTH0_CLIENT_ID` | Yes | Auth0 machine-to-machine client ID |
-| `AUTH0_CLIENT_SECRET` | Yes | Auth0 machine-to-machine client secret |
-| `ENCRYPTION_KEY` | Yes | 32-byte hex key for symmetric encryption of vault payloads in transit |
-| `AUDIT_HMAC_KEY` | Yes | 32-byte hex key for audit log HMAC signing |
-| `SENTRY_DSN` | No | Sentry error tracking DSN |
-| `LOG_LEVEL` | `INFO` | Application log level |
-| `CORS_ORIGINS` | Yes | Comma-separated list of allowed CORS origins |
+| `R3VP_API_DATABASE_URL` | local Postgres | Async PostgreSQL connection string (`postgresql+asyncpg://...`) |
+| `R3VP_API_REDIS_URL` | local Redis | Redis connection string |
+| `R3VP_API_AWS_REGION` | `us-east-1` | AWS region for S3 evidence storage |
+| `R3VP_API_S3_EVIDENCE_BUCKET` | `r3vp-evidence` | Object storage bucket for evidence and reports |
+| `R3VP_API_AUTH0_DOMAIN` | (empty) | Auth0 tenant domain (JWKS + issuer) |
+| `R3VP_API_AUTH0_AUDIENCE` | (empty) | Auth0 API audience identifier |
+| `R3VP_API_MTLS_CA_PATH` | `/certs/r3vp-ca.crt` | CA used to verify appliance client certificates |
+| `R3VP_API_TEMPORAL_ADDRESS` | `temporal.r3vp.io:7233` | Temporal.io Cloud gRPC endpoint |
+| `R3VP_API_TEMPORAL_NAMESPACE` | `r3vp-prod` | Temporal namespace |
+| `R3VP_API_TEMPORAL_TASK_QUEUE` | `recovery-validation` | Temporal task queue |
+| `R3VP_API_TEMPORAL_CERT_PATH` | `/certs/temporal.crt` | mTLS certificate for the Temporal connection |
+| `R3VP_API_TEMPORAL_KEY_PATH` | `/certs/temporal.key` | mTLS private key for the Temporal connection |
+| `R3VP_API_LOG_LEVEL` | `INFO` | Application log level |
 
 ### Portal Environment Variables
 
+These match `apps/portal/.env.local.example`. Auth0 is handled server-side by `@auth0/nextjs-auth0` (not `NEXT_PUBLIC_*`).
+
 | Variable | Required | Description |
 |---|---|---|
+| `AUTH0_SECRET` | Yes | 32-byte random string for session encryption (`openssl rand -hex 32`) |
+| `AUTH0_BASE_URL` | Yes | Portal base URL (e.g. `http://localhost:3000`) |
+| `AUTH0_ISSUER_BASE_URL` | Yes | Auth0 tenant issuer URL (`https://YOUR_AUTH0_DOMAIN`) |
+| `AUTH0_CLIENT_ID` | Yes | Auth0 application client ID |
+| `AUTH0_CLIENT_SECRET` | Yes | Auth0 application client secret |
 | `NEXT_PUBLIC_API_URL` | Yes | SaaS API base URL |
-| `NEXT_PUBLIC_AUTH0_DOMAIN` | Yes | Auth0 tenant domain |
-| `NEXT_PUBLIC_AUTH0_CLIENT_ID` | Yes | Auth0 SPA client ID |
-| `NEXT_PUBLIC_AUTH0_AUDIENCE` | Yes | Auth0 API audience |
-| `NEXT_PUBLIC_FIREBASE_API_KEY` | Yes | Firebase Analytics API key |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Yes | Firebase API key (`/demo` login + analytics) |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Yes | Firebase auth domain |
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Yes | Firebase project ID |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Yes | Firebase storage bucket |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Yes | Firebase messaging sender ID |
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | Yes | Firebase app ID |
+| `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | No | Firebase Analytics measurement ID (`G-...`) |
 
 ---
 

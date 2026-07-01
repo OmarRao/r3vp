@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 import uuid
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, timezone
 from sqlalchemy import select
 
-from src.models.appliance import Org, Appliance
-from src.models.workload import Workload
+from src.models.appliance import Appliance, Org
 from src.models.test_run import TestRun
+from src.models.workload import Workload
 
 pytestmark = pytest.mark.integration
 
@@ -36,7 +37,7 @@ async def test_readiness_score_calculation(db_session):
         workloads.append(wl)
     await db_session.commit()
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     # wl-0: passed, RTO 15 min (within 30 min target)
     db_session.add(TestRun(workload_id=workloads[0].id, status="passed",
                            started_at=now, completed_at=now,
