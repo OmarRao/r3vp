@@ -9,10 +9,10 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 | Version | Supported |
 |---|---|
-| Latest (main branch) | Yes |
+| Latest (master branch) | Yes |
 | Prior releases | No |
 
-R3VP is under active development. Security fixes are applied to the main branch only.
+R3VP is under active development. Security fixes are applied to the master branch only.
 
 ---
 
@@ -81,7 +81,7 @@ Key design decisions relevant to security researchers:
 - **mTLS thumbprint verification.** Every appliance request is verified against the registered certificate thumbprint in the database.
 - **Hash-chained audit log.** The appliance audit trail uses SHA-256 chaining. Any modification to a historical entry breaks the chain and is detectable.
 - **API keys are SHA-256 hashed.** Raw key values are shown once at creation and never stored.
-- **RBAC with 24 named permissions.** Authorization is enforced at the service layer, not just the router layer.
+- **RBAC with 23 named permissions.** Authorization is enforced at the service layer, not just the router layer.
 
 ---
 

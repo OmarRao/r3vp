@@ -1,0 +1,16 @@
+# Code ownership for R3VP
+# The repository owner reviews all changes by default. More specific rules
+# below can add reviewers for sensitive areas.
+#
+# Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
+
+# Default owner for everything in the repo
+*                       @OmarRao
+
+# Security-sensitive areas (auth, credential handling, CI/CD, infra)
+/apps/api/src/auth.py           @OmarRao
+/apps/appliance/src/vault/      @OmarRao
+/apps/appliance/src/relay/      @OmarRao
+/.github/                       @OmarRao
+/infra/                         @OmarRao
+/SECURITY.md                    @OmarRao
