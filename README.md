@@ -777,6 +777,17 @@ npm run dev
 
 **Read-only by default.** The Veeam service account only has Restore Operator permissions. It cannot modify backup jobs or delete restore points.
 
+### Source Code Protection
+
+The repository itself is hardened to protect the integrity of the source:
+
+- **Protected `master` branch.** Changes must arrive through a pull request; force-pushes and branch deletion are blocked.
+- **Required CI checks.** A PR cannot merge unless the appliance lint/test, API unit lint/test, portal type-check/lint, and Docker build checks all pass on an up-to-date branch.
+- **Required review via `CODEOWNERS`.** The repository owner is a default reviewer, with explicit ownership over security-sensitive areas (auth, credential vault, relay, CI/CD, and infrastructure).
+- **Secret scanning and push protection.** GitHub secret scanning and push protection are enabled to block credential leaks before they land; no secrets are committed to the tree.
+- **Pinned CI supply chain.** All GitHub Actions are pinned to full commit SHAs, and Dependabot monitors dependencies.
+- **Responsible disclosure.** Security issues are reported privately per [SECURITY.md](SECURITY.md).
+
 ---
 
 ## License
