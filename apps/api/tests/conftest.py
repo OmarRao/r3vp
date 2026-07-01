@@ -1,6 +1,8 @@
 """Override the DB session for tests so they never hit a real database."""
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+
 from src.db.session import get_db
 from src.main import app
 

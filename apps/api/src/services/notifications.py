@@ -26,9 +26,11 @@ async def send_breach_notifications(
     events = set()
     if not passed:
         events.add("test_failed")
-    if rto_target and rto_actual and rto_actual > rto_target:
+    # Use explicit None checks: a legitimate measured value of 0 is falsy and
+    # would otherwise skip the breach evaluation.
+    if rto_target is not None and rto_actual is not None and rto_actual > rto_target:
         events.add("rto_breach")
-    if rpo_target and rpo_actual and rpo_actual > rpo_target:
+    if rpo_target is not None and rpo_actual is not None and rpo_actual > rpo_target:
         events.add("rpo_breach")
 
     if not events:
@@ -153,27 +155,26 @@ async def _send_webhook(url: str, workload_name: str, run_id: str, summary: str,
 
 
 async def _send_email_ses(to_address: str, workload_name: str, run_id: str, summary: str) -> None:
-    try:
-        import boto3
-        ses = boto3.client("ses", region_name="us-east-1")
-        ses.send_email(
-            Source="noreply@r3vp.io",
-            Destination={"ToAddresses": [to_address]},
-            Message={
-                "Subject": {"Data": f"R3VP Alert: {workload_name}"},
-                "Body": {
-                    "Text": {
-                        "Data": (
-                            f"R3VP Recovery Validation Alert\n\n"
-                            f"Workload: {workload_name}\n{summary}\n\nRun ID: {run_id}"
-                        )
-                    }
-                },
+    # Let failures propagate so the caller's try/except records the real
+    # delivery outcome instead of assuming success.
+    import boto3
+    ses = boto3.client("ses", region_name="us-east-1")
+    ses.send_email(
+        Source="noreply@r3vp.io",
+        Destination={"ToAddresses": [to_address]},
+        Message={
+            "Subject": {"Data": f"R3VP Alert: {workload_name}"},
+            "Body": {
+                "Text": {
+                    "Data": (
+                        f"R3VP Recovery Validation Alert\n\n"
+                        f"Workload: {workload_name}\n{summary}\n\nRun ID: {run_id}"
+                    )
+                }
             },
-        )
-        log.info("email notification sent via SES", to=to_address)
-    except Exception as exc:
-        log.warning("SES email failed", error=str(exc))
+        },
+    )
+    log.info("email notification sent via SES", to=to_address)
 
 
 async def send_report_delivery(recipients: list[dict], report_type: str, period: str) -> None:

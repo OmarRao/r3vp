@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 import os
+
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 # Override settings before importing anything else
 os.environ.setdefault("R3VP_API_DATABASE_URL", "postgresql+asyncpg://r3vp:r3vp@localhost:5432/r3vp_test")

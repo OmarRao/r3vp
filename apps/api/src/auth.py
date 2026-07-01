@@ -27,7 +27,10 @@ class CurrentUser(BaseModel):
     sub: str
     org_id: uuid.UUID
     email: str = ""
-    role: str = "admin"
+    # Default to a non-privileged role. The actual role is read from the token
+    # claim in get_current_user; defaulting to "admin" would make require_admin
+    # a no-op for every authenticated user (privilege escalation).
+    role: str = "viewer"
 
 
 @lru_cache(maxsize=1)
@@ -72,15 +75,36 @@ async def get_current_user(
     except ValueError as exc:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Invalid org_id in token") from exc
 
+    # Role is read from a custom namespace claim; fall back to a non-privileged
+    # role so require_admin cannot be bypassed when the claim is absent.
+    role = payload.get("https://r3vp.io/role") or payload.get("role") or "viewer"
+
     return CurrentUser(
         sub=payload["sub"],
         org_id=org_id,
         email=payload.get("email", ""),
+        role=str(role),
     )
 
 
 # Convenience alias for use in route signatures
 AuthUser = Annotated[CurrentUser, Depends(get_current_user)]
+
+
+async def resolve_local_user_id(db, user: CurrentUser):
+    """Map the token's Auth0 `sub` to the local users.id (a UUID FK).
+
+    Returns None if the user has not been provisioned locally yet. Used for
+    audit attribution columns (generated_by, created_by) which are FKs to
+    users.id, not the Auth0 sub string.
+    """
+    from sqlalchemy import select
+
+    from src.models.test_run import User
+
+    return await db.scalar(
+        select(User.id).where(User.org_id == user.org_id, User.auth0_sub == user.sub)
+    )
 
 
 def require_admin(user: CurrentUser = Depends(get_current_user)) -> CurrentUser:

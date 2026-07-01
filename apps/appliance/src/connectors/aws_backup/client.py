@@ -10,6 +10,7 @@ https://www.linkedin.com/in/omarrao/
 """
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
@@ -159,7 +160,8 @@ class AWSBackupClient:
                 RecoveryPointArn=recovery_point_arn,
                 Metadata={
                     "SubnetId": target_subnet_id,
-                    "SecurityGroupIds": target_security_group_id,
+                    # AWS Backup expects SecurityGroupIds as a JSON-encoded array string.
+                    "SecurityGroupIds": json.dumps([target_security_group_id]),
                     "InstanceType": "t3.medium",  # Override to a standard size for testing
                 },
                 IamRoleArn=iam_role_arn,

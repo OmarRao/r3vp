@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import uuid
+
 import pytest
 from sqlalchemy import select
 
-from src.models.appliance import Org, Appliance
+from src.models.appliance import Appliance, Org
 from src.models.workload import Workload
 from src.services.appliance import accept_inventory_sync
 

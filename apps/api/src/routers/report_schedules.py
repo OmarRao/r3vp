@@ -4,12 +4,13 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime, timedelta
 
+from apscheduler.triggers.cron import CronTrigger
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth import AuthUser
+from src.auth import AuthUser, resolve_local_user_id
 from src.db.session import get_db
 from src.models.report_schedule import ReportSchedule
 
@@ -67,6 +68,13 @@ async def create_schedule(
 
     cron = VALID_CRONS.get(body.cron, body.cron)
 
+    # Reject invalid cron expressions up front; otherwise the schedule is stored
+    # but silently never runs (the scheduler skips crons it cannot parse).
+    try:
+        CronTrigger.from_crontab(cron)
+    except ValueError as exc:
+        raise HTTPException(400, f"Invalid cron expression: {exc}") from exc
+
     schedule = ReportSchedule(
         org_id=user.org_id,
         name=body.name,
@@ -75,7 +83,7 @@ async def create_schedule(
         period_days=body.period_days,
         recipients=body.recipients,
         next_run_at=datetime.now(UTC) + timedelta(days=1),
-        created_by=getattr(user, "user_id", None),
+        created_by=await resolve_local_user_id(db, user),
     )
     db.add(schedule)
     await db.commit()
