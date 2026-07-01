@@ -7,6 +7,14 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Screenshot Refresh
+
+### Documentation
+- Added the graphical risk heatmap to the AI Insights mockup and regenerated `ai-insights.png` so the documentation screenshots match the portal's insights view (criticality vs validation-age heatmap above the risk-ranking table)
+- Consolidated the three ad-hoc screenshot capture scripts into a single reusable `docs/screenshots/capture.py` (Playwright, 1440x900) that maps every mockup HTML to its PNG and accepts optional page-name filters for targeted regeneration
+
+---
+
 ## [Unreleased] - Source-Code Protection Hardening
 
 ### Security / Supply Chain
