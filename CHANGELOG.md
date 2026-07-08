@@ -7,6 +7,19 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Integration Tests Repaired and Gating
+
+### Fixed
+- **Real bug:** `accept_inventory_sync` used `ON CONFLICT ON CONSTRAINT uq_workloads_appliance_veeam`, but that name is a *partial unique index* (`WHERE veeam_object_id IS NOT NULL`), which Postgres cannot target via `ON CONSTRAINT`; the inventory-sync upsert would fail in production. Switched to index inference (`index_elements` + `index_where`)
+- Declared the `uq_workloads_appliance_veeam` partial unique index on the `Workload` ORM model so `create_all` matches the migrated schema (model/migration parity)
+- Made the integration-test `db_engine` fixture function-scoped, fixing the `another operation is in progress` asyncpg error caused by a session-scoped engine reused across pytest-asyncio's per-test event loops
+- Registered the `integration` pytest marker in `pytest.ini` (the pyproject entry was shadowed by pytest.ini and produced an unknown-mark warning)
+
+### Changed
+- The API integration-test CI job is now a **blocking gate** (both tests pass against Postgres); verified locally against a Postgres 16 container before enabling
+
+---
+
 ## [Unreleased] - Screenshot Refresh
 
 ### Documentation

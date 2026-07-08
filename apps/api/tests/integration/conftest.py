@@ -17,7 +17,11 @@ from src.models.base import Base
 TEST_DB_URL = os.environ["R3VP_API_DATABASE_URL"]
 
 
-@pytest_asyncio.fixture(scope="session")
+# Function-scoped: pytest-asyncio runs each test in its own event loop, so a
+# session-scoped engine's connection pool (bound to the first loop) raises
+# "another operation is in progress" on later tests. A fresh engine per test
+# avoids the cross-loop reuse.
+@pytest_asyncio.fixture
 async def db_engine():
     engine = create_async_engine(TEST_DB_URL, echo=False)
     async with engine.begin() as conn:

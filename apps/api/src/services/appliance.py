@@ -4,7 +4,7 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import select, update
+from sqlalchemy import select, text, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -125,8 +125,12 @@ async def accept_inventory_sync(
                 is_protected=bool(vm.get("is_protected", False)),
                 last_backup_at=vm.get("last_backup"),
             )
+            # uq_workloads_appliance_veeam is a PARTIAL unique index, which
+            # Postgres cannot target via ON CONFLICT ON CONSTRAINT; infer it
+            # from the index columns + predicate instead.
             .on_conflict_do_update(
-                constraint="uq_workloads_appliance_veeam",
+                index_elements=["appliance_id", "veeam_object_id"],
+                index_where=text("veeam_object_id IS NOT NULL"),
                 set_={
                     "name": vm.get("name", "unknown"),
                     "is_protected": bool(vm.get("is_protected", False)),
