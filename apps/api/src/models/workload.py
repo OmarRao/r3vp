@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, func, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -12,6 +12,18 @@ from .base import Base
 
 class Workload(Base):
     __tablename__ = "workloads"
+
+    # Partial unique index used by the inventory-sync ON CONFLICT upsert.
+    # Mirrors migration 0001 so create_all (tests) matches the migrated schema.
+    __table_args__ = (
+        Index(
+            "uq_workloads_appliance_veeam",
+            "appliance_id",
+            "veeam_object_id",
+            unique=True,
+            postgresql_where=text("veeam_object_id IS NOT NULL"),
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     appliance_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("appliances.id"), nullable=False)

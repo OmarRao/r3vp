@@ -49,6 +49,11 @@ async def test_inventory_sync_upsert(db_session):
     count2 = await accept_inventory_sync(db_session, appliance_id=appliance_id, org_id=org_id, vms=vms)
     assert count2 == 2
 
+    # accept_inventory_sync updates via a core INSERT ... ON CONFLICT statement,
+    # so expire the identity map to observe the committed change (the fixture
+    # session uses expire_on_commit=False).
+    db_session.expire_all()
+
     rows2 = await db_session.execute(
         select(Workload).where(Workload.appliance_id == appliance_id)
     )
