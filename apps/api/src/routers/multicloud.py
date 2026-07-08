@@ -148,7 +148,6 @@ async def list_workloads_by_provider(
             "cloud_region": w.cloud_region,
             "rto_target_mins": w.rto_target_mins,
             "rpo_target_mins": w.rpo_target_mins,
-            "last_test_run_status": w.last_test_run_status,
             "last_backup_at": w.last_backup_at.isoformat() if w.last_backup_at else None,
         }
         for w in rows

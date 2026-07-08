@@ -7,6 +7,18 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Runtime Bug Fixes Surfaced by mypy
+
+### Fixed
+- `multicloud.py` listed `w.last_test_run_status`, which is not an attribute of `Workload`, raising `AttributeError` whenever the multicloud workloads endpoint was called; removed the unbacked field
+- `main.py` lifespan shutdown called `_temporal_client.close()`, but the temporalio `Client` has no `close()` method (would raise on shutdown); removed it (the SDK manages the connection)
+- `sentinel.py` posted the log payload with httpx `data=<bytes>`; modern httpx expects raw bytes via `content=`, so the SIEM forward could send malformed/empty bodies
+
+### Notes
+- mypy remains advisory. After fixing the real bugs above, the residual errors are SQLAlchemy/JSONB false positives (e.g. `where(bool)`, `Result.rowcount`, `Sequence` vs `list`) that would only be silenceable with `# type: ignore`; ruff plus the (now blocking) unit and integration tests cover real defects
+
+---
+
 ## [Unreleased] - Commit Dependency Lockfile
 
 ### Security / Supply Chain
