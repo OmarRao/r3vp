@@ -82,8 +82,8 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
 
-    if _temporal_client:
-        await _temporal_client.close()
+    # The temporalio Client has no explicit close(); its connection is managed
+    # by the SDK and released on garbage collection, so no teardown is needed.
 
 
 app = FastAPI(

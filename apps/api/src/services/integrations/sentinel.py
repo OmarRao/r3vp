@@ -35,6 +35,6 @@ async def send_log_analytics(config: dict, event_type: str, payload: dict[str, A
                 "x-ms-date": rfc1123,
                 "Authorization": f"SharedKey {workspace_id}:{signature}",
             },
-            data=body.encode("utf-8"),
+            content=body.encode("utf-8"),
         )
         resp.raise_for_status()
