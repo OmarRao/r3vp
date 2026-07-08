@@ -7,6 +7,13 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Commit Dependency Lockfile
+
+### Security / Supply Chain
+- Committed the uv workspace lockfile (`uv.lock`, 118 pinned packages across the API and appliance) and removed it from `.gitignore`. Exact transitive dependency versions are now pinned and reviewable, matching the already-committed portal `package-lock.json`, for reproducible and supply-chain-hardened builds
+
+---
+
 ## [Unreleased] - Integration Tests Repaired and Gating
 
 ### Fixed

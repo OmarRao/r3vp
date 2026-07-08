@@ -11,8 +11,6 @@ build/
 .ruff_cache/
 .pytest_cache/
 
-# uv
-uv.lock
 
 # Node
 node_modules/
