@@ -137,18 +137,37 @@ async def start_instant_recovery(inp: StartRecoveryInput) -> str:
 
 @activity.defn
 async def wait_for_vm_boot(inp: WaitForBootInput) -> str:
-    """Poll Veeam for session state, then wait for VMware Tools. Returns VM moref."""
+    """Poll the Veeam instant-recovery session until the recovered VM is published.
+
+    Returns the recovered VM moref. Resolving the real moref from the published
+    session requires the live Veeam session's restored-object reference and is
+    tracked in ADR-003 (action item 2); until validated against a lab this
+    returns a deterministic placeholder derived from the session id.
+    """
     import asyncio
+
+    from src.connectors.veeam.session_states import (
+        VeeamSessionState,
+        is_recovery_published,
+        is_terminal_failure,
+    )
+
+    state = VeeamSessionState.UNKNOWN.value
     async with VeeamClient() as veeam:
         for _ in range(60):
             state = await veeam.get_session_state(inp.recovery_session_id)
-            if state == "Working":
+            if is_recovery_published(state):
                 break
+            if is_terminal_failure(state):
+                raise RuntimeError(
+                    f"Veeam instant recovery session failed (state: {state})"
+                )
             await asyncio.sleep(10)
         else:
-            raise RuntimeError("Veeam instant recovery session never reached Working state")
-    # In a real implementation, Veeam API returns the recovered VM moref in the session
-    # We return a placeholder here — full impl maps session → vCenter VM moref
+            raise RuntimeError(
+                "Veeam instant recovery session never became published "
+                f"(last state: {state})"
+            )
     return f"recovered-{inp.recovery_session_id}"
 
 

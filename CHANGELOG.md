@@ -7,6 +7,17 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - ADR-003 Groundwork: Veeam Session-State Handling
+
+### Added
+- `apps/appliance/src/connectors/veeam/session_states.py`: a `VeeamSessionState` enum plus `is_recovery_published` / `is_terminal_failure` classifiers, so instant-recovery session states are named rather than compared as inline string literals (ADR-003)
+- Unit tests for the session-state classification (pure, no live infra required)
+
+### Changed
+- `wait_for_vm_boot` now uses the session-state classifiers: it fails fast on a terminal failure state and, on timeout, raises a diagnostic error including the last observed state (previously a generic message). The recovered-VM moref resolution from the live session remains lab-gated per ADR-003 and still returns the documented placeholder until validated against a real Veeam server
+
+---
+
 ## [Unreleased] - Runtime Bug Fixes Surfaced by mypy
 
 ### Fixed

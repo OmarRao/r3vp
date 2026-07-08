@@ -130,7 +130,12 @@ Because no lab is required to build most of this:
 
 1. [ ] Add recorded Veeam REST fixtures + `respx` tests for version detect, restore-point
        select, session polling.
-2. [ ] Implement `resolve_recovered_moref` (replace the placeholder) with pyVmomi fakes + tests.
+2. [~] Implement `resolve_recovered_moref` (replace the placeholder). Groundwork done:
+       a `VeeamSessionState` enum + `is_recovery_published`/`is_terminal_failure` classifiers
+       (`connectors/veeam/session_states.py`, unit-tested) and a diagnostic `wait_for_vm_boot`
+       that fails fast on terminal states and reports the last observed state. The live moref
+       resolution (from the published session's restored-object reference) remains lab-gated,
+       since its response shape must be recorded against a real Veeam server.
 3. [ ] Implement `provision_isolated_network` for both standard vSwitch and DVS.
 4. [ ] Wire RTO/RPO measurement to real timestamps in the workflow.
 5. [ ] Implement `capture_evidence` (screenshot + logs) and upload over mTLS.
