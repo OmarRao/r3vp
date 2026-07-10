@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth import AuthUser, CurrentUser
+from src.auth import AuthUser
 from src.db.session import get_db
 from src.models.test_run import TestRun
 from src.models.workload import Workload
@@ -33,7 +33,7 @@ PROVIDERS = [
 
 @router.get("/provider-summary")
 async def provider_summary(
-    user: CurrentUser = Depends(AuthUser),
+    user: AuthUser,
     db: AsyncSession = Depends(get_db),
 ) -> list[dict]:
     """
@@ -119,8 +119,8 @@ async def provider_summary(
 
 @router.get("/workloads")
 async def list_workloads_by_provider(
+    user: AuthUser,
     provider: str | None = None,
-    user: CurrentUser = Depends(AuthUser),
     db: AsyncSession = Depends(get_db),
 ) -> list[dict]:
     """List workloads with optional provider filter."""

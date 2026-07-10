@@ -7,6 +7,14 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Auth-Pattern Audit
+
+### Fixed
+- Audited every router for the `Depends(AuthUser)` / `Depends(AdminUser)` anti-pattern (an `Annotated` alias passed to `Depends`, which FastAPI mis-introspects as `*args/**kwargs` and answers with 422). Fixed the remaining occurrences: `multicloud.py` (`provider-summary`, `workloads`) and `threat_intel.py` (`incidents/{id}/resolve`). All authenticated endpoints now use the `user: AuthUser` / `user: AdminUser` idiom
+- Added an integration test for `/v1/multicloud/provider-summary` (real Postgres) that also guards against regression of the 422 auth-declaration bug
+
+---
+
 ## [Unreleased] - Ransomware Threat Analysis Engine
 
 ### Added
