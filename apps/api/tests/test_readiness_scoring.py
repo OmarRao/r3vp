@@ -5,6 +5,7 @@ from src.services.readiness_scoring import (
     bucket_weekly_pass_rate,
     compute_composite_score,
     days_since,
+    fail_rate_pct,
 )
 
 
@@ -47,3 +48,10 @@ def test_days_since():
     assert days_since(now - timedelta(days=10), now=now) == 10
     # Future timestamps clamp to 0 rather than going negative.
     assert days_since(now + timedelta(days=5), now=now) == 0
+
+
+def test_fail_rate_pct():
+    assert fail_rate_pct(0, 0) == 0
+    assert fail_rate_pct(4, 1) == 25
+    assert fail_rate_pct(3, 1) == 33
+    assert fail_rate_pct(2, 2) == 100

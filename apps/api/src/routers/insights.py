@@ -18,14 +18,6 @@ from src.services.rbac import require_permission
 
 router = APIRouter()
 
-MOCK_WORKLOADS = [
-    {"name": "db-prod-03", "provider": "vmware", "days_since_test": 3, "rto_actual_mins": 52, "rto_target_mins": 60, "fail_rate_pct": 33},
-    {"name": "auth-svc-01", "provider": "azure", "days_since_test": 45, "rto_actual_mins": 18, "rto_target_mins": 30, "fail_rate_pct": 0},
-    {"name": "erp-prod-01", "provider": "vmware", "days_since_test": 7, "rto_actual_mins": 88, "rto_target_mins": 120, "fail_rate_pct": 33},
-    {"name": "dc-01.prod", "provider": "hyperv", "days_since_test": 1, "rto_actual_mins": 12, "rto_target_mins": 60, "fail_rate_pct": 0},
-    {"name": "sql-prod-02", "provider": "aws", "days_since_test": 5, "rto_actual_mins": 95, "rto_target_mins": 90, "fail_rate_pct": 50},
-]
-
 MOCK_CONTEXT = {
     "workloads_total": 47,
     "workloads_tested": 44,
@@ -94,8 +86,55 @@ async def get_rto_prediction(workload_id: str, user: AuthUser, db: AsyncSession 
 
 @router.get("/risk-ranking")
 async def get_risk_ranking(user: AuthUser, db: AsyncSession = Depends(get_db)):
+    from sqlalchemy import func, select
+
+    from src.models.appliance import Appliance
+    from src.models.test_run import TestRun
+    from src.models.workload import Workload
+    from src.services.readiness_scoring import days_since, fail_rate_pct
+
     require_permission(getattr(user, "permissions", []), "workloads:read")
-    ranked = rank_workload_risks(MOCK_WORKLOADS)
+
+    # Per-workload run aggregates for this org.
+    agg = (await db.execute(
+        select(
+            Workload.id,
+            Workload.name,
+            Workload.provider,
+            Workload.rto_target_mins,
+            func.count(TestRun.id).label("runs"),
+            func.count(TestRun.id).filter(TestRun.status == "failed").label("fails"),
+            func.max(TestRun.started_at).label("last_test"),
+        )
+        .select_from(Workload).join(Appliance)
+        .outerjoin(TestRun, TestRun.workload_id == Workload.id)
+        .where(Appliance.org_id == user.org_id)
+        .group_by(Workload.id, Workload.name, Workload.provider, Workload.rto_target_mins)
+    )).all()
+
+    # Latest recorded RTO per workload (Postgres DISTINCT ON the workload).
+    latest = (await db.execute(
+        select(TestRun.workload_id, TestRun.rto_actual_mins)
+        .join(Workload).join(Appliance)
+        .where(Appliance.org_id == user.org_id, TestRun.rto_actual_mins.isnot(None))
+        .order_by(TestRun.workload_id, TestRun.started_at.desc())
+        .distinct(TestRun.workload_id)
+    )).all()
+    latest_rto = {wid: rto for wid, rto in latest}
+
+    inputs = [
+        {
+            "name": r.name,
+            "provider": r.provider or "vmware",
+            # Never-tested workloads are treated as maximally stale.
+            "days_since_test": days_since(r.last_test) if r.last_test else 999,
+            "rto_actual_mins": latest_rto.get(r.id, 0),
+            "rto_target_mins": r.rto_target_mins or 999,
+            "fail_rate_pct": fail_rate_pct(r.runs, r.fails),
+        }
+        for r in agg
+    ]
+    ranked = rank_workload_risks(inputs)
     return {"workloads": ranked, "high_risk_count": sum(1 for w in ranked if w["risk_level"] == "high")}
 
 

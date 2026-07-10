@@ -72,3 +72,10 @@ def days_since(ts: datetime | None, now: datetime | None = None) -> int | None:
         return None
     now = now or datetime.now(UTC)
     return max(0, (now - ts).days)
+
+
+def fail_rate_pct(total_runs: int, failed_runs: int) -> int:
+    """Failure rate as a whole percentage; 0 when there are no runs."""
+    if not total_runs:
+        return 0
+    return round(failed_runs / total_runs * 100)

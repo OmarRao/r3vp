@@ -60,11 +60,22 @@ All three are pure and unit-tested.
   computed score, and the 12-week trend. Verified locally against Postgres 16 and
   in the CI integration job.
 
+## Risk Ranking (now real)
+
+`/v1/insights/risk-ranking` ranks workloads from real per-workload aggregates:
+latest recorded RTO (Postgres `DISTINCT ON`), failure rate, and days since last
+test, all org-scoped, fed into the existing `rank_workload_risks` scorer.
+
+Wiring this up surfaced a real RBAC bug: every `require_permission`-gated
+endpoint returned 403 for authenticated users because `CurrentUser` had no
+`permissions` attribute (so `getattr(user, "permissions", [])` was always empty).
+`CurrentUser.permissions` is now derived from the role via the RBAC system-role
+map. The whole AI Insights router was effectively inaccessible before this.
+
 ## Still Mocked (follow-up)
 
-`/v1/insights/risk-ranking` and `/v1/insights/query` still use mock context.
-Wiring risk ranking to real per-workload aggregates (latest RTO, failure rate,
-days since last test) is a natural next increment.
+`/v1/insights/query` (natural-language) still answers from mock context; wiring
+it to a live aggregate context is the remaining increment.
 
 ---
 
