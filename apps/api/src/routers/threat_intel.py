@@ -19,6 +19,11 @@ from src.auth import AdminUser, AuthUser, CurrentUser
 from src.db.session import get_db
 from src.models.appliance import Appliance
 from src.models.threat_scan import ThreatFinding, ThreatIncident, ThreatScan
+from src.services.rbac import require_permission
+from src.services.threat_analysis import (
+    analyze_restore_points,
+    select_clean_restore_point,
+)
 
 router = APIRouter(prefix="/v1/threat-intel", tags=["threat-intel"])
 
@@ -141,7 +146,7 @@ async def submit_scan_result(
 
 @router.get("/findings")
 async def list_findings(
-    user: CurrentUser = Depends(AuthUser),
+    user: AuthUser,
     db: AsyncSession = Depends(get_db),
     status: str | None = None,
     severity: str | None = None,
@@ -174,7 +179,7 @@ async def list_findings(
 
 @router.get("/incidents")
 async def list_incidents(
-    user: CurrentUser = Depends(AuthUser),
+    user: AuthUser,
     db: AsyncSession = Depends(get_db),
     status: str | None = None,
 ) -> list[dict]:
@@ -207,7 +212,7 @@ async def list_incidents(
 @router.get("/incidents/{incident_id}")
 async def get_incident(
     incident_id: uuid.UUID,
-    user: CurrentUser = Depends(AuthUser),
+    user: AuthUser,
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     """Get a single incident with full IR log."""
@@ -264,7 +269,7 @@ async def resolve_incident(
 
 @router.get("/scans")
 async def list_scans(
-    user: CurrentUser = Depends(AuthUser),
+    user: AuthUser,
     db: AsyncSession = Depends(get_db),
     limit: int = 20,
 ) -> list[dict]:
@@ -290,3 +295,36 @@ async def list_scans(
         }
         for r in rows
     ]
+
+
+class RestorePointMeta(BaseModel):
+    id: str
+    created_at: str | None = None
+    avg_entropy: float = 0.0
+    total_files: int = 0
+    renamed_files: int = 0
+    new_extensions: list[str] = []
+
+
+@router.post("/analyze-restore-points")
+async def analyze_restore_points_endpoint(
+    body: list[RestorePointMeta],
+    user: AuthUser,
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Analyze restore-point metadata for ransomware indicators and recommend the
+    newest clean restore point. Stateless: the appliance derives the metadata and
+    posts it; no backup content leaves the customer environment."""
+    require_permission(user.permissions, "threats:read")
+    if len(body) > 500:
+        raise HTTPException(400, "At most 500 restore points per request")
+
+    restore_points = [rp.model_dump() for rp in body]
+    analysis = analyze_restore_points(restore_points)
+    clean = select_clean_restore_point(restore_points)
+    return {
+        "analysis": analysis,
+        "threats_found": sum(len(a["indicators"]) for a in analysis),
+        "flagged_restore_points": sum(1 for a in analysis if not a["is_clean"]),
+        "recommended_clean_restore_point": clean["restore_point_id"] if clean else None,
+    }

@@ -7,6 +7,18 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Ransomware Threat Analysis Engine
+
+### Added
+- `apps/api/src/services/threat_analysis.py`: a pure engine that flags ransomware indicators in backup restore-point metadata (near-ceiling file entropy, entropy spikes vs a rolling baseline, mass file-rename sweeps, known ransomware extensions) mapped to MITRE T1486, and `select_clean_restore_point` which returns the newest restore point with no high/critical indicator
+- `POST /v1/threat-intel/analyze-restore-points`: stateless endpoint that analyzes appliance-supplied restore-point metadata and recommends a clean restore point (no backup content leaves the customer environment)
+- Unit tests for the analysis functions and the endpoint (including the permission-denied path)
+
+### Fixed
+- Real bug: all authenticated `/v1/threat-intel/*` endpoints declared auth as `user: CurrentUser = Depends(AuthUser)`, but `AuthUser` is an `Annotated` alias, so FastAPI mis-introspected it as `*args/**kwargs` and returned 422 for every request. Switched to the `user: AuthUser` idiom, which fixes all five endpoints (findings, incidents, incident detail, resolve, scans)
+
+---
+
 ## [Unreleased] - Real Risk Ranking + RBAC Permission Fix
 
 ### Changed
