@@ -26,7 +26,6 @@ MOCK_WORKLOADS = [
     {"name": "sql-prod-02", "provider": "aws", "days_since_test": 5, "rto_actual_mins": 95, "rto_target_mins": 90, "fail_rate_pct": 50},
 ]
 
-MOCK_RTO_SERIES = [28.0, 31.0, 35.0, 38.0, 44.0, 52.0]
 MOCK_CONTEXT = {
     "workloads_total": 47,
     "workloads_tested": 44,
@@ -51,10 +50,46 @@ MOCK_CONTEXT = {
 
 @router.get("/rto-prediction/{workload_id}")
 async def get_rto_prediction(workload_id: str, user: AuthUser, db: AsyncSession = Depends(get_db)):
+    import uuid
+
+    from fastapi import HTTPException
+    from sqlalchemy import select
+
+    from src.models.appliance import Appliance
+    from src.models.test_run import TestRun
+    from src.models.workload import Workload
+
     require_permission(getattr(user, "permissions", []), "workloads:read")
-    prediction = predict_rto_trend(MOCK_RTO_SERIES, target_mins=60.0)
-    anomalies = detect_anomalies(MOCK_RTO_SERIES)
-    return {"workload_id": workload_id, "rto_series": MOCK_RTO_SERIES, "prediction": prediction, "anomalies": anomalies}
+
+    try:
+        wid = uuid.UUID(workload_id)
+    except ValueError as exc:
+        raise HTTPException(400, "Invalid workload id") from exc
+
+    # Scope to the caller's org so one tenant cannot read another's workload.
+    workload = await db.scalar(
+        select(Workload).join(Appliance).where(
+            Workload.id == wid, Appliance.org_id == user.org_id
+        )
+    )
+    if workload is None:
+        raise HTTPException(404, "Workload not found")
+
+    rows = (await db.execute(
+        select(TestRun.rto_actual_mins)
+        .where(
+            TestRun.workload_id == wid,
+            TestRun.status == "passed",
+            TestRun.rto_actual_mins.isnot(None),
+        )
+        .order_by(TestRun.started_at)
+    )).scalars().all()
+    rto_series = [float(r) for r in rows]
+
+    target = float(workload.rto_target_mins or 60)
+    prediction = predict_rto_trend(rto_series, target_mins=target)
+    anomalies = detect_anomalies(rto_series)
+    return {"workload_id": workload_id, "rto_series": rto_series, "prediction": prediction, "anomalies": anomalies}
 
 
 @router.get("/risk-ranking")
