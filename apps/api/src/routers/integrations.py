@@ -10,10 +10,11 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth import AuthUser
+from src.auth import AuthUser, resolve_local_user_id
 from src.db.session import get_db
 from src.models.integration import Integration, IntegrationEventLog
 from src.services.integrations import dispatch_event
+from src.services.integrations.validation import validate_integration_config
 from src.services.rbac import require_permission
 
 router = APIRouter()
@@ -78,13 +79,17 @@ async def create_integration(
     if invalid_events:
         raise HTTPException(400, f"Invalid trigger_events: {invalid_events}")
 
+    config_errors = validate_integration_config(body.integration_type, body.config)
+    if config_errors:
+        raise HTTPException(400, "; ".join(config_errors))
+
     integration = Integration(
         org_id=user.org_id,
         integration_type=body.integration_type,
         name=body.name,
         config=body.config,
         trigger_events=body.trigger_events,
-        created_by=getattr(user, "user_id", None),
+        created_by=await resolve_local_user_id(db, user),
     )
     db.add(integration)
     await db.commit()
