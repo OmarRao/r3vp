@@ -7,6 +7,18 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Integration Config Validation
+
+### Added
+- `apps/api/src/services/integrations/validation.py`: `validate_integration_config` checks per-connector required fields (ServiceNow, Jira, PagerDuty, Splunk, QRadar, Sentinel), that URL fields are http(s), and that the QRadar syslog port is a valid port. Pure and unit-tested
+- `POST /v1/integrations` now rejects a misconfigured integration with a 400 listing the problems, instead of accepting it and failing silently at the first real dispatch
+- Unit tests for the validator and the create 400 path, and an integration test (real Postgres) for the create happy path
+
+### Fixed
+- `create_integration` stored `created_by` as `None` (looked up a nonexistent `user.user_id`); it now resolves the local `users.id` via `resolve_local_user_id`, matching the reports/report-schedules fix
+
+---
+
 ## [Unreleased] - Auth-Pattern Audit
 
 ### Fixed

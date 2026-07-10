@@ -241,7 +241,7 @@ The CISO scorecard produces a single 0-100 readiness score from four weighted fa
 
 ![Integrations](docs/screenshots/integrations.png)
 
-The integrations marketplace connects R3VP to six external tools: ServiceNow and Jira for ITSM ticket creation, PagerDuty for on-call alerting, and Splunk, IBM QRadar, and Microsoft Sentinel for SIEM event streaming. Each integration subscribes to specific trigger events (SLA breach, test failure, threat detection, incident creation) and every dispatch attempt is logged with status and response time.
+The integrations marketplace connects R3VP to six external tools: ServiceNow and Jira for ITSM ticket creation, PagerDuty for on-call alerting, and Splunk, IBM QRadar, and Microsoft Sentinel for SIEM event streaming. Each integration subscribes to specific trigger events (SLA breach, test failure, threat detection, incident creation) and every dispatch attempt is logged with status and response time. Integration configs are validated on creation per connector type (required fields, http(s) URLs, valid syslog port), so a misconfigured connector is rejected up front instead of failing silently at the first real event. A test action dispatches a sample event to confirm the connection.
 
 ### AI Insights
 
