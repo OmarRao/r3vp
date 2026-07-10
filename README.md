@@ -247,7 +247,7 @@ The integrations marketplace connects R3VP to six external tools: ServiceNow and
 
 ![AI Insights](docs/screenshots/ai-insights.png)
 
-The AI insights module provides three capabilities without an external LLM dependency: RTO trend prediction using linear regression to flag workloads trending toward breach before it happens, statistical anomaly detection over recovery time series using z-score analysis, and a natural language query interface for common recovery posture questions. Workloads are ranked by a composite risk score across test recency, RTO proximity, and failure rate. The RTO prediction and anomaly detection run over each workload's real recorded test-run history (org-scoped), and the dashboard readiness score is computed server-side from live coverage, pass-rate, and RTO/RPO aggregates with a rolling 12-week trend.
+The AI insights module provides three capabilities without an external LLM dependency: RTO trend prediction using linear regression to flag workloads trending toward breach before it happens, statistical anomaly detection over recovery time series using z-score analysis, and a natural language query interface for common recovery posture questions. Workloads are ranked by a composite risk score across test recency, RTO proximity, and failure rate. The RTO prediction and anomaly detection run over each workload's real recorded test-run history (org-scoped), workload risk ranking is computed from live per-workload aggregates (latest RTO, failure rate, days since last test), and the dashboard readiness score is computed server-side from live coverage, pass-rate, and RTO/RPO aggregates with a rolling 12-week trend.
 
 ### DR Runbooks
 

@@ -32,6 +32,17 @@ class CurrentUser(BaseModel):
     # a no-op for every authenticated user (privilege escalation).
     role: str = "viewer"
 
+    @property
+    def permissions(self) -> list[str]:
+        """Permissions granted by this user's role (from the RBAC system roles).
+
+        Endpoints call require_permission(user.permissions, ...); without this
+        the list was always empty and every permission-gated route returned 403.
+        """
+        from src.services.rbac import SYSTEM_ROLES
+
+        return SYSTEM_ROLES.get(self.role, [])
+
 
 @lru_cache(maxsize=1)
 def _jwk_client() -> PyJWKClient:

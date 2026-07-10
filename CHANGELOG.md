@@ -7,6 +7,20 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Real Risk Ranking + RBAC Permission Fix
+
+### Changed
+- `/v1/insights/risk-ranking` now ranks workloads from real per-workload aggregates (latest recorded RTO via Postgres `DISTINCT ON`, failure rate, days since last test) instead of mock data, org-scoped
+- Added a `fail_rate_pct` helper to `readiness_scoring.py` (unit-tested)
+
+### Fixed
+- Real bug: every `require_permission`-gated endpoint (the whole AI Insights router) returned 403 for authenticated users, because `CurrentUser` had no `permissions` attribute so `getattr(user, "permissions", [])` was always empty. `CurrentUser.permissions` is now derived from the user's role via the RBAC system-role map, so permission checks actually resolve
+
+### Tests
+- Added an integration test for `/v1/insights/risk-ranking` (real Postgres) asserting real risk ordering; full integration suite (4 tests) verified locally against Postgres 16
+
+---
+
 ## [Unreleased] - Recovery Intelligence: Real Readiness Scoring + RTO Forecasting
 
 ### Added
