@@ -7,6 +7,22 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Recovery Intelligence: Real Readiness Scoring + RTO Forecasting
+
+### Added
+- `apps/api/src/services/readiness_scoring.py`: `compute_composite_score` (reuses the shared scorecard formula: coverage 40%, pass rate 35%, RTO compliance 15%, threat/incident penalty), `bucket_weekly_pass_rate` (rolling 12-week trend), and `days_since` helpers, all pure and unit-tested
+- Unit tests for the scoring helpers and an integration test that exercises `/v1/dashboard/readiness` end to end against Postgres
+
+### Changed
+- `/v1/dashboard/readiness` now returns a real composite readiness score and a populated 12-week pass-rate trend (previously a naive average of the `readiness_score` column with an empty trend)
+- `/v1/insights/rto-prediction/{workload_id}` now runs the linear-regression forecast and z-score anomaly detection over the workload's real recorded RTO history (was fixed mock data), using the workload's actual RTO target
+
+### Fixed
+- `/v1/dashboard/readiness` counted workloads across the run-joined result set, inflating `workloads_total`/`workloads_tested` by the number of test runs; now uses distinct workload counts
+- `/v1/insights/rto-prediction/{workload_id}` did not scope the workload to the caller's org (cross-tenant read); it now verifies org ownership and returns 404 otherwise
+
+---
+
 ## [Unreleased] - ADR-003 Groundwork: Veeam Session-State Handling
 
 ### Added
