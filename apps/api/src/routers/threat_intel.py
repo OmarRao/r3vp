@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth import AdminUser, AuthUser, CurrentUser
+from src.auth import AdminUser, AuthUser
 from src.db.session import get_db
 from src.models.appliance import Appliance
 from src.models.threat_scan import ThreatFinding, ThreatIncident, ThreatScan
@@ -248,7 +248,7 @@ async def get_incident(
 @router.patch("/incidents/{incident_id}/resolve")
 async def resolve_incident(
     incident_id: uuid.UUID,
-    user: CurrentUser = Depends(AdminUser),
+    user: AdminUser,
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     """Mark an incident as resolved."""
