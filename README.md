@@ -187,7 +187,7 @@ The console combines recovery validation and threat intelligence in one view. A 
 
 ![Threat Scanner](docs/screenshots/threat-scanner.png)
 
-The threat scanner shows all findings from signature database cross-reference, YARA rule matches, and CVE detections. Each finding shows severity, threat family, affected host, MITRE ATT&CK technique, and current status.
+The threat scanner shows all findings from signature database cross-reference, YARA rule matches, and CVE detections. Each finding shows severity, threat family, affected host, MITRE ATT&CK technique, and current status. In addition, the backend analyzes backup restore-point metadata for ransomware indicators before a recovery test (near-ceiling file entropy, entropy spikes versus a rolling baseline, mass file-rename sweeps, and known ransomware extensions, all mapped to MITRE T1486) and recommends the newest clean restore point via `POST /v1/threat-intel/analyze-restore-points`. Only derived metadata is sent; backup content never leaves the customer environment.
 
 ### Incident Response
 
