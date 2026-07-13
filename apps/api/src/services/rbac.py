@@ -36,6 +36,9 @@ PERMISSIONS = {
     "settings:write":     "Update org settings and notification channels",
     # SSO
     "sso:manage":         "Configure SAML SSO",
+    # MSSP multi-tenant console (owner/admin only; derived below)
+    "mssp:read":          "View the MSSP console and customer portfolio",
+    "mssp:manage":        "Manage MSSP customer orgs, billing, and alert rules",
 }
 
 SYSTEM_ROLES: dict[str, list[str]] = {

@@ -160,3 +160,47 @@ async def create_alert_rule(body: CreateAlertRuleRequest, user: AuthUser, db: As
     await db.commit()
     await db.refresh(rule)
     return {"id": str(rule.id), "name": rule.name}
+
+
+@router.get("/billing")
+async def mssp_billing(user: AuthUser, period_days: int = 30, db: AsyncSession = Depends(get_db)):
+    """Metered billing for the MSSP's customer portfolio over a billing period."""
+    from datetime import timedelta
+
+    from sqlalchemy import func
+
+    from src.models.appliance import Appliance
+    from src.models.test_run import TestRun
+    from src.models.workload import Workload
+    from src.services.mssp_billing import compute_line_item, summarize_billing
+
+    require_permission(getattr(user, "permissions", []), "mssp:read")
+    if not (1 <= period_days <= 366):
+        raise HTTPException(400, "period_days must be between 1 and 366")
+    since = datetime.now(UTC) - timedelta(days=period_days)
+
+    customers = (await db.execute(
+        select(MsspCustomerOrg).where(MsspCustomerOrg.mssp_id == user.org_id)
+        .order_by(MsspCustomerOrg.display_name)
+    )).scalars().all()
+
+    line_items = []
+    for c in customers:
+        workloads = await db.scalar(
+            select(func.count(func.distinct(Workload.id)))
+            .select_from(Workload).join(Appliance)
+            .where(Appliance.org_id == c.org_id)
+        ) or 0
+        test_runs = await db.scalar(
+            select(func.count(TestRun.id))
+            .select_from(TestRun).join(Workload).join(Appliance)
+            .where(Appliance.org_id == c.org_id, TestRun.started_at >= since)
+        ) or 0
+        line_items.append(compute_line_item(c.display_name, c.tier, workloads, test_runs))
+
+    return {
+        "period_days": period_days,
+        "generated_at": datetime.now(UTC).isoformat(),
+        "line_items": line_items,
+        "summary": summarize_billing(line_items),
+    }
