@@ -277,7 +277,7 @@ The fleet management page provides a unified view across all deployed appliances
 
 ![MSSP Console](docs/screenshots/mssp.png)
 
-The MSSP console gives managed service providers a single pane of glass across all customer organizations. A five-column KPI row shows total customers, health breakdown, and average readiness score. The customer table displays per-org tier badges (standard, premium, enterprise), readiness score pills, workload counts, active threat counts, and last test date. Alert rules can be scoped to all customers, a specific tier, or a tag, and fire on conditions like score drops, RTO breaches, threat detection, and stale tests.
+The MSSP console gives managed service providers a single pane of glass across all customer organizations. A five-column KPI row shows total customers, health breakdown, and average readiness score. The customer table displays per-org tier badges (standard, premium, enterprise), readiness score pills, workload counts, active threat counts, and last test date. Alert rules can be scoped to all customers, a specific tier, or a tag, and fire on conditions like score drops, RTO breaches, threat detection, and stale tests. Usage metering (`GET /v1/mssp/billing`) aggregates each customer's protected workloads and recovery test runs over a billing period and prices them against a per-tier rate card, returning per-customer line items and a portfolio total.
 
 ### Compliance Frameworks
 

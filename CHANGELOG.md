@@ -19,6 +19,18 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - MSSP Usage Metering and Billing
+
+### Added
+- `GET /v1/mssp/billing?period_days=N`: metered billing across an MSSP's customer portfolio. Aggregates per-customer usage (protected workloads + recovery test runs in the period) and prices it via a per-tier rate card, returning line items plus a portfolio summary
+- Pure, unit-tested `mssp_billing` service (rate card for standard/premium/enterprise tiers; line-item + summary computation)
+- Integration test (real Postgres) exercising the billing endpoint end to end
+
+### Fixed
+- Real bug: the entire MSSP router returned 403 for every role, including owner, because its `mssp:read` / `mssp:manage` permissions were not in the RBAC catalog. Added them (auto-granted to owner and admin via the system-role derivation), reviving the MSSP console API
+
+---
+
 ## [Unreleased] - Continuous Validation Execution
 
 ### Added
