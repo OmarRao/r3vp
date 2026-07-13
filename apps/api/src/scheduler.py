@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 import structlog
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy import select
 
 log = structlog.get_logger()
@@ -113,6 +114,116 @@ async def _run_report_schedule(schedule_id: str) -> None:
         log.info("scheduled report generated", schedule_id=schedule_id, report_type=schedule.report_type)
 
 
+async def _run_validation_policy(policy_id: str) -> None:
+    """Called by APScheduler on each policy interval. Runs the enabled micro-checks
+    for the policy's workloads, records a MicroValidationRun each, and raises a
+    ValidationAlert on consecutive failures."""
+    import time
+
+    from src.db.session import async_session_factory
+    from src.models.appliance import Appliance
+    from src.models.continuous_validation import (
+        ContinuousValidationPolicy,
+        MicroValidationRun,
+        ValidationAlert,
+    )
+    from src.models.workload import Workload
+    from src.services.continuous_validation import (
+        build_check_results,
+        evaluate_check_results,
+    )
+
+    async with async_session_factory() as db:
+        policy = await db.scalar(
+            select(ContinuousValidationPolicy).where(
+                ContinuousValidationPolicy.id == uuid.UUID(policy_id)
+            )
+        )
+        if not policy or not policy.enabled:
+            return
+
+        q = (
+            select(Workload, Appliance.last_heartbeat)
+            .join(Appliance)
+            .where(Appliance.org_id == policy.org_id)
+        )
+        if policy.workload_scope == "specific" and policy.workload_ids:
+            ids = [uuid.UUID(str(x)) for x in policy.workload_ids]
+            q = q.where(Workload.id.in_(ids))
+        rows = (await db.execute(q)).all()
+
+        now = datetime.now(UTC)
+        for workload, heartbeat in rows:
+            start = time.monotonic()
+            results = build_check_results(
+                policy.checks_enabled or {},
+                workload.last_backup_at,
+                workload.rpo_target_mins,
+                heartbeat,
+                policy.check_interval_mins,
+                now,
+            )
+            status = evaluate_check_results(results)
+            passed = sum(1 for v in results.values() if v.get("status") == "pass")
+            rp = results.get("restore_point_freshness", {})
+            age_hours = rp.get("value_hours")
+            run = MicroValidationRun(
+                policy_id=policy.id,
+                org_id=policy.org_id,
+                workload_id=workload.id,
+                workload_name=workload.name,
+                status=status,
+                checks_run=len(results),
+                checks_passed=passed,
+                check_results=results,
+                restore_point_age_hours=int(age_hours) if age_hours is not None else None,
+                duration_ms=round((time.monotonic() - start) * 1000),
+                ran_at=now,
+            )
+            db.add(run)
+            await db.flush()
+
+            if policy.alert_on_failure and status == "fail":
+                recent = (await db.execute(
+                    select(MicroValidationRun.status)
+                    .where(
+                        MicroValidationRun.policy_id == policy.id,
+                        MicroValidationRun.workload_id == workload.id,
+                    )
+                    .order_by(MicroValidationRun.ran_at.desc())
+                    .limit(policy.consecutive_failures_before_alert)
+                )).scalars().all()
+                consecutive = 0
+                for s in recent:
+                    if s != "pass":
+                        consecutive += 1
+                    else:
+                        break
+                if consecutive >= policy.consecutive_failures_before_alert:
+                    existing = await db.scalar(
+                        select(ValidationAlert).where(
+                            ValidationAlert.policy_id == policy.id,
+                            ValidationAlert.workload_id == workload.id,
+                            ValidationAlert.resolved.is_(False),
+                        )
+                    )
+                    if not existing:
+                        db.add(ValidationAlert(
+                            policy_id=policy.id,
+                            org_id=policy.org_id,
+                            workload_id=workload.id,
+                            workload_name=workload.name,
+                            alert_type="consecutive_failures",
+                            severity="high",
+                            detail=f"{consecutive} consecutive failing micro-validations",
+                            created_at=now,
+                        ))
+                        run.alert_sent = True
+
+        await db.commit()
+        log.info("continuous validation policy run", policy_id=policy_id, workloads=len(rows))
+
+
 async def load_schedules(db_session_factory) -> None:
     """Load workload and report schedules from DB and register APScheduler jobs."""
     from src.models.appliance import Appliance
@@ -158,6 +269,23 @@ async def load_schedules(db_session_factory) -> None:
                 log.info("report schedule registered", name=schedule.name, cron=schedule.cron)
             except Exception as exc:
                 log.warning("invalid report cron expression", schedule_id=str(schedule.id), error=str(exc))
+
+        from src.models.continuous_validation import ContinuousValidationPolicy
+        policy_rows = await db.execute(
+            select(ContinuousValidationPolicy).where(ContinuousValidationPolicy.enabled.is_(True))
+        )
+        for policy in policy_rows.scalars().all():
+            try:
+                scheduler.add_job(
+                    _run_validation_policy,
+                    IntervalTrigger(minutes=max(1, policy.check_interval_mins)),
+                    args=[str(policy.id)],
+                    id=f"cv-policy-{policy.id}",
+                    replace_existing=True,
+                )
+                log.info("cv policy registered", name=policy.name, interval=policy.check_interval_mins)
+            except Exception as exc:
+                log.warning("cv policy registration failed", policy_id=str(policy.id), error=str(exc))
 
     if not scheduler.running:
         scheduler.start()

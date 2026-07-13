@@ -1,7 +1,12 @@
 """Continuous validation check engine."""
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Any
+
+# Checks that require live appliance/Veeam/vCenter telemetry the SaaS side does
+# not hold; they are reported "skipped" until the appliance submits results.
+LIVE_ONLY_CHECKS = frozenset({"mount_check", "veeam_job_status", "vcenter_connectivity"})
 
 MICRO_CHECKS = {
     "restore_point_freshness": {
@@ -37,8 +42,98 @@ MICRO_CHECKS = {
 }
 
 
+def _age_mins(ts: datetime | None, now: datetime) -> float | None:
+    if ts is None:
+        return None
+    return (now - ts).total_seconds() / 60.0
+
+
+def check_restore_point_freshness(
+    last_backup_at: datetime | None, rpo_target_mins: int | None, now: datetime | None = None
+) -> dict[str, Any]:
+    """Latest restore point recency vs the RPO window."""
+    now = now or datetime.now(UTC)
+    target = rpo_target_mins or 1440  # default 24h if unset
+    age = _age_mins(last_backup_at, now)
+    if age is None:
+        return {"status": "fail", "detail": "No restore point recorded"}
+    hours = round(age / 60, 1)
+    if age <= target:
+        status = "pass"
+    elif age <= target * 2:
+        status = "warn"
+    else:
+        status = "fail"
+    return {"status": status, "detail": f"Latest restore point {hours}h old (RPO {target}m)",
+            "value_hours": hours}
+
+
+def check_rpo_compliance(
+    last_backup_at: datetime | None, rpo_target_mins: int | None, now: datetime | None = None
+) -> dict[str, Any]:
+    """Strict RPO SLA exposure: current data-loss window vs target."""
+    now = now or datetime.now(UTC)
+    target = rpo_target_mins or 1440
+    age = _age_mins(last_backup_at, now)
+    if age is None:
+        return {"status": "fail", "detail": "No restore point to measure RPO exposure"}
+    exposure = round(age)
+    status = "pass" if age <= target else ("warn" if age <= target * 1.5 else "fail")
+    return {"status": status, "detail": f"RPO exposure {exposure}m vs target {target}m"}
+
+
+def check_agent_heartbeat(
+    last_heartbeat: datetime | None, interval_mins: int, now: datetime | None = None
+) -> dict[str, Any]:
+    """Appliance heartbeat recency vs the policy check interval."""
+    now = now or datetime.now(UTC)
+    age = _age_mins(last_heartbeat, now)
+    if age is None:
+        return {"status": "fail", "detail": "No heartbeat recorded for the appliance"}
+    mins = round(age)
+    # Allow one missed interval as a grace window before warning.
+    if age <= interval_mins * 2:
+        status = "pass"
+    elif age <= interval_mins * 4:
+        status = "warn"
+    else:
+        status = "fail"
+    return {"status": status, "detail": f"Last heartbeat {mins}m ago (interval {interval_mins}m)"}
+
+
+def build_check_results(
+    checks_enabled: dict[str, bool],
+    last_backup_at: datetime | None,
+    rpo_target_mins: int | None,
+    appliance_last_heartbeat: datetime | None,
+    interval_mins: int,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Run every enabled check for one workload and return the per-check results.
+
+    Live-only checks (mount/veeam/vcenter) are reported "skipped" because the
+    SaaS side has no live telemetry for them.
+    """
+    now = now or datetime.now(UTC)
+    results: dict[str, Any] = {}
+    for check, on in checks_enabled.items():
+        if not on:
+            continue
+        if check == "restore_point_freshness":
+            results[check] = check_restore_point_freshness(last_backup_at, rpo_target_mins, now)
+        elif check == "rpo_compliance":
+            results[check] = check_rpo_compliance(last_backup_at, rpo_target_mins, now)
+        elif check == "agent_heartbeat":
+            results[check] = check_agent_heartbeat(appliance_last_heartbeat, interval_mins, now)
+        elif check in LIVE_ONLY_CHECKS:
+            results[check] = {"status": "skipped", "detail": "Requires appliance telemetry"}
+        else:
+            results[check] = {"status": "skipped", "detail": "Unknown check"}
+    return results
+
+
 def evaluate_check_results(check_results: dict[str, Any]) -> str:
-    """Return overall status: pass | warn | fail."""
+    """Return overall status: pass | warn | fail. Skipped checks are ignored."""
     statuses = [v.get("status", "skip") for v in check_results.values()]
     if "fail" in statuses:
         return "fail"
