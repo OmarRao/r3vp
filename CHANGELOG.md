@@ -19,6 +19,14 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Natural-Language Insights Over Live Data
+
+### Changed
+- `/v1/insights/query` now answers from a live org-scoped context (workload counts, composite readiness score, active threats, recent failures, RTO breaches, per-provider pass rates) built by the new `insights_context.build_query_context`, replacing the last hard-coded mock context. The entire AI Insights surface (prediction, anomalies, risk ranking, NL query) is now backed by real data
+- Added an integration test (real Postgres) asserting the NL query reflects live counts rather than the old mock values
+
+---
+
 ## [Unreleased] - MSSP Usage Metering and Billing
 
 ### Added
