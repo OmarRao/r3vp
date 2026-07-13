@@ -19,6 +19,15 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Continuous Validation Execution
+
+### Added
+- The APScheduler now registers enabled `ContinuousValidationPolicy` rows on their `check_interval_mins` and actually runs them (previously policies existed but never executed). Each run evaluates the enabled micro-checks per in-scope workload, records a `MicroValidationRun`, and raises a `ValidationAlert` once a workload reaches the policy's consecutive-failure threshold (deduped against unresolved alerts)
+- Server-side-evaluable micro-checks implemented as pure functions in `continuous_validation.py`: `restore_point_freshness`, `rpo_compliance`, and `agent_heartbeat` (derived from `workload.last_backup_at` / `rpo_target_mins` and `appliance.last_heartbeat`). Live-only checks (`mount_check`, `veeam_job_status`, `vcenter_connectivity`) are reported `skipped` until the appliance submits telemetry
+- Unit tests for every check evaluator and an integration test (real Postgres) driving the policy job end to end (runs recorded + consecutive-failure alert raised)
+
+---
+
 ## [Unreleased] - Auth-Pattern Audit
 
 ### Fixed
