@@ -18,27 +18,6 @@ from src.services.rbac import require_permission
 
 router = APIRouter()
 
-MOCK_CONTEXT = {
-    "workloads_total": 47,
-    "workloads_tested": 44,
-    "overall_score": 84,
-    "active_threats": 1,
-    "rto_breaches": [
-        {"workload": "sql-prod-02", "rto_actual": 95, "rto_target": 90},
-    ],
-    "recent_failures": [
-        {"workload": "sql-prod-02"},
-        {"workload": "db-prod-03"},
-    ],
-    "provider_breakdown": {
-        "vmware": {"pass_rate": 95},
-        "azure": {"pass_rate": 80},
-        "aws": {"pass_rate": 75},
-        "gcp": {"pass_rate": 75},
-        "hyperv": {"pass_rate": 100},
-    },
-}
-
 
 @router.get("/rto-prediction/{workload_id}")
 async def get_rto_prediction(workload_id: str, user: AuthUser, db: AsyncSession = Depends(get_db)):
@@ -140,10 +119,13 @@ async def get_risk_ranking(user: AuthUser, db: AsyncSession = Depends(get_db)):
 
 @router.post("/query")
 async def natural_language_query(body: dict, user: AuthUser, db: AsyncSession = Depends(get_db)):
+    from src.services.insights_context import build_query_context
+
     require_permission(getattr(user, "permissions", []), "workloads:read")
     query = body.get("query", "")
     if not query or len(query) > 500:
         from fastapi import HTTPException
         raise HTTPException(400, "query must be 1-500 characters")
-    answer = answer_nl_query(query, MOCK_CONTEXT)
+    context = await build_query_context(db, user.org_id)
+    answer = answer_nl_query(query, context)
     return {"query": query, "answer": answer}
