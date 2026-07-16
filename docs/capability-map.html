@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R3VP - The Recovery Network</title>
+<style>
+  :root {
+    --paper: #EDF1F7;
+    --paper-2: #FBFCFE;
+    --ink: #0F1E33;
+    --ink-2: #45566E;
+    --ink-3: #8493A8;
+    --grid: #DCE3EC;
+    --l-appliance: #1F6FEB;
+    --l-threat:    #E11D48;
+    --l-validate:  #0E9F9A;
+    --l-intel:     #7C3AED;
+    --l-comply:    #D97706;
+    --l-ops:       #DB2777;
+    --font: system-ui, "Segoe UI", Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px 70px; }
+
+  /* header / wayfinding sign */
+  .sign { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+  .roundel {
+    flex: none;
+    width: 66px; height: 66px; border-radius: 50%;
+    background: var(--ink);
+    border: 3px solid #FFFFFF;
+    box-shadow: 0 0 0 2px var(--ink), 0 6px 18px -6px rgba(15,30,51,.5);
+    color: #FFFFFF;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 850; font-size: 16px; letter-spacing: -0.5px;
+    white-space: nowrap; line-height: 1;
+  }
+  .roundel em { color: #2BE38A; font-style: normal; }
+  .sign .tt .kicker { font-family: var(--mono); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--l-appliance); }
+  .sign .tt h1 { font-size: clamp(28px, 5vw, 46px); font-weight: 850; letter-spacing: -1.4px; line-height: 1; }
+  .thesis { max-width: 68ch; color: var(--ink-2); font-size: 16px; margin-bottom: 26px; }
+  .thesis b { color: var(--ink); }
+
+  /* map panel */
+  .panel {
+    background: var(--paper-2);
+    border: 1px solid var(--grid);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px -30px rgba(15,30,51,.4);
+    overflow: hidden;
+  }
+  .panel-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 12px 18px; border-bottom: 1px solid var(--grid);
+    font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-3);
+  }
+  .panel-bar .dotset { display: flex; gap: 5px; }
+  .panel-bar .dotset i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .scroll { overflow-x: auto; overflow-y: hidden; background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 100% 26px,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 26px 100%,
+      var(--paper-2);
+    background-blend-mode: normal;
+  }
+  .scroll svg { display: block; min-width: 1080px; width: 100%; height: auto; }
+
+  /* svg line + station styling driven by classes */
+  .ln { fill: none; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; transition: opacity .2s, stroke-width .2s; }
+  .hub { transition: opacity .2s; }
+  .st-ring { fill: #fff; stroke-width: 3.5; transition: opacity .2s; }
+  .st-lbl { font-family: var(--font); font-size: 11px; font-weight: 600; fill: var(--ink); transition: opacity .2s; }
+  .term-lbl { font-family: var(--font); font-weight: 850; letter-spacing: -.3px; fill: var(--ink); }
+  .term-sub { font-family: var(--mono); font-size: 9.5px; letter-spacing: 2px; fill: var(--ink-3); }
+  svg.dimmed .ln:not(.focus),
+  svg.dimmed .st-ring:not(.focus),
+  svg.dimmed .st-lbl:not(.focus) { opacity: .12; }
+  svg.dimmed .ln.focus { stroke-width: 9; }
+
+  /* legend */
+  .legend-head { margin-top: 34px; }
+  .legend-head .lh-kicker { font-family: var(--mono); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--ink-3); }
+  .legend-head h2 { font-size: clamp(20px, 3vw, 26px); font-weight: 800; letter-spacing: -.6px; margin: 4px 0 4px; }
+  .legend-head p { color: var(--ink-2); font-size: 14px; max-width: 64ch; }
+  .legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; margin-top: 16px; }
+  .leg {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--paper-2); border: 1px solid var(--grid); border-radius: 12px;
+    padding: 13px 15px; cursor: pointer; transition: border-color .16s, transform .16s;
+  }
+  .leg:hover { transform: translateY(-2px); }
+  .leg .bar { width: 6px; align-self: stretch; border-radius: 4px; flex: none; }
+  .leg .ln-name { font-weight: 750; font-size: 14px; letter-spacing: -.2px; display: flex; align-items: center; gap: 8px; }
+  .leg .ln-num { font-family: var(--mono); font-size: 10px; color: #fff; padding: 1px 6px; border-radius: 5px; letter-spacing: .5px; }
+  .leg .ln-desc { font-size: 12.5px; color: var(--ink-2); margin-top: 3px; }
+  .leg .stations { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); margin-top: 6px; letter-spacing: .2px; }
+
+  footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--grid); color: var(--ink-3); font-size: 12.5px; text-align: center; }
+  footer a { color: var(--l-validate); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  :focus-visible { outline: 2px solid var(--l-appliance); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="sign">
+      <div class="roundel">R<em>3</em>VP</div>
+      <div class="tt">
+        <div class="kicker">R3VP Network Map</div>
+        <h1>The Recovery Network</h1>
+      </div>
+    </div>
+    <p class="thesis">Every capability of the platform is a line on the network. They all run the same route: from <b>Your Stack</b>, where the appliance lives, to the one destination every organization wants to reach with certainty during a ransomware event <b>Recovery Assured</b>.</p>
+  </header>
+
+  <div class="panel">
+    <div class="panel-bar">
+      <span>Six lines &middot; one terminus</span>
+      <span class="dotset" id="dotset"></span>
+    </div>
+    <div class="scroll" id="scroll">
+      <svg id="map" viewBox="0 0 1360 800" role="img" aria-label="R3VP capability transit map"></svg>
+    </div>
+  </div>
+
+  <div class="legend-head">
+    <span class="lh-kicker">Line guide</span>
+    <h2>What each line runs</h2>
+    <p>Six lines, each a capability area of the platform. Every one departs Your Stack and terminates at Recovery Assured.</p>
+  </div>
+  <div class="legend" id="legend"></div>
+
+  <footer>
+    Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy &nbsp;·&nbsp;
+    <a href="https://www.linkedin.com/in/omarrao/">linkedin.com/in/omarrao</a> &nbsp;·&nbsp;
+    <a href="https://omarrao.substack.com/">omarrao.substack.com</a>
+  </footer>
+</div>
+
+<script>
+const LINES = [
+  { id: "appliance", num: "L1", name: "Appliance Line", color: "#1F6FEB",
+    desc: "A lightweight appliance runs inside your environment and connects to every platform you back up, reaching out over mutual TLS so credentials never leave your network.",
+    stations: ["Env-resident appliance", "Outbound-only mTLS", "SOPS + age vault", "10 providers", "Veeam & vCenter"] },
+  { id: "threat", num: "L2", name: "Threat Line", color: "#E11D48",
+    desc: "Inspects the backup chain for the fingerprints of ransomware before any restore, then picks the newest restore point that is actually clean.",
+    stations: ["Entropy anomaly", "Mass-rename", "Ransomware extensions", "Clean restore point", "YARA + incident response"] },
+  { id: "validate", num: "L3", name: "Validation Line", color: "#0E9F9A",
+    desc: "Actually performs the recovery in an isolated sandbox with no path to production, measures the real RTO and RPO, captures evidence, and tears it down.",
+    stations: ["Isolated sandbox", "Instant recovery", "RTO / RPO measured", "Evidence capture", "Continuous checks"] },
+  { id: "intel", num: "L4", name: "Intelligence Line", color: "#7C3AED",
+    desc: "Turns recovery-test history into a live readiness score and trend, forecasts which workloads will breach their RTO, and answers plain-English questions.",
+    stations: ["Readiness score", "12-week trend", "RTO forecast", "Anomaly + risk rank", "NL queries"] },
+  { id: "comply", num: "L5", name: "Compliance Line", color: "#D97706",
+    desc: "Converts validated recoveries into signed, tamper-evident evidence that satisfies compliance frameworks and cyber-insurance requirements.",
+    stations: ["SOC2 / ISO / NIST / PCI", "Cyber-insurance bundle", "Hash-chained audit", "Evidence vault", "RBAC"] },
+  { id: "ops", num: "L6", name: "Operations Line", color: "#DB2777",
+    desc: "Routes validation and threat events into the tools your team already runs, and scales the entire loop across a portfolio of customer organizations.",
+    stations: ["Slack / Teams / PagerDuty", "SIEM & SOAR", "MSSP billing", "Fleet management", "Protected CI/CD"] },
+];
+
+const W = 1360, H = 800;
+const origin = { x: 128, y: H / 2 };
+const term = { x: W - 150, y: H / 2 };
+const startX = 300, endX = W - 380;
+const laneY = i => 132 + i * ((H - 260) / (LINES.length - 1));
+
+function svgEl(tag, attrs, children) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  if (children) el.innerHTML = children;
+  return el;
+}
+
+const map = document.getElementById("map");
+
+// origin + terminus interchange blobs (drawn first, under lines end-caps via order: lines then hubs then stations)
+function roundedHub(cx, cy, w, h, l1, l2, accent) {
+  const g = svgEl("g", { class: "hub" });
+  g.appendChild(svgEl("rect", { x: cx - w / 2, y: cy - h / 2, width: w, height: h, rx: 16,
+    fill: "#0F1E33" }));
+  // thin accent underline so the terminus reads as the destination
+  g.appendChild(svgEl("rect", { x: cx - 22, y: cy + h / 2 - 12, width: 44, height: 3, rx: 2,
+    fill: accent }));
+  g.appendChild(svgEl("text", { x: cx, y: cy - 7, "text-anchor": "middle",
+    "font-size": "18", "font-weight": "850", "letter-spacing": "-0.4", fill: "#FFFFFF" }, l1));
+  g.appendChild(svgEl("text", { x: cx, y: cy + 15, "text-anchor": "middle",
+    "font-size": "18", "font-weight": "850", "letter-spacing": "-0.4", fill: "#FFFFFF" }, l2));
+  return g;
+}
+
+const lineEls = {};   // id -> array of svg nodes for focus/dim
+LINES.forEach((ln, i) => {
+  const y = laneY(i);
+  const n = ln.stations.length;
+  const d = `M ${origin.x} ${origin.y} C ${origin.x + 90} ${origin.y}, ${startX - 100} ${y}, ${startX} ${y} `
+          + `L ${endX} ${y} `
+          + `C ${endX + 100} ${y}, ${term.x - 90} ${term.y}, ${term.x} ${term.y}`;
+  const path = svgEl("path", { d, class: "ln", stroke: ln.color });
+  map.appendChild(path);
+  lineEls[ln.id] = [path];
+});
+
+// hubs - bold white terminals; origin = where the appliance lives, terminus = the destination
+map.appendChild(roundedHub(origin.x, origin.y, 158, 72, "YOUR", "STACK", "#1F6FEB"));
+map.appendChild(roundedHub(term.x, term.y, 196, 78, "RECOVERY", "ASSURED", "#25E0A0"));
+
+// stations + labels on top
+LINES.forEach((ln, i) => {
+  const y = laneY(i);
+  const n = ln.stations.length;
+  ln.stations.forEach((s, k) => {
+    const x = startX + k * (endX - startX) / (n - 1);
+    const ring = svgEl("circle", { cx: x, cy: y, r: 7.5, class: "st-ring", stroke: ln.color });
+    const above = (i + k) % 2 === 0;
+    const ly = above ? y - 16 : y + 26;
+    const lbl = svgEl("text", { x: x, y: ly, "text-anchor": "middle", class: "st-lbl" }, s);
+    map.appendChild(ring); map.appendChild(lbl);
+    lineEls[ln.id].push(ring, lbl);
+  });
+});
+
+// dot set in bar
+document.getElementById("dotset").innerHTML = LINES.map(l => `<i style="background:${l.color}"></i>`).join("");
+
+// legend
+document.getElementById("legend").innerHTML = LINES.map(l => `
+  <div class="leg" data-id="${l.id}">
+    <span class="bar" style="background:${l.color}"></span>
+    <div>
+      <div class="ln-name"><span class="ln-num" style="background:${l.color}">${l.num}</span>${l.name}</div>
+      <div class="ln-desc">${l.desc}</div>
+      <div class="stations">${l.stations.join("  &middot;  ")}</div>
+    </div>
+  </div>`).join("");
+
+// focus / dim interaction
+function focus(id) {
+  map.classList.add("dimmed");
+  Object.entries(lineEls).forEach(([lid, els]) => {
+    els.forEach(e => e.classList.toggle("focus", lid === id));
+  });
+}
+function clearFocus() {
+  map.classList.remove("dimmed");
+  Object.values(lineEls).flat().forEach(e => e.classList.remove("focus"));
+}
+document.querySelectorAll(".leg").forEach(leg => {
+  const id = leg.dataset.id;
+  leg.addEventListener("mouseenter", () => focus(id));
+  leg.addEventListener("mouseleave", clearFocus);
+});
+LINES.forEach(l => {
+  lineEls[l.id][0].style.cursor = "pointer";
+  lineEls[l.id][0].addEventListener("mouseenter", () => focus(l.id));
+  lineEls[l.id][0].addEventListener("mouseleave", clearFocus);
+});
+</script>
+
+</body>
+</html>

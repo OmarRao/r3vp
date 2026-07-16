@@ -19,6 +19,13 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Capability Map
+
+### Added
+- `docs/capability-map.html`: a self-contained, transit-map-style network diagram of the entire platform. Six lines (Appliance, Threat, Validation, Intelligence, Compliance, Operations) run from "Your Stack" to a single terminus, "Recovery Assured", with hover-to-trace interaction and a per-line guide. Served via GitHub Pages at `/capability-map.html` and linked from the README
+
+---
+
 ## [Unreleased] - Natural-Language Insights Over Live Data
 
 ### Changed
