@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -26,7 +27,7 @@ MOCK_POLICIES = [
     {"id": "p2", "name": "Critical Tier Only", "enabled": True, "check_interval_mins": 5, "workload_scope": "tag:critical", "checks_enabled": {"restore_point_freshness": True, "mount_check": True, "veeam_job_status": True, "vcenter_connectivity": True, "rpo_compliance": True}, "alert_on_failure": True, "consecutive_failures_before_alert": 1},
 ]
 
-MOCK_RECENT_RUNS = [
+MOCK_RECENT_RUNS: list[dict[str, Any]] = [
     {"id": "r1", "workload_name": "db-prod-01", "status": "pass", "checks_run": 4, "checks_passed": 4, "restore_point_age_hours": 1, "ran_at": "2026-06-26T14:00:00Z", "duration_ms": 312},
     {"id": "r2", "workload_name": "dc-prod-02", "status": "pass", "checks_run": 4, "checks_passed": 4, "restore_point_age_hours": 2, "ran_at": "2026-06-26T14:00:00Z", "duration_ms": 289},
     {"id": "r3", "workload_name": "erp-prod-01", "status": "warn", "checks_run": 4, "checks_passed": 3, "restore_point_age_hours": 6, "ran_at": "2026-06-26T14:00:00Z", "duration_ms": 445, "check_results": {"restore_point_freshness": {"status": "warn", "detail": "Latest RP is 6 hours old, RPO target is 4 hours"}}},

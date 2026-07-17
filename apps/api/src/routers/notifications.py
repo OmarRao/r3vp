@@ -36,7 +36,7 @@ async def list_channels(user: AuthUser, db: AsyncSession = Depends(get_db)) -> l
     rows = await db.execute(
         select(NotificationChannel).where(NotificationChannel.org_id == user.org_id)
     )
-    return rows.scalars().all()
+    return list(rows.scalars().all())
 
 
 @router.post("", response_model=ChannelResponse, status_code=201)
@@ -72,6 +72,6 @@ async def delete_channel(
             NotificationChannel.org_id == user.org_id,
         )
     )
-    if result.rowcount == 0:
+    if result.rowcount == 0:  # type: ignore[attr-defined]  # CursorResult at runtime
         raise HTTPException(404, "Notification channel not found")
     await db.commit()

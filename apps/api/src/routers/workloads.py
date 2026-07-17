@@ -50,7 +50,7 @@ async def list_workloads(
         .offset(offset)
         .limit(page_size)
     )
-    return rows.scalars().all()
+    return list(rows.scalars().all())
 
 
 @router.get("/{workload_id}", response_model=WorkloadResponse)

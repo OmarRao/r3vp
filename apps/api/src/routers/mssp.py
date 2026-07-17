@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -17,7 +18,7 @@ from src.services.rbac import require_permission
 
 router = APIRouter()
 
-MOCK_CUSTOMERS = [
+MOCK_CUSTOMERS: list[dict[str, Any]] = [
     {"id": "c1", "org_id": "o1", "display_name": "Acme Corporation", "industry": "Financial Services", "tier": "premium", "readiness_score": 87, "workloads": 42, "workloads_tested": 40, "last_test": "Today 14:22", "active_threats": 0, "open_incidents": 0, "appliances": 3, "status": "healthy"},
     {"id": "c2", "org_id": "o2", "display_name": "Globex Industries", "industry": "Manufacturing", "tier": "standard", "readiness_score": 61, "workloads": 28, "workloads_tested": 18, "last_test": "Jun 20", "active_threats": 1, "open_incidents": 1, "appliances": 2, "status": "warning"},
     {"id": "c3", "org_id": "o3", "display_name": "Initech Solutions", "industry": "Technology", "tier": "enterprise", "readiness_score": 94, "workloads": 67, "workloads_tested": 66, "last_test": "Today 09:15", "active_threats": 0, "open_incidents": 0, "appliances": 5, "status": "healthy"},

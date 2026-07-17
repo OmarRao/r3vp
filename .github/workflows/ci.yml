@@ -36,8 +36,7 @@ jobs:
           version: "latest"
       - run: uv sync --extra dev
       - run: uv run ruff check src/
-      - run: uv run mypy src/ --ignore-missing-imports
-        continue-on-error: true  # mypy is advisory; annotation coverage not enforced
+      - run: uv run mypy src/ --ignore-missing-imports  # blocking: src/ is type-clean
       - run: uv run pytest tests/ -v -m "not integration"
         env:
           R3VP_API_DATABASE_URL: postgresql+asyncpg://r3vp:r3vp@localhost:5432/r3vp

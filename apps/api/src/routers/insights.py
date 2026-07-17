@@ -55,7 +55,7 @@ async def get_rto_prediction(workload_id: str, user: AuthUser, db: AsyncSession 
         )
         .order_by(TestRun.started_at)
     )).scalars().all()
-    rto_series = [float(r) for r in rows]
+    rto_series = [float(r) for r in rows if r is not None]
 
     target = float(workload.rto_target_mins or 60)
     prediction = predict_rto_trend(rto_series, target_mins=target)

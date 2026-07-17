@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import uuid
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -19,7 +20,7 @@ from src.services.rbac import require_permission
 
 router = APIRouter()
 
-MOCK_FLEET = [
+MOCK_FLEET: list[dict[str, Any]] = [
     {"id": "a1", "name": "NYC-Primary", "site": "NYC DC1", "status": "healthy", "workloads": 20, "cpu": 24, "memory": 41, "disk": 38, "veeam": True, "vcenter": True, "temporal": True, "version": "0.13.0", "uptime_hours": 720, "last_test": "Today 14:22"},
     {"id": "a2", "name": "NYC-DR", "site": "NYC DR Site", "status": "healthy", "workloads": 8, "cpu": 12, "memory": 28, "disk": 22, "veeam": True, "vcenter": True, "temporal": True, "version": "0.13.0", "uptime_hours": 168, "last_test": "Jun 20"},
     {"id": "a3", "name": "Azure-EastUS", "site": "Azure East US", "status": "warning", "workloads": 10, "cpu": 18, "memory": 65, "disk": 71, "veeam": True, "vcenter": False, "temporal": True, "version": "0.12.1", "uptime_hours": 504, "last_test": "Jun 18", "alerts": ["Disk usage above 70%", "vCenter connection lost"]},

@@ -7,6 +7,19 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - mypy Blocking + Two Silent-Empty Bugs
+
+### Changed
+- The API mypy check is now **blocking** in CI (was advisory). `apps/api/src` is type-clean (`mypy src/ --ignore-missing-imports`: 0 errors across 108 files). The appliance mypy stays advisory (native deps not verifiable here)
+
+### Fixed
+- `team.list_invites` filtered on `OrgInvite.accepted_at is None` (Python `is`, evaluates to `False`) so the query was `WHERE ... AND false` and **always returned an empty list**. Now `OrgInvite.accepted_at.is_(None)`
+- `api_keys.list_keys` filtered on `not ApiKey.revoked` (Python `not` on a column, evaluates to `False`) so it **always returned an empty list**. Now `ApiKey.revoked.is_(False)`
+- 23 further type errors resolved (async-generator return type on `get_db`, `**kwargs` unpacking in SOAR dispatch, `Sequence`->`list` returns, `float(int | None)` guard, mock-list annotations, a shadowed loop variable in runbooks, `CursorResult.rowcount` typing)
+- Regression tests (real Postgres) assert both list endpoints now return their rows
+
+---
+
 ## [Unreleased] - MSSP Partner Provisioning
 
 ### Added

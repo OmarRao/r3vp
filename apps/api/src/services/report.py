@@ -28,7 +28,7 @@ def _redact_sensitive_fields(data: dict[str, Any]) -> dict[str, Any]:
         r"(password|passwd|secret|token|api_key|apikey|credential|auth|bearer)",
         re.IGNORECASE,
     )
-    redacted = {}
+    redacted: dict[str, Any] = {}
     for key, value in data.items():
         if sensitive_keys.search(key):
             redacted[key] = "**REDACTED**"
