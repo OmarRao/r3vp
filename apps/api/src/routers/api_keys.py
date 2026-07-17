@@ -29,7 +29,7 @@ class CreateKeyRequest(BaseModel):
 async def list_keys(user: AuthUser, db: AsyncSession = Depends(get_db)):
     require_permission(getattr(user, "permissions", []), "api_keys:read")
     rows = await db.execute(
-        select(ApiKey).where(ApiKey.org_id == user.org_id, not ApiKey.revoked).order_by(ApiKey.created_at.desc())
+        select(ApiKey).where(ApiKey.org_id == user.org_id, ApiKey.revoked.is_(False)).order_by(ApiKey.created_at.desc())
     )
     return [
         {

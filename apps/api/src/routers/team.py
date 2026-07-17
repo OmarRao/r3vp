@@ -85,7 +85,7 @@ async def list_invites(user: AuthUser, db: AsyncSession = Depends(get_db)):
     require_permission(getattr(user, "permissions", []), "team:read")
     rows = await db.execute(
         select(OrgInvite)
-        .where(OrgInvite.org_id == user.org_id, OrgInvite.accepted_at is None)
+        .where(OrgInvite.org_id == user.org_id, OrgInvite.accepted_at.is_(None))
         .order_by(OrgInvite.created_at.desc())
     )
     return [

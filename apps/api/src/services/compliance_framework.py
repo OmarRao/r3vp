@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
-BUILTIN_FRAMEWORKS = [
+BUILTIN_FRAMEWORKS: list[dict[str, Any]] = [
     {
         "short_code": "SOC2",
         "name": "SOC 2 Type II",

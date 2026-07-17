@@ -261,7 +261,7 @@ async def resolve_incident(
         )
         .values(status="resolved", resolved_at=now)
     )
-    if result.rowcount == 0:
+    if result.rowcount == 0:  # type: ignore[attr-defined]  # CursorResult at runtime
         raise HTTPException(status_code=404, detail="Incident not found")
     await db.commit()
     return {"status": "resolved"}

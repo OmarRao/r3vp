@@ -147,27 +147,29 @@ async def _dispatch_soar(finding: ThreatFinding, incident_number: str, config: d
         dispatch_to_xsoar,
     )
     platform = config.get("platform", "generic")
-    kwargs = dict(
+    # mitre_technique is the only optional field; keep it out of kwargs so the
+    # dict stays uniformly str-valued and unpacks cleanly into the str params.
+    kwargs: dict[str, str] = dict(
         incident_title=f"R3VP {incident_number} - {finding.threat_name}",
         severity=finding.severity,
         affected_host=finding.host,
         threat_name=finding.threat_name,
         indicator_type=finding.indicator_type,
         indicator_value=finding.indicator_value,
-        mitre_technique=finding.mitre_technique,
         org_id=str(finding.org_id),
         finding_id=str(finding.id),
     )
+    mitre = finding.mitre_technique
     if platform == "splunk_soar":
         return await dispatch_to_splunk_soar(
-            base_url=config["url"], api_token=config["api_key"], **kwargs
+            base_url=config["url"], api_token=config["api_key"], mitre_technique=mitre, **kwargs
         )
     elif platform == "xsoar":
         return await dispatch_to_xsoar(
-            base_url=config["url"], api_key=config["api_key"], **kwargs
+            base_url=config["url"], api_key=config["api_key"], mitre_technique=mitre, **kwargs
         )
     else:
-        ok = await dispatch_generic_webhook(webhook_url=config["url"], **kwargs)
+        ok = await dispatch_generic_webhook(webhook_url=config["url"], mitre_technique=mitre, **kwargs)
         return "dispatched" if ok else None
 
 

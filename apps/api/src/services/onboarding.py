@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
-STEPS = [
+STEPS: list[dict[str, Any]] = [
     {
         "step": 1,
         "id": "org_profile",

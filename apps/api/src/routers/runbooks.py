@@ -99,7 +99,7 @@ async def create_runbook(body: CreateRunbookRequest, user: AuthUser, db: AsyncSe
     await db.flush()
 
     for step_req in body.steps:
-        step = RunbookStep(
+        step_row = RunbookStep(
             runbook_id=runbook.id,
             seq=step_req.seq,
             name=step_req.name,
@@ -111,7 +111,7 @@ async def create_runbook(body: CreateRunbookRequest, user: AuthUser, db: AsyncSe
             config=step_req.config,
             on_failure=step_req.on_failure,
         )
-        db.add(step)
+        db.add(step_row)
 
     await db.commit()
     await db.refresh(runbook)
