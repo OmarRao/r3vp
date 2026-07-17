@@ -100,7 +100,7 @@ async def list_frameworks(user: AuthUser, db: AsyncSession = Depends(get_db)):
 
 @router.post("", status_code=201)
 async def create_framework(body: CreateFrameworkRequest, user: AuthUser, db: AsyncSession = Depends(get_db)):
-    require_permission(getattr(user, "permissions", []), "reports:write")
+    require_permission(getattr(user, "permissions", []), "reports:generate")
     framework = ComplianceFramework(
         org_id=user.org_id,
         name=body.name,
@@ -139,7 +139,7 @@ async def list_controls(framework_id: str, user: AuthUser, db: AsyncSession = De
 
 @router.post("/{framework_id}/controls", status_code=201)
 async def add_control(framework_id: uuid.UUID, body: AddControlRequest, user: AuthUser, db: AsyncSession = Depends(get_db)):
-    require_permission(getattr(user, "permissions", []), "reports:write")
+    require_permission(getattr(user, "permissions", []), "reports:generate")
     invalid = [e for e in body.r3vp_evidence_types if e not in R3VP_EVIDENCE_TYPES]
     if invalid:
         raise HTTPException(400, f"Unknown evidence types: {invalid}. Valid: {R3VP_EVIDENCE_TYPES}")
@@ -164,7 +164,7 @@ async def add_control(framework_id: uuid.UUID, body: AddControlRequest, user: Au
 
 @router.post("/assess")
 async def run_assessment(body: RunAssessmentRequest, user: AuthUser, db: AsyncSession = Depends(get_db)):
-    require_permission(getattr(user, "permissions", []), "reports:write")
+    require_permission(getattr(user, "permissions", []), "reports:generate")
     fid = str(body.framework_id)
     builtin = next((f for f in BUILTIN_FRAMEWORKS if f["short_code"] == fid), None)
     if builtin:
