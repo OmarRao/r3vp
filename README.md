@@ -757,6 +757,21 @@ uv run alembic upgrade head
 uv run uvicorn src.main:app --reload
 ```
 
+#### Demo data
+
+Load a self-contained demo organization (5 role users, 10 workloads, a
+12-week validation history with an improving RTO trend, threat findings,
+and integrations) so every feature is immediately explorable:
+
+```bash
+cd apps/api
+uv run python -m src.scripts.seed_demo          # seed (no-op if already present)
+uv run python -m src.scripts.seed_demo --reset  # wipe the demo org and rebuild
+```
+
+The script only ever touches its own fixed demo org, so it is safe to
+re-run against a working database.
+
 ### Portal
 
 ```bash

@@ -7,6 +7,17 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Router Hardening + Demo Seed Data
+
+### Added
+- `apps/api/tests/test_router_hardening.py`: three fast, DB-free introspection guards that permanently close the dead-endpoint bug classes found during QA - the `Depends(alias)` anti-pattern (params mis-read as `args`/`kwargs`, 422 on every call), `require_permission` strings absent from the RBAC catalog (403 for all roles), and duplicate route registration
+- `apps/api/src/scripts/seed_demo.py`: seeds a self-contained, internally consistent "Northwind Demo" org (5 role users, 1 appliance, 10 workloads, 108 test runs across 12 weeks with an improving RTO trend, 3 integrations, 2 threat scans with findings). Deterministic UUIDs make it idempotent; `--reset` wipes and rebuilds only the demo org. Verified end-to-end against real Postgres
+
+### Fixed
+- `compliance_frameworks.py` `create_framework`, `add_control`, and `run_assessment` gated on the non-existent permission `reports:write`, making them 403 for every role including owner; fixed to `reports:generate`. Caught by the new catalog guard on its first run
+
+---
+
 ## [Unreleased] - Integration Config Validation
 
 ### Added
