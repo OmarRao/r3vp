@@ -739,6 +739,20 @@ r3vp/
 - Node.js 20+
 - Docker Desktop
 
+### One-command stack (recommended)
+
+From the repository root, bring up Postgres, Redis, and the API with one
+command. The API container applies all migrations and loads the demo
+dataset automatically, then serves a fully populated instance:
+
+```bash
+docker compose up --build
+# API on http://localhost:8000 (set SEED_DEMO=0 to skip demo data)
+```
+
+The portal is not included in the stack because it needs Auth0
+credentials; run it separately (see Portal below).
+
 ### Appliance
 
 ```bash
