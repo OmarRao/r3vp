@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth import AuthUser
 from src.db.session import get_db
 from src.models.mssp import MsspAlertRule, MsspCustomerOrg
+from src.services.mssp_provisioning import get_or_create_partner
 from src.services.rbac import require_permission
 
 router = APIRouter()
@@ -69,8 +70,10 @@ async def mssp_summary(user: AuthUser, db: AsyncSession = Depends(get_db)):
 @router.get("/customers")
 async def list_customers(user: AuthUser, db: AsyncSession = Depends(get_db)):
     require_permission(getattr(user, "permissions", []), "mssp:read")
+    partner = await get_or_create_partner(db, user.org_id)
     rows = await db.execute(
         select(MsspCustomerOrg)
+        .where(MsspCustomerOrg.mssp_id == partner.id)
         .order_by(MsspCustomerOrg.display_name)
     )
     customers = rows.scalars().all()
@@ -85,8 +88,9 @@ async def list_customers(user: AuthUser, db: AsyncSession = Depends(get_db)):
 @router.post("/customers", status_code=201)
 async def add_customer(body: AddCustomerRequest, user: AuthUser, db: AsyncSession = Depends(get_db)):
     require_permission(getattr(user, "permissions", []), "mssp:manage")
+    partner = await get_or_create_partner(db, user.org_id)
     customer = MsspCustomerOrg(
-        mssp_id=user.org_id,
+        mssp_id=partner.id,
         org_id=body.org_id,
         display_name=body.display_name,
         industry=body.industry,
@@ -104,7 +108,13 @@ async def add_customer(body: AddCustomerRequest, user: AuthUser, db: AsyncSessio
 @router.delete("/customers/{customer_id}", status_code=204)
 async def remove_customer(customer_id: uuid.UUID, user: AuthUser, db: AsyncSession = Depends(get_db)):
     require_permission(getattr(user, "permissions", []), "mssp:manage")
-    customer = await db.scalar(select(MsspCustomerOrg).where(MsspCustomerOrg.id == customer_id))
+    partner = await get_or_create_partner(db, user.org_id)
+    customer = await db.scalar(
+        select(MsspCustomerOrg).where(
+            MsspCustomerOrg.id == customer_id,
+            MsspCustomerOrg.mssp_id == partner.id,
+        )
+    )
     if not customer:
         raise HTTPException(404, "Customer org not found")
     await db.delete(customer)
@@ -130,7 +140,12 @@ async def customer_scorecard(customer_id: str, user: AuthUser, db: AsyncSession 
 @router.get("/alert-rules")
 async def list_alert_rules(user: AuthUser, db: AsyncSession = Depends(get_db)):
     require_permission(getattr(user, "permissions", []), "mssp:read")
-    rows = await db.execute(select(MsspAlertRule).order_by(MsspAlertRule.created_at.desc()))
+    partner = await get_or_create_partner(db, user.org_id)
+    rows = await db.execute(
+        select(MsspAlertRule)
+        .where(MsspAlertRule.mssp_id == partner.id)
+        .order_by(MsspAlertRule.created_at.desc())
+    )
     rules = rows.scalars().all()
     if rules:
         return [{"id": str(r.id), "name": r.name, "condition": r.condition, "threshold": r.threshold, "enabled": r.enabled} for r in rules]
@@ -147,8 +162,9 @@ async def create_alert_rule(body: CreateAlertRuleRequest, user: AuthUser, db: As
     VALID_CONDITIONS = {"readiness_below", "rto_breach", "test_failure", "no_test_in_days", "threat_detected"}
     if body.condition not in VALID_CONDITIONS:
         raise HTTPException(400, f"condition must be one of: {', '.join(sorted(VALID_CONDITIONS))}")
+    partner = await get_or_create_partner(db, user.org_id)
     rule = MsspAlertRule(
-        mssp_id=user.org_id,
+        mssp_id=partner.id,
         name=body.name,
         condition=body.condition,
         threshold=body.threshold,
@@ -179,8 +195,9 @@ async def mssp_billing(user: AuthUser, period_days: int = 30, db: AsyncSession =
         raise HTTPException(400, "period_days must be between 1 and 366")
     since = datetime.now(UTC) - timedelta(days=period_days)
 
+    partner = await get_or_create_partner(db, user.org_id)
     customers = (await db.execute(
-        select(MsspCustomerOrg).where(MsspCustomerOrg.mssp_id == user.org_id)
+        select(MsspCustomerOrg).where(MsspCustomerOrg.mssp_id == partner.id)
         .order_by(MsspCustomerOrg.display_name)
     )).scalars().all()
 

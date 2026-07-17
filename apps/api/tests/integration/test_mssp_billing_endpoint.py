@@ -30,13 +30,14 @@ async def test_mssp_billing_meters_customer_usage(db_engine, db_session):
 
     db_session.add(Org(id=partner_org_id, name="Partner"))
     db_session.add(Org(id=customer_org_id, name="Customer"))
-    # The code treats MsspCustomerOrg.mssp_id as the partner's org id; create a
-    # matching MsspPartner row first so the FK is satisfied.
-    db_session.add(MsspPartner(id=partner_org_id, name="Partner MSSP", slug="partner-mssp"))
+    # The partner is tied to the operating org via org_id; mssp_id on the
+    # customer is the partner's own id (an FK to mssp_partners.id).
+    partner = MsspPartner(org_id=partner_org_id, name="Partner MSSP", slug="partner-mssp")
+    db_session.add(partner)
     db_session.add(Appliance(id=appliance_id, org_id=customer_org_id, name="ap",
                              mtls_thumbprint="t", status="active"))
     await db_session.commit()
-    db_session.add(MsspCustomerOrg(mssp_id=partner_org_id, org_id=customer_org_id,
+    db_session.add(MsspCustomerOrg(mssp_id=partner.id, org_id=customer_org_id,
                                    display_name="Acme", industry="Tech", tier="premium"))
     await db_session.commit()
 

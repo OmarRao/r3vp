@@ -15,6 +15,8 @@ class MsspPartner(Base):
     __tablename__ = "mssp_partners"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    # The org that operates as this MSSP partner. One partner record per org.
+    org_id: Mapped[uuid.UUID] = mapped_column(unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     slug: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     logo_url: Mapped[str | None] = mapped_column(String(512))
