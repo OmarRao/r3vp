@@ -7,6 +7,18 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - MSSP Partner Provisioning
+
+### Added
+- `apps/api/src/services/mssp_provisioning.py`: `get_or_create_partner` resolves the caller's org to its `mssp_partners` record (creating one on first use), idempotently
+- Migration `0020`: adds `org_id` (unique) to `mssp_partners` so a partner is tied to its operating org
+- Integration tests (real Postgres) for provisioning idempotency and per-partner customer scoping
+
+### Fixed
+- The MSSP console used the caller's `org_id` directly as `mssp_id`, which is a foreign key to `mssp_partners.id`. `add_customer` and `create_alert_rule` FK-violated on insert (no partner row existed), and `list_customers`/`list_alert_rules` returned **every** partner's records to any caller (cross-tenant leak). All console endpoints now resolve the partner via `get_or_create_partner` and scope reads, writes, and deletes to it
+
+---
+
 ## [Unreleased] - API Reference + Architecture Docs
 
 ### Added
