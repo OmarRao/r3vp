@@ -168,7 +168,7 @@ async def _seed(session) -> dict:
                 restore_point=started - timedelta(minutes=rng.randint(5, 60)),
                 started_at=started,
                 completed_at=started + duration,
-                status="failed" if failed else "success",
+                status="failed" if failed else "passed",
                 rto_actual_mins=None if failed else rto_actual,
                 rpo_actual_mins=None if failed else max(1, int((rpo_t or 60) * rng.uniform(0.4, 0.95))),
                 readiness_score=None if failed else rng.randint(82, 99),

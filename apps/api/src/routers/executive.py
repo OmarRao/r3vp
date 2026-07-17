@@ -10,10 +10,11 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth import AuthUser
+from src.auth import AuthUser, resolve_local_user_id
 from src.db.session import get_db
 from src.models.executive_report import DigestSchedule, ScorecardSnapshot
 from src.services.executive_report import render_scorecard_pdf
+from src.services.executive_snapshot import build_live_scorecard
 from src.services.rbac import require_permission
 
 router = APIRouter()
@@ -26,38 +27,6 @@ class DigestScheduleRequest(BaseModel):
     include_trend_chart: bool = True
     include_provider_breakdown: bool = True
     include_top_risks: bool = True
-
-
-MOCK_SNAPSHOT = {
-    "overall_score": 84,
-    "workloads_total": 47,
-    "workloads_tested": 44,
-    "workloads_passing": 41,
-    "rto_compliance_pct": 87,
-    "active_threats": 1,
-    "open_incidents": 0,
-    "provider_breakdown": {
-        "vmware": {"total": 20, "tested": 20, "pass_rate": 95},
-        "azure": {"total": 10, "tested": 10, "pass_rate": 80},
-        "aws": {"total": 8, "tested": 8, "pass_rate": 75},
-        "gcp": {"total": 5, "tested": 4, "pass_rate": 75},
-        "hyperv": {"total": 4, "tested": 2, "pass_rate": 100},
-    },
-    "top_risks": [
-        {"workload": "db-prod-03", "severity": "high", "reason": "RTO exceeded target by 42 minutes in last 2 tests"},
-        {"workload": "auth-svc-01", "severity": "medium", "reason": "Not tested in 45 days"},
-        {"workload": "erp-prod-01", "severity": "medium", "reason": "Pass rate dropped from 100% to 67% this quarter"},
-    ],
-}
-
-MOCK_TREND = [
-    {"date": "Jan 2026", "score": 71, "passing": 34, "total": 47, "rto_pct": 72},
-    {"date": "Feb 2026", "score": 74, "passing": 36, "total": 47, "rto_pct": 76},
-    {"date": "Mar 2026", "score": 78, "passing": 38, "total": 47, "rto_pct": 80},
-    {"date": "Apr 2026", "score": 80, "passing": 39, "total": 47, "rto_pct": 83},
-    {"date": "May 2026", "score": 82, "passing": 40, "total": 47, "rto_pct": 85},
-    {"date": "Jun 2026", "score": 84, "passing": 41, "total": 47, "rto_pct": 87},
-]
 
 
 @router.get("/scorecard")
@@ -81,7 +50,9 @@ async def get_scorecard(user: AuthUser, db: AsyncSession = Depends(get_db)):
             "top_risks": snapshot.top_risks,
             "snapshot_date": snapshot.snapshot_date,
         }
-    return MOCK_SNAPSHOT
+    # No persisted snapshot yet: compute live from current workloads/tests.
+    live, _trend, _org = await build_live_scorecard(db, user.org_id)
+    return live
 
 
 @router.get("/trend")
@@ -109,7 +80,9 @@ async def get_trend(
             }
             for s in reversed(snapshots)
         ]
-    return MOCK_TREND[-months:]
+    # No persisted history: derive the trend from live weekly pass rates.
+    _snap, trend, _org = await build_live_scorecard(db, user.org_id)
+    return trend[-months:]
 
 
 @router.post("/scorecard/pdf")
@@ -120,11 +93,12 @@ async def download_scorecard_pdf(
 ):
     require_permission(getattr(user, "permissions", []), "reports:generate")
     period_label = period if period != "current" else datetime.now(UTC).strftime("%B %Y")
+    snapshot, trend, org_name = await build_live_scorecard(db, user.org_id)
     pdf_bytes = render_scorecard_pdf(
-        org_name="Your Organization",
+        org_name=org_name,
         period_label=period_label,
-        snapshot=MOCK_SNAPSHOT,
-        trend=MOCK_TREND,
+        snapshot=snapshot,
+        trend=trend,
     )
     sha256 = __import__("hashlib").sha256(pdf_bytes).hexdigest()
     filename = f"r3vp-scorecard-{period_label.replace(' ', '-').lower()}.pdf"
@@ -176,7 +150,7 @@ async def create_digest_schedule(
         include_trend_chart=body.include_trend_chart,
         include_provider_breakdown=body.include_provider_breakdown,
         include_top_risks=body.include_top_risks,
-        created_by=getattr(user, "user_id", None),
+        created_by=await resolve_local_user_id(db, user),
     )
     db.add(schedule)
     await db.commit()

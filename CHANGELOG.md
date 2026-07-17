@@ -7,6 +7,19 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Executive Scorecard on Real Data
+
+### Added
+- `apps/api/src/services/executive_snapshot.py`: `build_live_scorecard` computes the CISO scorecard (score, coverage, RTO compliance, per-provider breakdown, top risks) and 12-week trend from live workloads, test runs, and threats
+- Integration tests (real Postgres) asserting the scorecard reflects seeded data and that `POST /v1/executive/scorecard/pdf` returns a real PDF
+
+### Fixed
+- `GET /v1/executive/scorecard`, `/trend`, and `POST /scorecard/pdf` returned a hardcoded 47-workload mock; they now compute from the org's real data (persisted `ScorecardSnapshot` if present, otherwise a live computation). The board PDF now carries the real org name
+- `create_digest_schedule` stored `created_by` from the nonexistent `user.user_id` (always `None`); now resolves the local `users.id` via `resolve_local_user_id`, matching the reports/integrations fix
+- `seed_demo.py` wrote test-run status `"success"`, but the platform's canonical passing status is `"passed"`; seeded runs were therefore invisible to readiness/scorecard queries. Corrected to `"passed"`
+
+---
+
 ## [Unreleased] - One-Command Dev Stack
 
 ### Added
