@@ -7,6 +7,15 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - API Reference + Architecture Docs
+
+### Added
+- `docs/api-spec/openapi.json`: the OpenAPI 3.1 spec exported from the running API (115 operations across 99 paths), with a Redoc viewer (`docs/api-spec/index.html`) served on GitHub Pages and a README covering Postman/Insomnia import and regeneration
+- `docs/architecture.md`: system-context, recovery-test sequence, and trust-boundary diagrams (mermaid), a component responsibility table, and the readiness-score breakdown, cross-linked to the ADRs
+- README top-nav links to the API Reference and Architecture docs
+
+---
+
 ## [Unreleased] - Executive Scorecard on Real Data
 
 ### Added
