@@ -7,6 +7,17 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - One-Command Dev Stack
+
+### Added
+- Root `docker-compose.yml`: `docker compose up --build` brings up Postgres, Redis, and the API; the API container applies all migrations and seeds the demo dataset (idempotent, skippable with `SEED_DEMO=0`), then serves a fully populated instance on `http://localhost:8000`. Verified locally end-to-end (build, migrate, seed 108 runs, `/health` 200)
+- README "One-command stack" quickstart
+
+### Changed
+- `apps/api/src/db/migrations/env.py` now sets the Alembic URL from the application settings (`R3VP_API_DATABASE_URL`) instead of the hardcoded `alembic.ini` value, so migrations target the same database as the app locally, in CI, and inside docker-compose (host `db`)
+
+---
+
 ## [Unreleased] - Router Hardening + Demo Seed Data
 
 ### Added
