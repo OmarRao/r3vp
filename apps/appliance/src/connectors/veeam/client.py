@@ -18,6 +18,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 from src.config import settings
 
+from . import rest
 from .models import (
     VeeamJob,
     VeeamRestorePoint,
@@ -51,13 +52,7 @@ class VeeamClient:
         Returns 'v1.2' for Veeam 13.x, 'v1.1' for Veeam 12.x, 'v1.0' for anything older.
         If version has not been detected yet, defaults to 'v1.1'.
         """
-        if self._build_version:
-            major = self._build_version.split(".")[0]
-            if major == "13":
-                return "v1.2"
-            if major == "12":
-                return "v1.1"
-        return "v1.0"
+        return rest.api_version_for_build(self._build_version)
 
     async def __aenter__(self) -> VeeamClient:
         await self._ensure_token()
@@ -72,10 +67,10 @@ class VeeamClient:
         try:
             resp = await self._http.get(_SERVER_INFO_PATH)
             resp.raise_for_status()
-            body = resp.json()
-            self._build_version = body.get("buildVersion")
-            self._vbr_id = body.get("vbrId")
-            self._server_name = body.get("name")
+            info = rest.parse_server_info(resp.json())
+            self._build_version = info["build_version"]
+            self._vbr_id = info["vbr_id"]
+            self._server_name = info["server_name"]
             log.info(
                 "veeam_server_info_detected",
                 build_version=self._build_version,
@@ -103,17 +98,16 @@ class VeeamClient:
             return
         resp = await self._http.post(
             _TOKEN_ENDPOINT,
-            data={
-                "grant_type": "password",
-                "username": settings.veeam_username,
-                "password": settings.veeam_password.get_secret_value(),
-            },
+            data=rest.build_token_request(
+                settings.veeam_username,
+                settings.veeam_password.get_secret_value(),
+            ),
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
         resp.raise_for_status()
-        body = resp.json()
-        self._token = body["access_token"]
-        self._token_expires = datetime.utcnow() + timedelta(seconds=body.get("expires_in", 900))
+        token = rest.parse_token_response(resp.json())
+        self._token = token.access_token
+        self._token_expires = datetime.utcnow() + timedelta(seconds=token.expires_in)
         self._http.headers["Authorization"] = f"Bearer {self._token}"
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
@@ -145,11 +139,9 @@ class VeeamClient:
         Veeam 11 (v1.0): GET /restorePoints?backupObjectId={objectId}
         v1.2 uses the same path as v1.1 -- no change needed for Veeam 13.
         """
-        if self.api_version in ("v1.1", "v1.2"):
-            data = await self._get(f"/backupObjects/{object_id}/restorePoints")
-        else:
-            data = await self._get("/restorePoints", backupObjectId=object_id)
-        return [VeeamRestorePoint.model_validate(r) for r in data.get("data", [])]
+        path, params = rest.restore_points_path(self.api_version, object_id)
+        data = await self._get(path, **params)
+        return rest.parse_restore_points(data)
 
     async def start_instant_recovery(
         self,
@@ -162,32 +154,25 @@ class VeeamClient:
         Raises NotImplementedError if the connected Veeam server does not support
         the instant recovery API (requires Veeam 11 or later).
         """
-        if self.api_version == "v1.0":
-            raise NotImplementedError("Instant recovery API requires Veeam 11+")
-        body = {
-            "restorePointId": restore_point_id,
-            "targetDatastoreId": target_datastore,
-            "networkMapping": [{"sourceNetwork": "*", "targetNetwork": isolated_network}],
-            "powerOn": True,
-            "reason": "R3VP automated recovery validation",
-        }
-        # Veeam 13 (v1.2) renamed the endpoint; v1.1 and earlier use the vmware-specific path
-        if self.api_version == "v1.2":
-            endpoint = "/instantRecovery/vm"
-        else:
-            endpoint = "/instantRecovery/vmware/vm"
+        endpoint, body = rest.build_instant_recovery_request(
+            api_version=self.api_version,
+            restore_point_id=restore_point_id,
+            isolated_network=isolated_network,
+            target_datastore=target_datastore,
+        )
         data = await self._post(endpoint, body)
-        return data["sessionId"]
+        return rest.parse_session_id(data)
+
+    async def get_session(self, session_id: str) -> dict:
+        """Return the full session body (state plus restored-object reference)."""
+        return await self._get(f"/sessions/{session_id}")
 
     async def get_session_state(self, session_id: str) -> str:
-        data = await self._get(f"/sessions/{session_id}")
-        return data.get("state", "unknown")
+        data = await self.get_session(session_id)
+        return rest.parse_session_state(data)
 
     async def stop_instant_recovery(self, session_id: str) -> None:
-        if self.api_version == "v1.2":
-            await self._post(f"/instantRecovery/vm/{session_id}/stopPublishing", {})
-        else:
-            await self._post(f"/instantRecovery/vmware/vm/{session_id}/stopPublishing", {})
+        await self._post(rest.stop_publishing_path(self.api_version, session_id), {})
 
     async def list_backup_repositories(self) -> list[dict]:
         """List all backup repositories. Requires Veeam 13 (v1.2)."""

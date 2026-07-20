@@ -1,0 +1,17 @@
+{
+  "id": "sess-ir-7f3a12",
+  "name": "InstantRecovery_web-01",
+  "sessionType": "InstantRecovery",
+  "state": "Working",
+  "progressPercent": 100,
+  "creationTime": "2026-07-20T10:01:00+00:00",
+  "restoredObject": {
+    "vm": {
+      "name": "web-01",
+      "instanceUuid": "5029d1b2-3c4a-5e6f-7081-92a3b4c5d6e7",
+      "biosUuid": "42301a2b-3c4d-5e6f-7081-92a3b4c5d6e7",
+      "dnsName": "web-01.corp.local"
+    },
+    "datastore": "isolated-nfs-01"
+  }
+}

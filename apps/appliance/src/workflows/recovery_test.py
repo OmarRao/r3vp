@@ -14,6 +14,7 @@ from temporalio.common import RetryPolicy
 from src.workflows.activities import (
     CaptureEvidenceInput,
     ProvisionNetworkInput,
+    RecordRtoRpoInput,
     ReportResultInput,
     RunHealthChecksInput,
     SelectRestorePointInput,
@@ -74,6 +75,9 @@ class RecoveryTestWorkflow:
         passed = False
         failure_reason: str | None = None
         health_results: list[dict] = []
+        rpo_creation_iso: str | None = None
+        recovery_start_iso: str | None = None
+        boot_ready_iso: str | None = None
 
         try:
             # 1. Discover and sync inventory
@@ -96,6 +100,8 @@ class RecoveryTestWorkflow:
                 retry_policy=_RETRY_POLICY,
             )
 
+            rpo_creation_iso = restore_point.creation_time
+
             # 3. Provision isolated VLAN (no blast radius to production)
             isolated_network = await workflow.execute_activity(
                 provision_isolated_network,
@@ -104,25 +110,29 @@ class RecoveryTestWorkflow:
                 retry_policy=_RETRY_POLICY,
             )
 
-            # 4. Start Veeam Instant Recovery into isolated network
+            # 4. Start Veeam Instant Recovery into isolated network.
+            #    RTO clock starts here.
+            recovery_start_iso = workflow.now().isoformat()
             recovery_session_id = await workflow.execute_activity(
                 start_instant_recovery,
                 StartRecoveryInput(
                     run_id=inp.run_id,
-                    restore_point_id=restore_point,
+                    restore_point_id=restore_point.restore_point_id,
                     isolated_network=isolated_network,
                 ),
                 start_to_close_timeout=_SHORT_TIMEOUT,
                 retry_policy=_RETRY_POLICY,
             )
 
-            # 5. Wait for the VM to boot and VMware Tools to become available
+            # 5. Wait for the VM to boot and VMware Tools to become available.
+            #    RTO clock stops when boot-ready.
             recovered_vm_moref = await workflow.execute_activity(
                 wait_for_vm_boot,
                 WaitForBootInput(run_id=inp.run_id, recovery_session_id=recovery_session_id),
                 start_to_close_timeout=_BOOT_TIMEOUT,
                 retry_policy=RetryPolicy(maximum_attempts=1),
             )
+            boot_ready_iso = workflow.now().isoformat()
 
             # 6. Run OS + application health checks
             health_results = await workflow.execute_activity(
@@ -154,10 +164,18 @@ class RecoveryTestWorkflow:
                 retry_policy=_RETRY_POLICY,
             )
 
-            # 8. Measure RTO/RPO
+            # 8. Measure RTO/RPO from the timestamps captured above
             result = await workflow.execute_activity(
                 record_rto_rpo,
-                inp,
+                RecordRtoRpoInput(
+                    run_id=inp.run_id,
+                    rpo_creation_iso=rpo_creation_iso,
+                    recovery_start_iso=recovery_start_iso,
+                    boot_ready_iso=boot_ready_iso,
+                    rto_target_mins=inp.rto_target_mins,
+                    rpo_target_mins=inp.rpo_target_mins,
+                    health_passed=passed,
+                ),
                 start_to_close_timeout=_SHORT_TIMEOUT,
                 retry_policy=_RETRY_POLICY,
             )

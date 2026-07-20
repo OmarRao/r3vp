@@ -28,6 +28,21 @@ class SelectRestorePointInput:
     rpo_target_mins: int
 
 @dataclass
+class RestorePointSelection:
+    restore_point_id: str
+    creation_time: str  # ISO-8601, used later for RPO measurement
+
+@dataclass
+class RecordRtoRpoInput:
+    run_id: str
+    rpo_creation_iso: str | None
+    recovery_start_iso: str | None
+    boot_ready_iso: str | None
+    rto_target_mins: int
+    rpo_target_mins: int
+    health_passed: bool
+
+@dataclass
 class ProvisionNetworkInput:
     run_id: str
 
@@ -95,31 +110,38 @@ async def sync_inventory(inp: SyncInventoryInput) -> None:
 
 
 @activity.defn
-async def select_restore_point(inp: SelectRestorePointInput) -> str:
-    """Return the ID of the latest consistent restore point within the RPO window."""
+async def select_restore_point(inp: SelectRestorePointInput) -> RestorePointSelection:
+    """Return the latest consistent restore point within the RPO window."""
+    from src.connectors.veeam import rest
     async with VeeamClient() as veeam:
         points = await veeam.list_restore_points(inp.veeam_object_id)
-    if not points:
-        raise RuntimeError(f"No restore points found for {inp.veeam_object_id}")
-    # Pick the most recent consistent point
-    consistent = [p for p in points if p.is_consistent]
-    if not consistent:
-        raise RuntimeError("No consistent restore points available")
-    best = max(consistent, key=lambda p: p.creation_time)
-    age_mins = (datetime.now(UTC) - best.creation_time).seconds // 60
+    best = rest.select_restore_point(
+        points, datetime.now(UTC), rpo_target_mins=inp.rpo_target_mins
+    )
+    age_mins = rest.compute_rpo_minutes(best.creationTime, datetime.now(UTC))
     log.info("restore point selected", id=best.id, age_mins=age_mins)
-    return best.id
+    return RestorePointSelection(
+        restore_point_id=best.id,
+        creation_time=best.creationTime.isoformat(),
+    )
 
 
 @activity.defn
 async def provision_isolated_network(inp: ProvisionNetworkInput) -> str:
     network_name = f"{settings.isolated_network_name}-{inp.run_id[:8]}"
     with VCenterClient() as vc:
-        vc.create_isolated_portgroup(
-            vswitch_name="vSwitch0",
-            vlan_id=settings.isolated_vlan_id,
-            name=network_name,
-        )
+        if settings.vcenter_network_backend.lower() == "dvs":
+            vc.create_isolated_portgroup_dvs(
+                dvs_name=settings.vcenter_dvs_name,
+                vlan_id=settings.isolated_vlan_id,
+                name=network_name,
+            )
+        else:
+            vc.create_isolated_portgroup(
+                vswitch_name=settings.vcenter_vswitch_name,
+                vlan_id=settings.isolated_vlan_id,
+                name=network_name,
+            )
     return network_name
 
 
@@ -137,37 +159,57 @@ async def start_instant_recovery(inp: StartRecoveryInput) -> str:
 
 @activity.defn
 async def wait_for_vm_boot(inp: WaitForBootInput) -> str:
-    """Poll the Veeam instant-recovery session until the recovered VM is published.
+    """Poll the Veeam instant-recovery session until the recovered VM is published,
+    then resolve its real vCenter moref from the session's restored-object reference.
 
-    Returns the recovered VM moref. Resolving the real moref from the published
-    session requires the live Veeam session's restored-object reference and is
-    tracked in ADR-003 (action item 2); until validated against a lab this
-    returns a deterministic placeholder derived from the session id.
+    Falls back to a deterministic ``recovered-{session_id}`` placeholder only when
+    the moref cannot be resolved (e.g. the live session response shape has not yet
+    been confirmed against a real Veeam server). See the real-lab verification
+    boundary in ADR-003 / the PR: the restored-object key names in
+    ``vcenter/moref.py::parse_recovered_vm_identity`` must be confirmed against a
+    recorded live session before the placeholder path can be removed.
     """
     import asyncio
 
-    from src.connectors.veeam.session_states import (
-        VeeamSessionState,
-        is_recovery_published,
-        is_terminal_failure,
-    )
+    from src.connectors.vcenter.client import VCenterClient
+    from src.connectors.vcenter.moref import parse_recovered_vm_identity
+    from src.connectors.veeam import rest
+    from src.connectors.veeam.rest import PollDecision
+    from src.connectors.veeam.session_states import VeeamSessionState
 
     state = VeeamSessionState.UNKNOWN.value
+    session_body: dict = {}
+    max_polls = max(
+        1, settings.recovery_poll_timeout_secs // max(1, settings.recovery_poll_interval_secs)
+    )
     async with VeeamClient() as veeam:
-        for _ in range(60):
-            state = await veeam.get_session_state(inp.recovery_session_id)
-            if is_recovery_published(state):
+        for _ in range(max_polls):
+            session_body = await veeam.get_session(inp.recovery_session_id)
+            state = rest.parse_session_state(session_body)
+            decision = rest.classify_poll(state)
+            if decision == PollDecision.PUBLISHED:
                 break
-            if is_terminal_failure(state):
+            if decision == PollDecision.FAILED:
                 raise RuntimeError(
                     f"Veeam instant recovery session failed (state: {state})"
                 )
-            await asyncio.sleep(10)
+            await asyncio.sleep(settings.recovery_poll_interval_secs)
         else:
             raise RuntimeError(
                 "Veeam instant recovery session never became published "
                 f"(last state: {state})"
             )
+
+    identity = parse_recovered_vm_identity(session_body)
+    if identity.lookup_plan():
+        with VCenterClient() as vc:
+            moref = vc.resolve_moref(identity)
+        if moref:
+            return moref
+        log.warning(
+            "recovered moref not resolved; using placeholder",
+            session_id=inp.recovery_session_id,
+        )
     return f"recovered-{inp.recovery_session_id}"
 
 
@@ -199,11 +241,42 @@ async def capture_evidence(inp: CaptureEvidenceInput) -> None:
 
 
 @activity.defn
-async def record_rto_rpo(inp: object) -> dict:
-    # RTO = time from workflow start to now (measured by Temporal timestamps)
-    # RPO = age of the restore point used
-    # These are computed from timestamps stored in the run record
-    return {"rto_actual_mins": 0, "rpo_actual_mins": 0, "readiness_score": 0}
+async def record_rto_rpo(inp: RecordRtoRpoInput) -> dict:
+    """Compute real RTO/RPO minutes and a readiness score from workflow timestamps.
+
+    RTO = interval from starting instant recovery to the guest becoming boot-ready.
+    RPO = age of the recovered restore point at validation time.
+    Timestamps are supplied by the workflow (Temporal ``workflow.now()``), keeping
+    this activity deterministic and unit-testable via the pure helpers in
+    ``connectors.veeam.rest``.
+    """
+    from src.connectors.veeam import rest
+
+    def _parse(iso: str | None) -> datetime | None:
+        return datetime.fromisoformat(iso) if iso else None
+
+    now = datetime.now(UTC)
+    rpo_creation = _parse(inp.rpo_creation_iso)
+    recovery_start = _parse(inp.recovery_start_iso)
+    boot_ready = _parse(inp.boot_ready_iso)
+
+    rpo_actual = rest.compute_rpo_minutes(rpo_creation, now) if rpo_creation else 0
+    if recovery_start and boot_ready:
+        rto_actual = rest.compute_rto_minutes(recovery_start, boot_ready)
+    else:
+        rto_actual = 0
+    score = rest.readiness_score(
+        health_passed=inp.health_passed,
+        rto_actual_mins=rto_actual,
+        rto_target_mins=inp.rto_target_mins,
+        rpo_actual_mins=rpo_actual,
+        rpo_target_mins=inp.rpo_target_mins,
+    )
+    return {
+        "rto_actual_mins": rto_actual,
+        "rpo_actual_mins": rpo_actual,
+        "readiness_score": score,
+    }
 
 
 @activity.defn

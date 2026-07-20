@@ -36,6 +36,15 @@ class ApplianceSettings(BaseSettings):
     # Isolated test network
     isolated_vlan_id: int = 4090
     isolated_network_name: str = "r3vp-isolated"
+    # vCenter network backend for the isolated portgroup: "standard" (host
+    # vSwitch) or "dvs" (distributed virtual switch). Sets which provisioning
+    # path provision_isolated_network takes.
+    vcenter_network_backend: str = "standard"
+    vcenter_vswitch_name: str = "vSwitch0"     # used when backend == "standard"
+    vcenter_dvs_name: str = ""                 # used when backend == "dvs"
+    # Bound on how long wait_for_vm_boot polls the Veeam session (seconds).
+    recovery_poll_timeout_secs: int = 1800
+    recovery_poll_interval_secs: int = 10
 
     log_level: str = "INFO"
 

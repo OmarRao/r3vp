@@ -1,0 +1,29 @@
+{
+  "data": [
+    {
+      "id": "rp-2026-07-20T06-00",
+      "name": "web-01 daily",
+      "creationTime": "2026-07-20T06:00:00+00:00",
+      "objectId": "vm-web-01",
+      "isConsistent": true,
+      "backupSizeBytes": 42000000000
+    },
+    {
+      "id": "rp-2026-07-20T09-30",
+      "name": "web-01 hourly (crash-consistent)",
+      "creationTime": "2026-07-20T09:30:00+00:00",
+      "objectId": "vm-web-01",
+      "isConsistent": false,
+      "backupSizeBytes": 4100000000
+    },
+    {
+      "id": "rp-2026-07-20T09-00",
+      "name": "web-01 hourly",
+      "creationTime": "2026-07-20T09:00:00+00:00",
+      "objectId": "vm-web-01",
+      "isConsistent": true,
+      "backupSizeBytes": 4000000000
+    }
+  ],
+  "pagination": {"total": 3, "count": 3, "skip": 0, "limit": 100}
+}
