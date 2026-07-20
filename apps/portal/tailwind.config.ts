@@ -1,6 +1,9 @@
 import type { Config } from "tailwindcss";
 
+const withOpacity = (v: string) => `rgb(var(${v}) / <alpha-value>)`;
+
 const config: Config = {
+  darkMode: "class",
   content: [
     "./app/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -15,6 +18,15 @@ const config: Config = {
           dark: "#1A1A2E",
           gray: "#F4F6F8",
         },
+        // Semantic tokens (theme-aware; defined in globals.css)
+        bg: withOpacity("--color-bg"),
+        surface: withOpacity("--color-surface"),
+        "surface-2": withOpacity("--color-surface-2"),
+        content: withOpacity("--color-content"),
+        "content-muted": withOpacity("--color-content-muted"),
+        border: withOpacity("--color-border"),
+        accent: withOpacity("--color-accent"),
+        "accent-content": withOpacity("--color-accent-content"),
       },
     },
   },
