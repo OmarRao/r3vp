@@ -1,6 +1,6 @@
 """Main recovery validation workflow.
 
-Orchestrated by Temporal — each Activity is independently retried,
+Orchestrated by Temporal - each Activity is independently retried,
 and TeardownIsolatedEnv runs as a saga compensation step (always executes).
 """
 from __future__ import annotations
@@ -195,7 +195,7 @@ class RecoveryTestWorkflow:
                 retry_policy=_RETRY_POLICY,
             )
 
-            # 10. Always tear down — saga compensation
+            # 10. Always tear down - saga compensation
             await workflow.execute_activity(
                 teardown_isolated_env,
                 TeardownInput(

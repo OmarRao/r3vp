@@ -9,7 +9,7 @@ class ApplianceSettings(BaseSettings):
     org_id: str
     saas_base_url: str = "https://api.r3vp.io"
 
-    # mTLS — paths to certs on disk (private key never leaves appliance)
+    # mTLS - paths to certs on disk (private key never leaves appliance)
     mtls_cert_path: str = "/certs/appliance.crt"
     mtls_key_path: str = "/certs/appliance.key"
     mtls_ca_path: str = "/certs/r3vp-ca.crt"

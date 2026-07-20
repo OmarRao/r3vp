@@ -1,7 +1,7 @@
 """Outbound-only mTLS relay client: all SaaS communication goes through here.
 
 The appliance never opens inbound ports. Requests are outbound HTTPS with
-mutual TLS — the appliance presents its client cert, the SaaS platform
+mutual TLS - the appliance presents its client cert, the SaaS platform
 verifies it against the registered thumbprint.
 """
 import ssl

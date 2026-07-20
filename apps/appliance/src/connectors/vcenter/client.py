@@ -233,4 +233,4 @@ class VCenterClient:
             raise RuntimeError(f"Screenshot failed: {task.info.error.localizedMessage}")
         # Download the screenshot file from the datastore
         # task.info.result contains the path on the datastore
-        return b""  # placeholder — real impl fetches via HTTPS from ESXi
+        return b""  # placeholder - real impl fetches via HTTPS from ESXi

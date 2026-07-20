@@ -1,4 +1,4 @@
-"""Temporal worker — registers the workflow and all activities."""
+"""Temporal worker - registers the workflow and all activities."""
 from temporalio.client import Client, TLSConfig
 from temporalio.worker import Worker
 
