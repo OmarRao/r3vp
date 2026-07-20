@@ -7,6 +7,23 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - SSO (OIDC)
+
+### Added
+- Organization SSO for the API now supports OIDC alongside the existing SAML config. The per-org `sso_configs` table gains a `protocol` discriminator (`saml` | `oidc`) and OIDC columns (`oidc_issuer`, `oidc_client_id`, `oidc_client_secret`, `oidc_redirect_uri`, `oidc_scopes`) via migration `0021`; the SAML columns become nullable so an OIDC-only org needs no dummy values
+- Config CRUD (`GET`/`PUT /v1/sso`, `PATCH /v1/sso/toggle`) is protocol-aware and gated by `sso:manage`. The OIDC client secret is write-only: it is stored but never returned, and an upsert that omits it preserves the stored value
+- OIDC login flow endpoints: `GET /v1/sso/oidc/login` builds the authorization-code redirect URL (state + nonce), and `POST /v1/sso/oidc/callback` exchanges the code and validates the returned `id_token`
+- Pure, network-free OIDC service (`src/services/oidc.py`): state/nonce generation, authorization-URL construction, `id_token` validation (signature via JWKS, issuer, audience, expiry, nonce), and claim-to-identity mapping with per-org attribute overrides
+
+### Verified
+- Unit tests (`tests/test_oidc_service.py`, no DB/network): a locally-signed JWT plus an in-memory JWKS exercise the happy path and every error path (bad signature, expired, wrong audience, wrong issuer, nonce mismatch, unknown kid), plus URL building and claim mapping
+- Integration tests (`tests/integration/test_sso_config.py`, real Postgres): OIDC config upsert/read, secret is write-only and preserved on re-upsert, toggle, per-protocol validation, and `sso:manage` gating
+
+### Notes
+- A real IdP (Azure AD, Okta, etc.) is configured entirely through the per-org DB config plus discovery; no code changes and no hardcoded secrets are required. The live IdP handshake in `/oidc/login` and `/oidc/callback` (discovery fetch, token-endpoint code exchange, JWKS retrieval) is network I/O and is not exercised end-to-end without a real IdP; its security-critical inner logic is the unit-tested pure service
+
+---
+
 ## [Unreleased] - Veeam/vCenter Recovery Connector
 
 ### Added
@@ -25,7 +42,6 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ### Notes
 - The live Veeam token exchange, the exact instant-recovery session-body shape (restored-object key names in `parse_recovered_vm_identity`), pyVmomi moref resolution, isolated-portgroup provisioning on standard vSwitch and DVS, and screenshot evidence download remain to be validated against a real Veeam B&R + vCenter lab. All connection details are env/config-driven; see `docs/runbooks/veeam-vcenter-lab.md` for the precise boundary and how to configure it
-
 ---
 
 ## [Unreleased] - Portal Dark Mode (foundation)

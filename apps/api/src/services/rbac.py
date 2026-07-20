@@ -35,7 +35,7 @@ PERMISSIONS = {
     "settings:read":      "View org settings",
     "settings:write":     "Update org settings and notification channels",
     # SSO
-    "sso:manage":         "Configure SAML SSO",
+    "sso:manage":         "Configure SSO (SAML and OIDC)",
     # MSSP multi-tenant console (owner/admin only; derived below)
     "mssp:read":          "View the MSSP console and customer portfolio",
     "mssp:manage":        "Manage MSSP customer orgs, billing, and alert rules",

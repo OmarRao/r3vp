@@ -97,17 +97,36 @@ class ApiKey(Base):
 
 
 class SsoConfig(Base):
-    """SAML 2.0 SSO configuration per org."""
+    """SSO configuration per org (SAML 2.0 or OIDC).
+
+    A single row per org holds either a SAML config (entity_id / sso_url /
+    certificate) or an OIDC config (oidc_* columns), selected by ``protocol``.
+    The SAML columns are nullable so an OIDC-only org can be represented without
+    dummy values (and vice versa).
+    """
     __tablename__ = "sso_configs"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     org_id: Mapped[uuid.UUID] = mapped_column(unique=True, nullable=False)
+    protocol: Mapped[str] = mapped_column(String(10), nullable=False, default="saml")
+    # saml | oidc
     provider: Mapped[str] = mapped_column(String(50), nullable=False)
-    # okta | azure_ad | google | ping | generic_saml
-    entity_id: Mapped[str] = mapped_column(String(512), nullable=False)
-    sso_url: Mapped[str] = mapped_column(String(512), nullable=False)
-    certificate: Mapped[str] = mapped_column(String(8192), nullable=False)
+    # okta | azure_ad | google | ping | generic_saml | oidc
+
+    # SAML fields (nullable when protocol == "oidc")
+    entity_id: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    sso_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    certificate: Mapped[str | None] = mapped_column(String(8192), nullable=True)
     # PEM-encoded IdP signing certificate
+
+    # OIDC fields (nullable when protocol == "saml"). Never returned in API reads
+    # except non-secret values; the client secret is write-only.
+    oidc_issuer: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    oidc_client_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    oidc_client_secret: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    oidc_redirect_uri: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    oidc_scopes: Mapped[list] = mapped_column(JSONB, default=list)
+
     attribute_mapping: Mapped[dict] = mapped_column(JSONB, default=dict)
     # {"email": "...", "first_name": "...", "role": "..."}
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
