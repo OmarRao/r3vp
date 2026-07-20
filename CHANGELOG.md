@@ -7,6 +7,17 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Portal Dark Mode (foundation)
+
+### Added
+- Theme system for the portal: `darkMode: "class"` in Tailwind, a semantic color-token layer (`--color-bg/surface/content/border/accent`) in `globals.css` with light and `.dark` values, a dependency-free `ThemeProvider` + `ThemeToggle`, and a no-flash inline script in the root layout (persists to `localStorage`, respects `prefers-color-scheme`)
+- The `/demo/login` page is converted to the token system with a theme toggle. Verified in the browser: light and dark both render correctly, the toggle flips the whole UI, and the choice persists across reload with no flash
+
+### Notes
+- This is the foundation plus the one portal surface reachable without credentials. The Auth0-gated `/dashboard/*` pages inherit the same tokens/components but need portal access (real Auth0/Firebase config, or a dev-only preview flag) to be rendered and pixel-verified before they are converted
+
+---
+
 ## [Unreleased] - mypy Blocking + Two Silent-Empty Bugs
 
 ### Changed

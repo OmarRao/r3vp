@@ -4,6 +4,7 @@ import "./globals.css";
 import { UserProvider } from "@auth0/nextjs-auth0/client";
 import { QueryProvider } from "@/components/query-provider";
 import { FirebaseInit } from "@/components/firebase-init";
+import { ThemeProvider, THEME_INIT_SCRIPT } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,11 +16,16 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className={inter.className}>
-        <UserProvider>
-          <FirebaseInit />
-          <QueryProvider>{children}</QueryProvider>
-        </UserProvider>
+        <ThemeProvider>
+          <UserProvider>
+            <FirebaseInit />
+            <QueryProvider>{children}</QueryProvider>
+          </UserProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

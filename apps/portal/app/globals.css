@@ -2,6 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Semantic color tokens. Surface/text/border colors are expressed through
+ * these so a single `.dark` class on <html> flips the whole UI. Light values
+ * first; the `.dark` block overrides them. Values are space-separated RGB
+ * channels so Tailwind can apply opacity via rgb(var(--x) / <alpha>).
+ */
+:root {
+  --color-bg: 244 246 248;            /* app background (veeam gray)   */
+  --color-surface: 255 255 255;       /* cards, panels                 */
+  --color-surface-2: 248 250 252;     /* subtle raised / hover         */
+  --color-content: 15 23 42;          /* primary text                  */
+  --color-content-muted: 100 116 139; /* secondary text                */
+  --color-border: 226 232 240;        /* hairlines, dividers           */
+  --color-accent: 0 179 54;           /* veeam green                   */
+  --color-accent-content: 255 255 255;
+}
+
+.dark {
+  --color-bg: 15 18 32;               /* deep navy (veeam dark family) */
+  --color-surface: 26 26 46;
+  --color-surface-2: 34 37 58;
+  --color-content: 226 232 240;
+  --color-content-muted: 148 163 184;
+  --color-border: 51 55 79;
+  --color-accent: 0 200 60;           /* brighter green on dark        */
+  --color-accent-content: 10 14 25;
+}
+
 body {
   font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: rgb(var(--color-bg));
+  color: rgb(var(--color-content));
 }

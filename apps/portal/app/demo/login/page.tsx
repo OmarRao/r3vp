@@ -10,6 +10,16 @@ import {
 } from "firebase/auth";
 import { getFirebaseAuth } from "@/lib/firebase";
 import { useFirebaseAuth } from "@/context/firebase-auth-context";
+import { ThemeToggle } from "@/components/theme-toggle";
+
+// Theme-aware color helpers (inline styles read the CSS variables from globals.css).
+const c = {
+  bg: "rgb(var(--color-bg))",
+  surface: "rgb(var(--color-surface))",
+  content: "rgb(var(--color-content))",
+  muted: "rgb(var(--color-content-muted))",
+  border: "rgb(var(--color-border))",
+};
 
 export default function DemoLoginPage() {
   const { user, loading } = useFirebaseAuth();
@@ -61,38 +71,41 @@ export default function DemoLoginPage() {
 
   if (loading) {
     return (
-      <div style={{ display: "flex", height: "100vh", alignItems: "center", justifyContent: "center", background: "#F8FAFC", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
-        <p style={{ color: "#94A3B8", fontSize: 14 }}>Loading...</p>
+      <div style={{ display: "flex", height: "100vh", alignItems: "center", justifyContent: "center", background: c.bg, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+        <p style={{ color: c.muted, fontSize: 14 }}>Loading...</p>
       </div>
     );
   }
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#F8FAFC", display: "flex", alignItems: "center",
+      minHeight: "100vh", background: c.bg, display: "flex", alignItems: "center",
       justifyContent: "center", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-      padding: "24px",
+      padding: "24px", position: "relative",
     }}>
+      <div style={{ position: "absolute", top: 20, right: 20 }}>
+        <ThemeToggle />
+      </div>
       <div style={{ width: "100%", maxWidth: 400 }}>
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <div style={{ fontSize: 32, fontWeight: 800, color: "#0F172A", letterSpacing: "-1px", marginBottom: 4 }}>
+          <div style={{ fontSize: 32, fontWeight: 800, color: c.content, letterSpacing: "-1px", marginBottom: 4 }}>
             R<span style={{ color: "#00B336" }}>3</span>VP
           </div>
           <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: "#00B336" }}>
             DEMO ENVIRONMENT
           </div>
-          <p style={{ marginTop: 12, fontSize: 13, color: "#64748B", lineHeight: 1.5 }}>
+          <p style={{ marginTop: 12, fontSize: 13, color: c.muted, lineHeight: 1.5 }}>
             Sign in to explore the R3VP platform with sample recovery validation data.
           </p>
         </div>
 
         {/* Card */}
         <div style={{
-          background: "#fff", border: "1px solid #E2E8F0", borderRadius: 12,
+          background: c.surface, border: `1px solid ${c.border}`, borderRadius: 12,
           padding: "28px 28px 24px", boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
         }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700, color: "#0F172A", marginBottom: 20 }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: c.content, marginBottom: 20 }}>
             {mode === "signin" ? "Sign in to demo" : "Create demo account"}
           </h2>
 
@@ -102,9 +115,9 @@ export default function DemoLoginPage() {
             disabled={busy}
             style={{
               width: "100%", display: "flex", alignItems: "center", justifyContent: "center",
-              gap: 10, padding: "10px 16px", border: "1px solid #E2E8F0", borderRadius: 8,
-              background: "#fff", cursor: busy ? "not-allowed" : "pointer", fontSize: 13,
-              fontWeight: 600, color: "#0F172A", marginBottom: 18, opacity: busy ? 0.6 : 1,
+              gap: 10, padding: "10px 16px", border: `1px solid ${c.border}`, borderRadius: 8,
+              background: c.surface, cursor: busy ? "not-allowed" : "pointer", fontSize: 13,
+              fontWeight: 600, color: c.content, marginBottom: 18, opacity: busy ? 0.6 : 1,
               fontFamily: "inherit",
             }}
           >
@@ -118,15 +131,15 @@ export default function DemoLoginPage() {
           </button>
 
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
-            <div style={{ flex: 1, height: 1, background: "#E2E8F0" }} />
-            <span style={{ fontSize: 11, color: "#94A3B8", fontWeight: 600 }}>OR</span>
-            <div style={{ flex: 1, height: 1, background: "#E2E8F0" }} />
+            <div style={{ flex: 1, height: 1, background: c.border }} />
+            <span style={{ fontSize: 11, color: c.muted, fontWeight: 600 }}>OR</span>
+            <div style={{ flex: 1, height: 1, background: c.border }} />
           </div>
 
           {/* Email / Password */}
           <form onSubmit={handleEmailAuth}>
             <div style={{ marginBottom: 12 }}>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 5 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: c.content, marginBottom: 5 }}>
                 Email address
               </label>
               <input
@@ -136,14 +149,14 @@ export default function DemoLoginPage() {
                 required
                 placeholder="you@example.com"
                 style={{
-                  width: "100%", padding: "9px 12px", border: "1px solid #D1D5DB", borderRadius: 7,
-                  fontSize: 13, color: "#0F172A", background: "#fff", outline: "none",
+                  width: "100%", padding: "9px 12px", border: `1px solid ${c.border}`, borderRadius: 7,
+                  fontSize: 13, color: c.content, background: c.surface, outline: "none",
                   fontFamily: "inherit", boxSizing: "border-box",
                 }}
               />
             </div>
             <div style={{ marginBottom: 18 }}>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 5 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: c.content, marginBottom: 5 }}>
                 Password
               </label>
               <input
@@ -154,8 +167,8 @@ export default function DemoLoginPage() {
                 minLength={6}
                 placeholder="Min 6 characters"
                 style={{
-                  width: "100%", padding: "9px 12px", border: "1px solid #D1D5DB", borderRadius: 7,
-                  fontSize: 13, color: "#0F172A", background: "#fff", outline: "none",
+                  width: "100%", padding: "9px 12px", border: `1px solid ${c.border}`, borderRadius: 7,
+                  fontSize: 13, color: c.content, background: c.surface, outline: "none",
                   fontFamily: "inherit", boxSizing: "border-box",
                 }}
               />
@@ -186,7 +199,7 @@ export default function DemoLoginPage() {
         </div>
 
         {/* Toggle mode */}
-        <p style={{ textAlign: "center", fontSize: 12, color: "#64748B", marginTop: 16 }}>
+        <p style={{ textAlign: "center", fontSize: 12, color: c.muted, marginTop: 16 }}>
           {mode === "signin" ? "No account yet?" : "Already have an account?"}{" "}
           <button
             onClick={() => { setMode(mode === "signin" ? "signup" : "signin"); setError(""); }}
@@ -196,7 +209,7 @@ export default function DemoLoginPage() {
           </button>
         </p>
 
-        <p style={{ textAlign: "center", fontSize: 11, color: "#94A3B8", marginTop: 24, lineHeight: 1.5 }}>
+        <p style={{ textAlign: "center", fontSize: 11, color: c.muted, marginTop: 24, lineHeight: 1.5 }}>
           Demo data only. No real infrastructure is connected.
           <br />
           Built by{" "}
