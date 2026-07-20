@@ -7,6 +7,27 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Veeam/vCenter Recovery Connector
+
+### Added
+- `connectors/veeam/rest.py`: pure request-building and response-parsing helpers for the Veeam B&R REST API (no network, no config, no I/O). Covers version detection (v1.0/v1.1/v1.2), OAuth2 token shaping, restore-point path selection, newest-consistent / in-RPO-window restore-point selection, instant-recovery endpoint + body construction with isolated-network mapping, session-id and stop-publishing path shaping, session-state poll classification (`PollDecision`), and RTO/RPO minute measurement plus a 0-100 readiness score
+- `connectors/vcenter/moref.py`: pure moref lookup-planning (`RecoveredVmIdentity`, ordered `lookup_plan`) and identity extraction from a Veeam session's restored-object reference, so moref resolution is testable without pyVmomi
+- vCenter DVS support (`create_isolated_portgroup_dvs`) alongside the existing standard-vSwitch path, plus `resolve_moref` driving the SearchIndex lookup plan; `provision_isolated_network` now selects the backend from config
+- Config wiring for a real lab: `vcenter_network_backend`, `vcenter_vswitch_name`, `vcenter_dvs_name`, `recovery_poll_timeout_secs`, `recovery_poll_interval_secs` (all env-driven, no hardcoded secrets)
+- `docs/runbooks/veeam-vcenter-lab.md`: lab configuration and the exact offline-vs-lab verification boundary
+- Fixture-based unit tests (`tests/test_veeam_rest.py`, `tests/test_vcenter_moref.py`) with recorded Veeam REST JSON under `tests/fixtures/veeam/`, covering request building, response parsing, restore-point selection, every session-state transition (including failure and no-state/timeout paths), moref planning, and RTO/RPO/readiness. 59 pure tests pass locally with no native deps
+
+### Changed
+- `VeeamClient` now composes the pure `rest` helpers for auth, version detection, restore-point discovery, instant-recovery start/stop, and session polling; added `get_session` returning the full session body
+- `wait_for_vm_boot` polls via `classify_poll` and resolves the real recovered moref from the published session's restored-object reference, falling back to the `recovered-{session_id}` placeholder only when the moref cannot be resolved (lab-gated)
+- `record_rto_rpo` computes real RTO/RPO minutes and a readiness score from workflow timestamps; `select_restore_point` returns the point id plus its creation time so RPO is measured against the real restore point
+- `RecoveryTestWorkflow` threads recovery-start / boot-ready / restore-point-creation timestamps into the RTO/RPO measurement step
+
+### Notes
+- The live Veeam token exchange, the exact instant-recovery session-body shape (restored-object key names in `parse_recovered_vm_identity`), pyVmomi moref resolution, isolated-portgroup provisioning on standard vSwitch and DVS, and screenshot evidence download remain to be validated against a real Veeam B&R + vCenter lab. All connection details are env/config-driven; see `docs/runbooks/veeam-vcenter-lab.md` for the precise boundary and how to configure it
+
+---
+
 ## [Unreleased] - Portal Dark Mode (foundation)
 
 ### Added

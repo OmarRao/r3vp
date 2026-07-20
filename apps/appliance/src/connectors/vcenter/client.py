@@ -119,6 +119,80 @@ class VCenterClient:
         log.info("isolated portgroup created", name=name, vlan=vlan_id)
         return name
 
+    def create_isolated_portgroup_dvs(
+        self, dvs_name: str, vlan_id: int, name: str
+    ) -> str:
+        """Create an isolated distributed portgroup on a DVS. Returns its name.
+
+        Idempotent: if a portgroup with ``name`` already exists on the DVS it is
+        returned as-is. The portgroup is ephemeral-binding with no uplink teaming
+        override, so a VM attached to it is isolated from production networks.
+        """
+        dvs = None
+        for candidate in self._get_all_objects(vim.DistributedVirtualSwitch):
+            if candidate.name == dvs_name:
+                dvs = candidate
+                break
+        if dvs is None:
+            raise RuntimeError(f"DVS not found: {dvs_name}")
+        for pg in dvs.portgroup:
+            if pg.name == name:
+                log.info("isolated dvportgroup already exists", name=name)
+                return name
+        spec = vim.dvs.DistributedVirtualPortgroup.ConfigSpec(
+            name=name,
+            type=vim.dvs.DistributedVirtualPortgroup.PortgroupType.ephemeral,
+            defaultPortConfig=vim.dvs.VmwareDistributedVirtualSwitch.VmwarePortConfigPolicy(
+                vlan=vim.dvs.VmwareDistributedVirtualSwitch.VlanIdSpec(vlanId=vlan_id)
+            ),
+        )
+        task = dvs.AddDVPortgroup_Task([spec])
+        self._wait_for_task(task)
+        log.info("isolated dvportgroup created", name=name, vlan=vlan_id)
+        return name
+
+    def _wait_for_task(self, task: object, timeout_seconds: int = 120) -> object:
+        import time
+        deadline = time.time() + timeout_seconds
+        while time.time() < deadline:
+            state = task.info.state  # type: ignore[attr-defined]
+            if state == vim.TaskInfo.State.success:
+                return task.info.result  # type: ignore[attr-defined]
+            if state == vim.TaskInfo.State.error:
+                raise RuntimeError(
+                    f"vCenter task failed: {task.info.error.localizedMessage}"  # type: ignore[attr-defined]
+                )
+            time.sleep(2)
+        raise TimeoutError("vCenter task did not complete in time")
+
+    def resolve_moref(self, identity: object) -> str | None:
+        """Resolve a recovered VM's moref from a RecoveredVmIdentity lookup plan.
+
+        Tries each (method, value) in the identity's plan in order and returns
+        the moref of the first match. Returns None when nothing resolves so the
+        caller can decide whether to retry or fail.
+        """
+        from .moref import MorefLookupMethod
+        content = self._content
+        search = content.searchIndex
+        for method, value in identity.lookup_plan():  # type: ignore[attr-defined]
+            vm = None
+            if method == MorefLookupMethod.INSTANCE_UUID:
+                vm = search.FindByUuid(None, value, True, True)
+            elif method == MorefLookupMethod.BIOS_UUID:
+                vm = search.FindByUuid(None, value, True, False)
+            elif method == MorefLookupMethod.DNS_NAME:
+                vm = search.FindByDnsName(None, value, True)
+            elif method == MorefLookupMethod.VM_NAME:
+                for candidate in self._get_all_objects(vim.VirtualMachine):
+                    if candidate.name == value:
+                        vm = candidate
+                        break
+            if vm is not None:
+                log.info("recovered moref resolved", method=method.value, moref=vm._moId)
+                return vm._moId
+        return None
+
     def remove_portgroup(self, host_name: str, portgroup_name: str) -> None:
         hosts = self._get_all_objects(vim.HostSystem)
         for host in hosts:
@@ -159,4 +233,4 @@ class VCenterClient:
             raise RuntimeError(f"Screenshot failed: {task.info.error.localizedMessage}")
         # Download the screenshot file from the datastore
         # task.info.result contains the path on the datastore
-        return b""  # placeholder — real impl fetches via HTTPS from ESXi
+        return b""  # placeholder - real impl fetches via HTTPS from ESXi
