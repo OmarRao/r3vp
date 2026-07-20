@@ -6,7 +6,7 @@ from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from src.config import settings
-from src.models import appliance, test_run, workload  # noqa: F401 — registers models
+from src.models import appliance, test_run, workload  # noqa: F401 - registers models
 from src.models.base import Base
 
 config = context.config

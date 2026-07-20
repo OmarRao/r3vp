@@ -15,7 +15,7 @@ class APISettings(BaseSettings):
     auth0_domain: str = ""
     auth0_audience: str = ""
 
-    # mTLS — for verifying appliance client certs
+    # mTLS - for verifying appliance client certs
     mtls_ca_path: str = "/certs/r3vp-ca.crt"
 
     # Temporal Cloud

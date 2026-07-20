@@ -1,4 +1,4 @@
-"""Appliance relay channel — called by on-prem appliance over mTLS, not by portal users.
+"""Appliance relay channel - called by on-prem appliance over mTLS, not by portal users.
 
 mTLS termination happens at the load balancer / API gateway. The gateway
 forwards the client cert's SHA-256 thumbprint in the X-Client-Cert-Thumbprint

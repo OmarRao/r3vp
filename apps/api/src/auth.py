@@ -4,7 +4,7 @@ Verifies the Bearer token against Auth0's JWKS endpoint, extracts the
 org_id and user sub, and provides a FastAPI dependency that injects a
 CurrentUser into any portal route.
 
-Appliance routes use mTLS instead — they do NOT use this dependency.
+Appliance routes use mTLS instead - they do NOT use this dependency.
 """
 from __future__ import annotations
 
