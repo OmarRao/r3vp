@@ -17,7 +17,7 @@ api.interceptors.request.use(async (config) => {
         }
       }
     } catch {
-      // unauthenticated — middleware will redirect
+      // unauthenticated - middleware will redirect
     }
   }
   return config;
