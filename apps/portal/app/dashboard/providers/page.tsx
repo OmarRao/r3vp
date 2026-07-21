@@ -28,15 +28,15 @@ const providerMeta: Record<string, { label: string; color: string; bg: string; i
 
 function PassRateBar({ rate }: { rate: number | null }) {
   if (rate === null) {
-    return <span className="text-xs text-gray-400">No runs yet</span>;
+    return <span className="text-xs text-content-muted">No runs yet</span>;
   }
   const color = rate >= 80 ? "bg-green-500" : rate >= 50 ? "bg-yellow-400" : "bg-red-500";
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 bg-gray-100 rounded-full h-2">
+      <div className="flex-1 bg-surface-2 rounded-full h-2">
         <div className={`${color} h-2 rounded-full`} style={{ width: `${rate}%` }} />
       </div>
-      <span className="text-xs font-semibold text-gray-700 w-8 text-right">{rate}%</span>
+      <span className="text-xs font-semibold text-content w-8 text-right">{rate}%</span>
     </div>
   );
 }
@@ -54,8 +54,8 @@ export default function ProvidersPage() {
     <div className="p-6 space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Multi-Cloud Providers</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-content">Multi-Cloud Providers</h1>
+          <p className="text-sm text-content-muted mt-1">
             {totalWorkloads} workloads across {providers.filter((p) => p.total_workloads > 0).length} providers &bull; {totalRuns} recovery tests total
           </p>
         </div>
@@ -78,18 +78,18 @@ export default function ProvidersPage() {
         {providers.map((p) => {
           const meta = providerMeta[p.provider] ?? {
             label: p.provider,
-            color: "text-gray-700",
-            bg: "bg-gray-50",
+            color: "text-content",
+            bg: "bg-surface-2",
             icon: p.provider.slice(0, 3).toUpperCase(),
-            border: "border-gray-300",
+            border: "border-border",
           };
           const configured = p.total_workloads > 0;
 
           return (
             <div
               key={p.provider}
-              className={`bg-white rounded-xl shadow p-5 border-l-4 ${
-                configured ? meta.border : "border-gray-200"
+              className={`bg-surface rounded-xl shadow p-5 border-l-4 ${
+                configured ? meta.border : "border-border"
               }`}
             >
               <div className="flex items-start gap-4">
@@ -100,12 +100,12 @@ export default function ProvidersPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <h2 className="text-base font-bold text-gray-900">{meta.label}</h2>
+                    <h2 className="text-base font-bold text-content">{meta.label}</h2>
                     <span
                       className={`text-xs px-2 py-0.5 rounded-full font-medium ${
                         configured
                           ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-500"
+                          : "bg-surface-2 text-content-muted"
                       }`}
                     >
                       {configured ? "Active" : "Not configured"}
@@ -114,25 +114,25 @@ export default function ProvidersPage() {
 
                   <div className="grid grid-cols-3 gap-3 mt-3">
                     <div>
-                      <p className="text-xs text-gray-400 uppercase tracking-wide">Workloads</p>
-                      <p className="text-xl font-bold text-gray-900 mt-0.5">
+                      <p className="text-xs text-content-muted uppercase tracking-wide">Workloads</p>
+                      <p className="text-xl font-bold text-content mt-0.5">
                         {p.total_workloads}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-400 uppercase tracking-wide">Test Runs</p>
-                      <p className="text-xl font-bold text-gray-900 mt-0.5">{p.total_runs}</p>
+                      <p className="text-xs text-content-muted uppercase tracking-wide">Test Runs</p>
+                      <p className="text-xl font-bold text-content mt-0.5">{p.total_runs}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-400 uppercase tracking-wide">Avg RTO</p>
-                      <p className="text-xl font-bold text-gray-900 mt-0.5">
+                      <p className="text-xs text-content-muted uppercase tracking-wide">Avg RTO</p>
+                      <p className="text-xl font-bold text-content mt-0.5">
                         {p.avg_rto_mins != null ? `${p.avg_rto_mins}m` : "--"}
                       </p>
                     </div>
                   </div>
 
                   <div className="mt-3">
-                    <p className="text-xs text-gray-400 uppercase tracking-wide mb-1.5">
+                    <p className="text-xs text-content-muted uppercase tracking-wide mb-1.5">
                       Pass Rate
                     </p>
                     <PassRateBar rate={p.pass_rate} />
@@ -156,32 +156,32 @@ export default function ProvidersPage() {
       </div>
 
       {/* Veeam B&R version matrix */}
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-surface rounded-xl shadow p-5">
         <h2 className="text-lg font-semibold mb-4">Veeam B&amp;R API Version Matrix</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
-                <th className="px-3 py-2 border border-gray-200">Veeam Version</th>
-                <th className="px-3 py-2 border border-gray-200">API Version</th>
-                <th className="px-3 py-2 border border-gray-200">Key Capabilities</th>
+              <tr className="bg-surface-2 text-xs text-content-muted uppercase tracking-wide">
+                <th className="px-3 py-2 border border-border">Veeam Version</th>
+                <th className="px-3 py-2 border border-border">API Version</th>
+                <th className="px-3 py-2 border border-border">Key Capabilities</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700">
-              <tr className="hover:bg-gray-50">
-                <td className="px-3 py-2 border border-gray-200 font-medium">Veeam B&amp;R 11</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">v1.0</td>
-                <td className="px-3 py-2 border border-gray-200">Job management, basic restore</td>
+            <tbody className="text-content">
+              <tr className="hover:bg-surface-2">
+                <td className="px-3 py-2 border border-border font-medium">Veeam B&amp;R 11</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">v1.0</td>
+                <td className="px-3 py-2 border border-border">Job management, basic restore</td>
               </tr>
-              <tr className="hover:bg-gray-50">
-                <td className="px-3 py-2 border border-gray-200 font-medium">Veeam B&amp;R 12</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">v1.1</td>
-                <td className="px-3 py-2 border border-gray-200">Instant VM recovery, object storage</td>
+              <tr className="hover:bg-surface-2">
+                <td className="px-3 py-2 border border-border font-medium">Veeam B&amp;R 12</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">v1.1</td>
+                <td className="px-3 py-2 border border-border">Instant VM recovery, object storage</td>
               </tr>
-              <tr className="hover:bg-gray-50">
-                <td className="px-3 py-2 border border-gray-200 font-medium">Veeam B&amp;R 13.0.2+</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">v1.2</td>
-                <td className="px-3 py-2 border border-gray-200">Enhanced restore points, malware detection</td>
+              <tr className="hover:bg-surface-2">
+                <td className="px-3 py-2 border border-border font-medium">Veeam B&amp;R 13.0.2+</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">v1.2</td>
+                <td className="px-3 py-2 border border-border">Enhanced restore points, malware detection</td>
               </tr>
             </tbody>
           </table>
@@ -189,69 +189,69 @@ export default function ProvidersPage() {
       </div>
 
       {/* Extended hypervisor support matrix */}
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-surface rounded-xl shadow p-5">
         <h2 className="text-lg font-semibold mb-1">Extended Hypervisor Support Matrix</h2>
-        <p className="text-xs text-gray-400 mb-4">Phase 6 connector architecture for non-Veeam-native platforms</p>
+        <p className="text-xs text-content-muted mb-4">Phase 6 connector architecture for non-Veeam-native platforms</p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
-                <th className="px-3 py-2 border border-gray-200">Platform</th>
-                <th className="px-3 py-2 border border-gray-200">Protocol</th>
-                <th className="px-3 py-2 border border-gray-200">Connector</th>
-                <th className="px-3 py-2 border border-gray-200">Backup Integration</th>
-                <th className="px-3 py-2 border border-gray-200">Notes</th>
+              <tr className="bg-surface-2 text-xs text-content-muted uppercase tracking-wide">
+                <th className="px-3 py-2 border border-border">Platform</th>
+                <th className="px-3 py-2 border border-border">Protocol</th>
+                <th className="px-3 py-2 border border-border">Connector</th>
+                <th className="px-3 py-2 border border-border">Backup Integration</th>
+                <th className="px-3 py-2 border border-border">Notes</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700">
-              <tr className="hover:bg-gray-50">
-                <td className="px-3 py-2 border border-gray-200 font-medium">Proxmox VE</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">REST API</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">proxmoxer</td>
-                <td className="px-3 py-2 border border-gray-200">PBS (Proxmox Backup Server)</td>
-                <td className="px-3 py-2 border border-gray-200 text-gray-500">Native snapshot support</td>
+            <tbody className="text-content">
+              <tr className="hover:bg-surface-2">
+                <td className="px-3 py-2 border border-border font-medium">Proxmox VE</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">REST API</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">proxmoxer</td>
+                <td className="px-3 py-2 border border-border">PBS (Proxmox Backup Server)</td>
+                <td className="px-3 py-2 border border-border text-content-muted">Native snapshot support</td>
               </tr>
-              <tr className="hover:bg-gray-50">
-                <td className="px-3 py-2 border border-gray-200 font-medium">Nutanix AHV</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">Prism Central v3 REST</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">httpx</td>
-                <td className="px-3 py-2 border border-gray-200">Protection Domains</td>
-                <td className="px-3 py-2 border border-gray-200 text-gray-500">No SDK dependency</td>
+              <tr className="hover:bg-surface-2">
+                <td className="px-3 py-2 border border-border font-medium">Nutanix AHV</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">Prism Central v3 REST</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">httpx</td>
+                <td className="px-3 py-2 border border-border">Protection Domains</td>
+                <td className="px-3 py-2 border border-border text-content-muted">No SDK dependency</td>
               </tr>
-              <tr className="hover:bg-gray-50">
-                <td className="px-3 py-2 border border-gray-200 font-medium">RHV / oVirt</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">oVirt SDK</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">ovirt-engine-sdk-python</td>
-                <td className="px-3 py-2 border border-gray-200">Export domains</td>
-                <td className="px-3 py-2 border border-gray-200 text-gray-500">Manual SDK install</td>
+              <tr className="hover:bg-surface-2">
+                <td className="px-3 py-2 border border-border font-medium">RHV / oVirt</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">oVirt SDK</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">ovirt-engine-sdk-python</td>
+                <td className="px-3 py-2 border border-border">Export domains</td>
+                <td className="px-3 py-2 border border-border text-content-muted">Manual SDK install</td>
               </tr>
-              <tr className="hover:bg-gray-50">
-                <td className="px-3 py-2 border border-gray-200 font-medium">XenServer</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">XenAPI (XML-RPC)</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">XenAPI module</td>
-                <td className="px-3 py-2 border border-gray-200">XenServer Backup</td>
-                <td className="px-3 py-2 border border-gray-200 text-gray-500">Manual SDK install</td>
+              <tr className="hover:bg-surface-2">
+                <td className="px-3 py-2 border border-border font-medium">XenServer</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">XenAPI (XML-RPC)</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">XenAPI module</td>
+                <td className="px-3 py-2 border border-border">XenServer Backup</td>
+                <td className="px-3 py-2 border border-border text-content-muted">Manual SDK install</td>
               </tr>
-              <tr className="hover:bg-gray-50">
-                <td className="px-3 py-2 border border-gray-200 font-medium">Sangfor HCI</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">REST API</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">httpx</td>
-                <td className="px-3 py-2 border border-gray-200">Vendor snapshots</td>
-                <td className="px-3 py-2 border border-gray-200 text-gray-500">Requires vendor API spec</td>
+              <tr className="hover:bg-surface-2">
+                <td className="px-3 py-2 border border-border font-medium">Sangfor HCI</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">REST API</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">httpx</td>
+                <td className="px-3 py-2 border border-border">Vendor snapshots</td>
+                <td className="px-3 py-2 border border-border text-content-muted">Requires vendor API spec</td>
               </tr>
-              <tr className="hover:bg-gray-50">
-                <td className="px-3 py-2 border border-gray-200 font-medium">Google Cloud</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">Compute API</td>
-                <td className="px-3 py-2 border border-gray-200 font-mono text-xs">google-cloud-compute</td>
-                <td className="px-3 py-2 border border-gray-200">GCP Backup and DR</td>
-                <td className="px-3 py-2 border border-gray-200 text-gray-500">ADC / Service Account</td>
+              <tr className="hover:bg-surface-2">
+                <td className="px-3 py-2 border border-border font-medium">Google Cloud</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">Compute API</td>
+                <td className="px-3 py-2 border border-border font-mono text-xs">google-cloud-compute</td>
+                <td className="px-3 py-2 border border-border">GCP Backup and DR</td>
+                <td className="px-3 py-2 border border-border text-content-muted">ADC / Service Account</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <p className="text-xs text-gray-400 text-center pt-2">
+      <p className="text-xs text-content-muted text-center pt-2">
         Built by{" "}
         <a
           href="https://www.linkedin.com/in/omarrao/"

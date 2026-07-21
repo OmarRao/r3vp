@@ -86,7 +86,7 @@ export default function ApplianceDetailPage() {
     return (
       <div className="p-6 flex items-center gap-3">
         <div className="animate-spin border-4 rounded-full w-8 h-8 border-green-500 border-t-transparent" />
-        <span className="text-sm text-gray-400">Loading appliance...</span>
+        <span className="text-sm text-content-muted">Loading appliance...</span>
       </div>
     );
   }
@@ -94,7 +94,7 @@ export default function ApplianceDetailPage() {
   if (!appliance) {
     return (
       <div className="p-6">
-        <p className="text-gray-500">Appliance not found.</p>
+        <p className="text-content-muted">Appliance not found.</p>
         <Link href="/dashboard/appliances" className="text-veeam-green text-sm mt-2 inline-block">
           &larr; Back to Appliances
         </Link>
@@ -114,64 +114,64 @@ export default function ApplianceDetailPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-bold text-gray-900">{appliance.name}</h1>
+          <h1 className="text-2xl font-bold text-content">{appliance.name}</h1>
           <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass[s]}`}>
             {statusLabel[s]}
           </span>
         </div>
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-content-muted">
           Registered {new Date(appliance.created_at).toLocaleDateString()}
         </p>
       </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">Version</p>
-          <p className="text-xl font-bold text-gray-900 mt-1">{appliance.version ?? "—"}</p>
+        <div className="bg-surface rounded-xl shadow p-5">
+          <p className="text-xs text-content-muted uppercase tracking-wide">Version</p>
+          <p className="text-xl font-bold text-content mt-1">{appliance.version ?? "—"}</p>
         </div>
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">Status</p>
+        <div className="bg-surface rounded-xl shadow p-5">
+          <p className="text-xs text-content-muted uppercase tracking-wide">Status</p>
           <div className="mt-2">
             <span className={`px-2 py-0.5 rounded-full text-sm font-medium ${statusBadgeClass[s]}`}>
               {statusLabel[s]}
             </span>
           </div>
         </div>
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">Last Heartbeat</p>
-          <p className="text-lg font-semibold text-gray-900 mt-1">
+        <div className="bg-surface rounded-xl shadow p-5">
+          <p className="text-xs text-content-muted uppercase tracking-wide">Last Heartbeat</p>
+          <p className="text-lg font-semibold text-content mt-1">
             {relativeTime(appliance.last_heartbeat)}
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">Workload Count</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{appliance.workload_count}</p>
+        <div className="bg-surface rounded-xl shadow p-5">
+          <p className="text-xs text-content-muted uppercase tracking-wide">Workload Count</p>
+          <p className="text-2xl font-bold text-content mt-1">{appliance.workload_count}</p>
         </div>
       </div>
 
       {/* Connection Info */}
-      <div className="bg-white rounded-xl shadow p-5 space-y-4">
-        <h2 className="text-lg font-semibold text-gray-900">Connection Info</h2>
+      <div className="bg-surface rounded-xl shadow p-5 space-y-4">
+        <h2 className="text-lg font-semibold text-content">Connection Info</h2>
         <div>
-          <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+          <label className="block text-xs text-content-muted uppercase tracking-wide mb-1">
             Appliance ID
           </label>
-          <p className="font-mono text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded px-3 py-2">
+          <p className="font-mono text-sm text-content bg-surface-2 border border-border rounded px-3 py-2">
             {appliance.id}
           </p>
         </div>
         <div>
-          <label className="block text-xs text-gray-500 uppercase tracking-wide mb-1">
+          <label className="block text-xs text-content-muted uppercase tracking-wide mb-1">
             mTLS Thumbprint
           </label>
           <div className="flex items-center gap-2">
-            <p className="font-mono text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded px-3 py-2 flex-1 break-all">
+            <p className="font-mono text-sm text-content bg-surface-2 border border-border rounded px-3 py-2 flex-1 break-all">
               {appliance.mtls_thumbprint}
             </p>
             <button
               onClick={handleCopy}
-              className="shrink-0 border border-gray-300 rounded-lg px-3 py-2 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+              className="shrink-0 border border-border rounded-lg px-3 py-2 text-xs text-content-muted hover:bg-surface-2 transition-colors"
             >
               {copied ? "Copied!" : "Copy"}
             </button>
@@ -180,8 +180,8 @@ export default function ApplianceDetailPage() {
       </div>
 
       {/* Workloads */}
-      <div className="bg-white rounded-xl shadow p-5">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">Workloads</h2>
+      <div className="bg-surface rounded-xl shadow p-5">
+        <h2 className="text-lg font-semibold text-content mb-2">Workloads</h2>
         {appliance.workload_count > 0 ? (
           <Link
             href={`/dashboard?appliance=${appliance.id}`}
@@ -190,14 +190,14 @@ export default function ApplianceDetailPage() {
             View {appliance.workload_count} workload{appliance.workload_count !== 1 ? "s" : ""}
           </Link>
         ) : (
-          <p className="text-sm text-gray-400">No workloads associated with this appliance.</p>
+          <p className="text-sm text-content-muted">No workloads associated with this appliance.</p>
         )}
       </div>
 
       {/* Deregister */}
-      <div className="bg-white rounded-xl shadow p-5 space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900">Deregister Appliance</h2>
-        <p className="text-sm text-gray-500">
+      <div className="bg-surface rounded-xl shadow p-5 space-y-3">
+        <h2 className="text-lg font-semibold text-content">Deregister Appliance</h2>
+        <p className="text-sm text-content-muted">
           This marks the appliance as deregistered. Existing workload records are preserved.
         </p>
         <button
@@ -213,7 +213,7 @@ export default function ApplianceDetailPage() {
       </div>
 
       {/* Footer */}
-      <p className="text-xs text-gray-400 text-center pt-2">
+      <p className="text-xs text-content-muted text-center pt-2">
         Built by{" "}
         <a
           href="https://www.linkedin.com/in/omarrao/"

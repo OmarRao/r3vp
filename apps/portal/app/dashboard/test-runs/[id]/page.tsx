@@ -67,7 +67,7 @@ function StepIcon({ status }: { status: WorkflowStep["status"] }) {
     );
   }
   return (
-    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-gray-300" />
+    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-border" />
   );
 }
 
@@ -84,13 +84,13 @@ function MetricCell({
   const isUnder = target != null && actual != null && actual <= target;
   return (
     <div>
-      <p className="text-xs text-gray-500 uppercase tracking-wide">{label}</p>
+      <p className="text-xs text-content-muted uppercase tracking-wide">{label}</p>
       <p className="text-2xl font-bold mt-1">
-        <span className={isOver ? "text-red-600" : isUnder ? "text-green-600" : "text-gray-800"}>
+        <span className={isOver ? "text-red-600" : isUnder ? "text-green-600" : "text-content"}>
           {actual != null ? `${actual} min` : "—"}
         </span>
         {target != null && (
-          <span className="text-sm text-gray-400 font-normal ml-2">target: {target} min</span>
+          <span className="text-sm text-content-muted font-normal ml-2">target: {target} min</span>
         )}
       </p>
     </div>
@@ -122,7 +122,7 @@ export default function TestRunDetailPage() {
   if (!run) {
     return (
       <div className="p-6">
-        <p className="text-gray-500">Test run not found.</p>
+        <p className="text-content-muted">Test run not found.</p>
         <Link href="/dashboard" className="text-veeam-green text-sm mt-2 inline-block">
           &larr; Back to Dashboard
         </Link>
@@ -145,11 +145,11 @@ export default function TestRunDetailPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-content">
               Run <span className="font-mono text-lg">{shortId}...</span>
             </h1>
             <span
-              className={`px-2 py-0.5 rounded-full text-xs font-medium ${resultBadge[run.status] ?? "bg-gray-100 text-gray-600"}`}
+              className={`px-2 py-0.5 rounded-full text-xs font-medium ${resultBadge[run.status] ?? "bg-surface-2 text-content-muted"}`}
             >
               {run.status}
             </span>
@@ -160,7 +160,7 @@ export default function TestRunDetailPage() {
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-content-muted">
             {workloadLabel} &mdash; triggered {new Date(run.triggered_at).toLocaleString()}
           </p>
         </div>
@@ -177,7 +177,7 @@ export default function TestRunDetailPage() {
         ) : (
           <button
             disabled
-            className="inline-block bg-gray-200 text-gray-400 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed"
+            className="inline-block bg-border text-content-muted px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed"
           >
             Report available after test completes
           </button>
@@ -185,30 +185,30 @@ export default function TestRunDetailPage() {
       </div>
 
       {/* Result Summary */}
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-surface rounded-xl shadow p-5">
         <h2 className="text-lg font-semibold mb-4">Result Summary</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <MetricCell label="RTO" target={run.rto_target_mins} actual={run.actual_rto_mins} />
           <MetricCell label="RPO" target={run.rpo_target_mins} actual={run.actual_rpo_mins} />
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Readiness Score</p>
+            <p className="text-xs text-content-muted uppercase tracking-wide">Readiness Score</p>
             <p
               className={`text-4xl font-bold mt-1 ${
                 run.readiness_score != null && run.readiness_score >= 80
                   ? "text-green-600"
                   : run.readiness_score != null
                   ? "text-red-600"
-                  : "text-gray-400"
+                  : "text-content-muted"
               }`}
             >
               {run.readiness_score != null ? run.readiness_score : "—"}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Status</p>
+            <p className="text-xs text-content-muted uppercase tracking-wide">Status</p>
             <div className="mt-2">
               <span
-                className={`px-2 py-0.5 rounded-full text-sm font-medium ${resultBadge[run.status] ?? "bg-gray-100 text-gray-600"}`}
+                className={`px-2 py-0.5 rounded-full text-sm font-medium ${resultBadge[run.status] ?? "bg-surface-2 text-content-muted"}`}
               >
                 {run.status}
               </span>
@@ -219,27 +219,27 @@ export default function TestRunDetailPage() {
 
       {/* Workflow Steps */}
       {run.steps && run.steps.length > 0 && (
-        <div className="bg-white rounded-xl shadow p-5">
+        <div className="bg-surface rounded-xl shadow p-5">
           <h2 className="text-lg font-semibold mb-4">Workflow Steps</h2>
           <div className="relative">
             {/* Vertical connecting line */}
-            <div className="absolute left-3 top-3 bottom-3 w-0.5 bg-gray-200" />
+            <div className="absolute left-3 top-3 bottom-3 w-0.5 bg-border" />
             <ol className="space-y-4">
               {run.steps.map((step) => (
                 <li key={step.id} className="flex items-start gap-3 relative">
                   <StepIcon status={step.status} />
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-baseline gap-2">
-                      <span className="text-sm font-semibold text-gray-900">{step.name}</span>
-                      <span className="text-xs text-gray-400">{stepDuration(step)}</span>
+                      <span className="text-sm font-semibold text-content">{step.name}</span>
+                      <span className="text-xs text-content-muted">{stepDuration(step)}</span>
                       {step.started_at && (
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-content-muted">
                           started {new Date(step.started_at).toLocaleTimeString()}
                         </span>
                       )}
                     </div>
                     {step.detail && (
-                      <p className="text-xs text-gray-500 mt-0.5">{step.detail}</p>
+                      <p className="text-xs text-content-muted mt-0.5">{step.detail}</p>
                     )}
                   </div>
                 </li>

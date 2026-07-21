@@ -38,51 +38,51 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Recovery Readiness Dashboard</h1>
+      <h1 className="text-2xl font-bold text-content">Recovery Readiness Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl shadow p-5 flex flex-col items-center">
+        <div className="bg-surface rounded-xl shadow p-5 flex flex-col items-center">
           <ReadinessGauge score={readiness?.overall_score ?? 0} />
-          <p className="mt-2 text-sm text-gray-500">Overall Readiness Score</p>
+          <p className="mt-2 text-sm text-content-muted">Overall Readiness Score</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">Workloads Tested</p>
+        <div className="bg-surface rounded-xl shadow p-5">
+          <p className="text-xs text-content-muted uppercase tracking-wide">Workloads Tested</p>
           <p className="text-4xl font-bold text-veeam-green mt-1">
             {readiness?.workloads_tested ?? 0}
-            <span className="text-xl text-gray-400"> / {readiness?.workloads_total ?? 0}</span>
+            <span className="text-xl text-content-muted"> / {readiness?.workloads_total ?? 0}</span>
           </p>
-          <p className="text-sm text-gray-500 mt-1">in last 30 days</p>
+          <p className="text-sm text-content-muted mt-1">in last 30 days</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow p-5 space-y-2">
+        <div className="bg-surface rounded-xl shadow p-5 space-y-2">
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">RTO Compliance</p>
-            <p className="text-3xl font-bold text-gray-800">
+            <p className="text-xs text-content-muted uppercase tracking-wide">RTO Compliance</p>
+            <p className="text-3xl font-bold text-content">
               {readiness?.rto_compliance_pct ?? 0}%
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">RPO Compliance</p>
-            <p className="text-3xl font-bold text-gray-800">
+            <p className="text-xs text-content-muted uppercase tracking-wide">RPO Compliance</p>
+            <p className="text-3xl font-bold text-content">
               {readiness?.rpo_compliance_pct ?? 0}%
             </p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-surface rounded-xl shadow p-5">
         <h2 className="text-lg font-semibold mb-4">RTO / RPO Trend (last 90 days)</h2>
         <RtoRpoChart data={readiness?.trend ?? []} />
       </div>
 
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-surface rounded-xl shadow p-5">
         <h2 className="text-lg font-semibold mb-4">Workloads</h2>
         <WorkloadGrid />
       </div>
 
       {/* Provider coverage */}
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-surface rounded-xl shadow p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Provider Coverage</h2>
           <Link href="/dashboard/providers" className="text-sm text-veeam-green hover:underline">
@@ -91,12 +91,12 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {providerSummary.map((p) => (
-            <div key={p.provider} className="bg-gray-50 rounded-lg p-3 text-center">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+            <div key={p.provider} className="bg-surface-2 rounded-lg p-3 text-center">
+              <div className="text-xs font-semibold text-content-muted uppercase tracking-wide mb-1">
                 {providerLabels[p.provider] ?? p.provider}
               </div>
-              <div className="text-2xl font-bold text-gray-900">{p.total_workloads}</div>
-              <div className="text-xs text-gray-400 mt-0.5">workloads</div>
+              <div className="text-2xl font-bold text-content">{p.total_workloads}</div>
+              <div className="text-xs text-content-muted mt-0.5">workloads</div>
               {p.pass_rate != null && (
                 <div className={`text-xs font-semibold mt-1 ${p.pass_rate >= 80 ? "text-green-600" : p.pass_rate >= 50 ? "text-yellow-600" : "text-red-600"}`}>
                   {p.pass_rate}% pass rate

@@ -72,8 +72,8 @@ export default function ThreatsPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Threat Scanner</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-content">Threat Scanner</h1>
+          <p className="text-sm text-content-muted mt-1">
             {latestScan
               ? `Last scan: ${new Date(latestScan.completed_at).toLocaleString()} -- ${latestScan.signatures_checked.toLocaleString()} signatures checked`
               : "No scans yet"}
@@ -88,35 +88,35 @@ export default function ThreatsPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">Critical</p>
+        <div className="bg-surface rounded-xl shadow p-5">
+          <p className="text-xs text-content-muted uppercase tracking-wide">Critical</p>
           <p className="text-3xl font-bold text-red-600 mt-1">{criticalCount}</p>
         </div>
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">High</p>
+        <div className="bg-surface rounded-xl shadow p-5">
+          <p className="text-xs text-content-muted uppercase tracking-wide">High</p>
           <p className="text-3xl font-bold text-orange-500 mt-1">{highCount}</p>
         </div>
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">Active</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{activeCount}</p>
+        <div className="bg-surface rounded-xl shadow p-5">
+          <p className="text-xs text-content-muted uppercase tracking-wide">Active</p>
+          <p className="text-3xl font-bold text-content mt-1">{activeCount}</p>
         </div>
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">Total Findings</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{findings.length}</p>
+        <div className="bg-surface rounded-xl shadow p-5">
+          <p className="text-xs text-content-muted uppercase tracking-wide">Total Findings</p>
+          <p className="text-3xl font-bold text-content mt-1">{findings.length}</p>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-surface rounded-xl shadow p-5">
         <h2 className="text-lg font-semibold mb-4">Findings</h2>
         {findingsLoading ? (
-          <p className="text-sm text-gray-400">Loading findings...</p>
+          <p className="text-sm text-content-muted">Loading findings...</p>
         ) : findings.length === 0 ? (
-          <p className="text-sm text-gray-400">No threat findings. Environment is clean.</p>
+          <p className="text-sm text-content-muted">No threat findings. Environment is clean.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
-                <tr className="border-b text-left text-gray-500 text-xs uppercase tracking-wide">
+                <tr className="border-b text-left text-content-muted text-xs uppercase tracking-wide">
                   <th className="pb-2 pr-4">Severity</th>
                   <th className="pb-2 pr-4">Threat</th>
                   <th className="pb-2 pr-4">Type</th>
@@ -129,45 +129,45 @@ export default function ThreatsPage() {
               </thead>
               <tbody>
                 {findings.map((f) => (
-                  <tr key={f.id} className="border-b hover:bg-gray-50">
+                  <tr key={f.id} className="border-b hover:bg-surface-2">
                     <td className="py-2 pr-4">
                       <span
                         className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${
-                          severityBadge[f.severity] ?? "bg-gray-100 text-gray-600"
+                          severityBadge[f.severity] ?? "bg-surface-2 text-content-muted"
                         }`}
                       >
                         {f.severity}
                       </span>
                     </td>
-                    <td className="py-2 pr-4 font-medium text-gray-900">{f.threat_name}</td>
+                    <td className="py-2 pr-4 font-medium text-content">{f.threat_name}</td>
                     <td className="py-2 pr-4">
                       <span
                         className={`px-2 py-0.5 rounded text-xs font-medium ${
-                          typeBadge[f.threat_type] ?? "bg-gray-100 text-gray-600"
+                          typeBadge[f.threat_type] ?? "bg-surface-2 text-content-muted"
                         }`}
                       >
                         {f.threat_type}
                       </span>
                     </td>
-                    <td className="py-2 pr-4 text-gray-600 font-mono text-xs">{f.host}</td>
-                    <td className="py-2 pr-4 text-gray-500 text-xs">
-                      <span className="text-gray-400">{f.indicator_type}:</span>{" "}
+                    <td className="py-2 pr-4 text-content-muted font-mono text-xs">{f.host}</td>
+                    <td className="py-2 pr-4 text-content-muted text-xs">
+                      <span className="text-content-muted">{f.indicator_type}:</span>{" "}
                       <span className="font-mono">
                         {f.indicator_value.length > 30
                           ? f.indicator_value.slice(0, 30) + "..."
                           : f.indicator_value}
                       </span>
                     </td>
-                    <td className="py-2 pr-4 text-gray-500 text-xs font-mono">
+                    <td className="py-2 pr-4 text-content-muted text-xs font-mono">
                       {f.mitre_technique ?? "—"}
                     </td>
-                    <td className="py-2 pr-4 text-gray-500 text-xs">
+                    <td className="py-2 pr-4 text-content-muted text-xs">
                       {new Date(f.detected_at).toLocaleString()}
                     </td>
                     <td className="py-2">
                       <span
                         className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                          statusBadge[f.status] ?? "bg-gray-100 text-gray-600"
+                          statusBadge[f.status] ?? "bg-surface-2 text-content-muted"
                         }`}
                       >
                         {f.status}
@@ -181,7 +181,7 @@ export default function ThreatsPage() {
         )}
       </div>
 
-      <p className="text-xs text-gray-400 text-center pt-2">
+      <p className="text-xs text-content-muted text-center pt-2">
         Built by{" "}
         <a
           href="https://www.linkedin.com/in/omarrao/"

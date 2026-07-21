@@ -24,7 +24,7 @@ interface RtoRpoChartProps {
 export function RtoRpoChart({ data }: RtoRpoChartProps) {
   if (!data.length) {
     return (
-      <div className="h-48 flex items-center justify-center text-gray-400 text-sm">
+      <div className="h-48 flex items-center justify-center text-content-muted text-sm">
         No test data yet
       </div>
     );
@@ -33,7 +33,7 @@ export function RtoRpoChart({ data }: RtoRpoChartProps) {
   return (
     <ResponsiveContainer width="100%" height={240}>
       <LineChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--color-border))" />
         <XAxis dataKey="date" tick={{ fontSize: 11 }} />
         <YAxis unit=" min" tick={{ fontSize: 11 }} />
         <Tooltip formatter={(v: number) => `${v} min`} />

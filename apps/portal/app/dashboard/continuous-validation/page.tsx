@@ -44,11 +44,11 @@ const statusPill = (s: string) =>
 
 export default function ContinuousValidationPage() {
   return (
-    <div className="p-7 bg-slate-50 min-h-screen">
+    <div className="p-7 bg-surface-2 min-h-screen">
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Continuous Validation</h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <h1 className="text-xl font-bold text-content">Continuous Validation</h1>
+          <p className="text-sm text-content-muted mt-1">
             Always-on micro-checks running every 15 minutes without full instant recovery
           </p>
         </div>
@@ -63,38 +63,38 @@ export default function ContinuousValidationPage() {
           { label: "Overall Status", value: "Healthy", color: "text-green-600" },
           { label: "Pass Rate (24h)", value: "94%", color: "text-green-600" },
           { label: "Active Alerts", value: "2", color: "text-amber-500" },
-          { label: "Checks Today", value: "1,847", color: "text-slate-900" },
+          { label: "Checks Today", value: "1,847", color: "text-content" },
         ].map((k) => (
-          <div key={k.label} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm text-center">
+          <div key={k.label} className="bg-surface border border-border rounded-xl p-4 shadow-sm text-center">
             <div className={`text-2xl font-bold ${k.color} mb-1`}>{k.value}</div>
-            <div className="text-xs text-slate-400">{k.label}</div>
+            <div className="text-xs text-content-muted">{k.label}</div>
           </div>
         ))}
       </div>
 
       {/* Policies */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-5">
-        <div className="px-5 py-3.5 border-b border-slate-100">
-          <span className="text-sm font-bold text-slate-900">Validation Policies (2)</span>
+      <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden mb-5">
+        <div className="px-5 py-3.5 border-b border-border">
+          <span className="text-sm font-bold text-content">Validation Policies (2)</span>
         </div>
         {[
           { name: "Production Workloads", interval: "Every 15 min", scope: "All workloads", checks: "Restore Point, Mount, Veeam Job, Heartbeat" },
           { name: "Critical Tier Only", interval: "Every 5 min", scope: "tag:critical", checks: "All 6 checks" },
         ].map((p, i) => (
-          <div key={i} className="flex items-center gap-4 px-5 py-3.5 border-b border-slate-50 last:border-0">
+          <div key={i} className="flex items-center gap-4 px-5 py-3.5 border-b border-border last:border-0">
             <div className="w-8 h-4 rounded-full flex-shrink-0 relative cursor-pointer bg-green-500">
-              <span className="absolute top-0.5 left-4 w-3 h-3 bg-white rounded-full shadow" />
+              <span className="absolute top-0.5 left-4 w-3 h-3 bg-surface rounded-full shadow" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-900">
+              <p className="text-sm font-semibold text-content">
                 {p.name}{" "}
-                <span className="text-xs font-normal text-slate-400 ml-2">{p.interval}</span>
+                <span className="text-xs font-normal text-content-muted ml-2">{p.interval}</span>
               </p>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-content-muted mt-0.5">
                 Scope: {p.scope} &nbsp;&middot;&nbsp; Checks: {p.checks}
               </p>
             </div>
-            <button className="text-xs text-slate-400 hover:text-green-600 font-semibold border border-slate-200 rounded px-2 py-1">
+            <button className="text-xs text-content-muted hover:text-green-600 font-semibold border border-border rounded px-2 py-1">
               Edit
             </button>
           </div>
@@ -102,14 +102,14 @@ export default function ContinuousValidationPage() {
       </div>
 
       {/* Active Alerts */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-5">
-        <div className="px-5 py-3.5 border-b border-slate-100">
-          <span className="text-sm font-bold text-slate-900">Active Alerts ({ALERTS.length})</span>
+      <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden mb-5">
+        <div className="px-5 py-3.5 border-b border-border">
+          <span className="text-sm font-bold text-content">Active Alerts ({ALERTS.length})</span>
         </div>
         {ALERTS.map((a) => (
           <div
             key={a.id}
-            className={`flex items-start gap-4 px-5 py-4 border-b border-slate-50 last:border-0 border-l-4 ${
+            className={`flex items-start gap-4 px-5 py-4 border-b border-border last:border-0 border-l-4 ${
               a.severity === "high" ? "border-l-red-500" : "border-l-amber-400"
             }`}
           >
@@ -123,14 +123,14 @@ export default function ContinuousValidationPage() {
               {a.severity}
             </span>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-900 mb-0.5">
+              <p className="text-sm font-semibold text-content mb-0.5">
                 {a.workload}{" "}
-                <span className="font-normal text-slate-400 text-xs ml-1">{a.type}</span>
+                <span className="font-normal text-content-muted text-xs ml-1">{a.type}</span>
               </p>
-              <p className="text-xs text-slate-500">{a.detail}</p>
+              <p className="text-xs text-content-muted">{a.detail}</p>
             </div>
-            <div className="text-xs text-slate-400 whitespace-nowrap">{a.time}</div>
-            <button className="text-xs text-slate-400 hover:text-green-600 font-semibold border border-slate-200 rounded px-2 py-1 whitespace-nowrap">
+            <div className="text-xs text-content-muted whitespace-nowrap">{a.time}</div>
+            <button className="text-xs text-content-muted hover:text-green-600 font-semibold border border-border rounded px-2 py-1 whitespace-nowrap">
               Resolve
             </button>
           </div>
@@ -138,15 +138,15 @@ export default function ContinuousValidationPage() {
       </div>
 
       {/* Recent Checks Table */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-5">
-        <div className="px-5 py-3.5 border-b border-slate-100">
-          <span className="text-sm font-bold text-slate-900">Recent Micro-Validation Runs</span>
+      <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden mb-5">
+        <div className="px-5 py-3.5 border-b border-border">
+          <span className="text-sm font-bold text-content">Recent Micro-Validation Runs</span>
         </div>
         <table className="w-full">
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-100">
+            <tr className="bg-surface-2 border-b border-border">
               {["Workload", "Status", "Checks", "RP Age", "Duration", "Time"].map((h) => (
-                <th key={h} className="text-[10px] font-bold uppercase tracking-wide text-slate-400 px-5 py-2.5 text-left">
+                <th key={h} className="text-[10px] font-bold uppercase tracking-wide text-content-muted px-5 py-2.5 text-left">
                   {h}
                 </th>
               ))}
@@ -154,17 +154,17 @@ export default function ContinuousValidationPage() {
           </thead>
           <tbody>
             {RUNS.map((r) => (
-              <tr key={r.workload} className="border-b border-slate-50 hover:bg-slate-50">
-                <td className="px-5 py-3 text-sm font-medium text-slate-900">{r.workload}</td>
+              <tr key={r.workload} className="border-b border-border hover:bg-surface-2">
+                <td className="px-5 py-3 text-sm font-medium text-content">{r.workload}</td>
                 <td className="px-5 py-3">
                   <span className={`text-[10px] font-bold uppercase border rounded px-2 py-0.5 ${statusPill(r.status)}`}>
                     {r.status}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-sm text-slate-600">{r.checks}</td>
-                <td className="px-5 py-3 text-sm text-slate-600">{r.rp}</td>
-                <td className="px-5 py-3 text-sm text-slate-500">{r.ms}ms</td>
-                <td className="px-5 py-3 text-sm text-slate-400">14:00</td>
+                <td className="px-5 py-3 text-sm text-content-muted">{r.checks}</td>
+                <td className="px-5 py-3 text-sm text-content-muted">{r.rp}</td>
+                <td className="px-5 py-3 text-sm text-content-muted">{r.ms}ms</td>
+                <td className="px-5 py-3 text-sm text-content-muted">14:00</td>
               </tr>
             ))}
           </tbody>
@@ -172,19 +172,19 @@ export default function ContinuousValidationPage() {
       </div>
 
       {/* Available Checks */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-slate-100">
-          <span className="text-sm font-bold text-slate-900">Available Micro-Checks</span>
+      <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-border">
+          <span className="text-sm font-bold text-content">Available Micro-Checks</span>
         </div>
         <div className="p-4 grid grid-cols-2 gap-3">
           {CHECKS.map((c) => (
-            <div key={c.name} className="flex items-start gap-3 p-3 border border-slate-100 rounded-lg">
+            <div key={c.name} className="flex items-start gap-3 p-3 border border-border rounded-lg">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="flex-shrink-0 mt-0.5">
                 <path d="M3 8l3 3 7-7" stroke="#00B336" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <div>
-                <p className="text-xs font-semibold text-slate-900">{c.name}</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">{c.desc}</p>
+                <p className="text-xs font-semibold text-content">{c.name}</p>
+                <p className="text-[11px] text-content-muted mt-0.5">{c.desc}</p>
               </div>
             </div>
           ))}

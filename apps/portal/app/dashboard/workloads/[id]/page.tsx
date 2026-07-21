@@ -37,7 +37,7 @@ const statusBadge: Record<string, string> = {
   failed: "bg-red-100 text-red-800",
   running: "bg-blue-100 text-blue-800",
   pending: "bg-yellow-100 text-yellow-800",
-  never: "bg-gray-100 text-gray-500",
+  never: "bg-surface-2 text-content-muted",
 };
 
 export default function WorkloadDetailPage() {
@@ -92,7 +92,7 @@ export default function WorkloadDetailPage() {
   if (!workload) {
     return (
       <div className="p-6">
-        <p className="text-gray-500">Workload not found.</p>
+        <p className="text-content-muted">Workload not found.</p>
         <Link href="/dashboard" className="text-veeam-green text-sm mt-2 inline-block">
           &larr; Back to Workloads
         </Link>
@@ -112,7 +112,7 @@ export default function WorkloadDetailPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-bold text-gray-900">{workload.name}</h1>
+          <h1 className="text-2xl font-bold text-content">{workload.name}</h1>
           <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
             {workload.platform}
           </span>
@@ -144,28 +144,28 @@ export default function WorkloadDetailPage() {
 
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">RTO Target</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">
+        <div className="bg-surface rounded-xl shadow p-5">
+          <p className="text-xs text-content-muted uppercase tracking-wide">RTO Target</p>
+          <p className="text-2xl font-bold text-content mt-1">
             {workload.rto_target_mins != null ? `${workload.rto_target_mins} min` : "—"}
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">RPO Target</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">
+        <div className="bg-surface rounded-xl shadow p-5">
+          <p className="text-xs text-content-muted uppercase tracking-wide">RPO Target</p>
+          <p className="text-2xl font-bold text-content mt-1">
             {workload.rpo_target_mins != null ? `${workload.rpo_target_mins} min` : "—"}
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">Last Backup</p>
-          <p className="text-lg font-semibold text-gray-900 mt-1">
+        <div className="bg-surface rounded-xl shadow p-5">
+          <p className="text-xs text-content-muted uppercase tracking-wide">Last Backup</p>
+          <p className="text-lg font-semibold text-content mt-1">
             {workload.last_backup_at
               ? new Date(workload.last_backup_at).toLocaleString()
               : "—"}
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow p-5">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">Status</p>
+        <div className="bg-surface rounded-xl shadow p-5">
+          <p className="text-xs text-content-muted uppercase tracking-wide">Status</p>
           <div className="mt-2">
             <span
               className={`px-2 py-0.5 rounded-full text-sm font-medium ${statusBadge[lastStatus] ?? statusBadge.never}`}
@@ -177,28 +177,28 @@ export default function WorkloadDetailPage() {
       </div>
 
       {/* Set Targets form */}
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-surface rounded-xl shadow p-5">
         <h2 className="text-lg font-semibold mb-4">Set Targets</h2>
         <div className="flex flex-wrap gap-4 items-end">
           <div>
-            <label className="block text-sm text-gray-600 mb-1">RTO Target (mins)</label>
+            <label className="block text-sm text-content-muted mb-1">RTO Target (mins)</label>
             <input
               type="number"
               min={0}
               value={rtoValue}
               onChange={(e) => setRtoInput(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-36 focus:outline-none focus:ring-2 focus:ring-veeam-green"
+              className="border border-border rounded-lg px-3 py-2 text-sm w-36 focus:outline-none focus:ring-2 focus:ring-veeam-green"
               placeholder="e.g. 60"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">RPO Target (mins)</label>
+            <label className="block text-sm text-content-muted mb-1">RPO Target (mins)</label>
             <input
               type="number"
               min={0}
               value={rpoValue}
               onChange={(e) => setRpoInput(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-36 focus:outline-none focus:ring-2 focus:ring-veeam-green"
+              className="border border-border rounded-lg px-3 py-2 text-sm w-36 focus:outline-none focus:ring-2 focus:ring-veeam-green"
               placeholder="e.g. 15"
             />
           </div>
@@ -219,17 +219,17 @@ export default function WorkloadDetailPage() {
       </div>
 
       {/* Test Run History */}
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-surface rounded-xl shadow p-5">
         <h2 className="text-lg font-semibold mb-4">Test Run History</h2>
         {historyLoading ? (
-          <p className="text-sm text-gray-400">Loading history...</p>
+          <p className="text-sm text-content-muted">Loading history...</p>
         ) : history.length === 0 ? (
-          <p className="text-sm text-gray-400">No test runs yet. Click &quot;Run Test Now&quot; to start.</p>
+          <p className="text-sm text-content-muted">No test runs yet. Click &quot;Run Test Now&quot; to start.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
-                <tr className="border-b text-left text-gray-500 text-xs uppercase tracking-wide">
+                <tr className="border-b text-left text-content-muted text-xs uppercase tracking-wide">
                   <th className="pb-2 pr-4">Date</th>
                   <th className="pb-2 pr-4">Status</th>
                   <th className="pb-2 pr-4">Actual RTO</th>
@@ -240,8 +240,8 @@ export default function WorkloadDetailPage() {
               </thead>
               <tbody>
                 {history.map((run) => (
-                  <tr key={run.id} className="border-b hover:bg-gray-50">
-                    <td className="py-2 pr-4 text-gray-600">
+                  <tr key={run.id} className="border-b hover:bg-surface-2">
+                    <td className="py-2 pr-4 text-content-muted">
                       {new Date(run.started_at).toLocaleString()}
                     </td>
                     <td className="py-2 pr-4">
@@ -251,13 +251,13 @@ export default function WorkloadDetailPage() {
                         {run.status}
                       </span>
                     </td>
-                    <td className="py-2 pr-4 text-gray-600">
+                    <td className="py-2 pr-4 text-content-muted">
                       {run.actual_rto_mins != null ? `${run.actual_rto_mins} min` : "—"}
                     </td>
-                    <td className="py-2 pr-4 text-gray-600">
+                    <td className="py-2 pr-4 text-content-muted">
                       {run.actual_rpo_mins != null ? `${run.actual_rpo_mins} min` : "—"}
                     </td>
-                    <td className="py-2 pr-4 text-gray-600">
+                    <td className="py-2 pr-4 text-content-muted">
                       {run.readiness_score != null ? run.readiness_score : "—"}
                     </td>
                     <td className="py-2">
@@ -277,7 +277,7 @@ export default function WorkloadDetailPage() {
       </div>
 
       {/* Footer attribution */}
-      <p className="text-xs text-gray-400 text-center pt-2">
+      <p className="text-xs text-content-muted text-center pt-2">
         Built by{" "}
         <a
           href="https://www.linkedin.com/in/omarrao/"

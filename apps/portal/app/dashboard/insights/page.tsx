@@ -43,10 +43,10 @@ function cellColor(tierIdx: number, ageIdx: number): string {
 
 function RiskHeatmap() {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-5">
-      <div className="px-5 py-3.5 border-b border-slate-100">
-        <span className="text-sm font-bold text-slate-900">Risk Heatmap</span>
-        <span className="text-xs text-slate-400 ml-2">Business criticality vs days since last validation</span>
+    <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden mb-5">
+      <div className="px-5 py-3.5 border-b border-border">
+        <span className="text-sm font-bold text-content">Risk Heatmap</span>
+        <span className="text-xs text-content-muted ml-2">Business criticality vs days since last validation</span>
       </div>
       <div className="p-5 overflow-x-auto">
         <table className="border-separate" style={{ borderSpacing: "6px" }}>
@@ -54,19 +54,19 @@ function RiskHeatmap() {
             <tr>
               <th />
               {HEATMAP_AGES.map((a) => (
-                <th key={a} className="text-[10px] font-semibold text-slate-400 text-center px-1">{a}</th>
+                <th key={a} className="text-[10px] font-semibold text-content-muted text-center px-1">{a}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {HEATMAP_TIERS.map((tier, t) => (
               <tr key={tier}>
-                <td className="text-xs font-semibold text-slate-600 whitespace-nowrap pr-3">{tier}</td>
+                <td className="text-xs font-semibold text-content-muted whitespace-nowrap pr-3">{tier}</td>
                 {HEATMAP_AGES.map((age, a) => (
                   <td
                     key={age}
                     title={`${HEATMAP_COUNTS[t][a]} workloads, ${tier}, ${age}`}
-                    className="text-center font-bold text-sm text-slate-900 rounded-md"
+                    className="text-center font-bold text-sm text-content rounded-md"
                     style={{ background: cellColor(t, a), width: 84, height: 48 }}
                   >
                     {HEATMAP_COUNTS[t][a]}
@@ -76,7 +76,7 @@ function RiskHeatmap() {
             ))}
           </tbody>
         </table>
-        <div className="flex gap-4 mt-3 text-[10px] text-slate-500">
+        <div className="flex gap-4 mt-3 text-[10px] text-content-muted">
           {[["Low", "#DCFCE7"], ["Moderate", "#FEF3C7"], ["Elevated", "#FED7AA"], ["High", "#FECACA"], ["Critical", "#EF4444"]].map(([label, color]) => (
             <span key={label} className="flex items-center gap-1.5">
               <span className="inline-block w-3 h-3 rounded-sm" style={{ background: color }} />
@@ -110,21 +110,21 @@ export default function InsightsPage() {
   };
 
   return (
-    <div className="p-7 bg-slate-50 min-h-screen">
+    <div className="p-7 bg-surface-2 min-h-screen">
       <div className="max-w-5xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-xl font-bold text-slate-900">AI Insights</h1>
-          <p className="text-sm text-slate-400 mt-1">Predictive analytics, anomaly detection, and natural language queries</p>
+          <h1 className="text-xl font-bold text-content">AI Insights</h1>
+          <p className="text-sm text-content-muted mt-1">Predictive analytics, anomaly detection, and natural language queries</p>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl p-6 mb-5 shadow-sm">
+        <div className="bg-surface border border-border rounded-xl p-6 mb-5 shadow-sm">
           <div className="flex gap-3 mb-3">
             <input
               value={query}
               onChange={e => setQuery(e.target.value)}
               onKeyDown={e => e.key === "Enter" && query && handleQuery(query)}
               placeholder="Ask a question about your recovery posture..."
-              className="flex-1 border border-slate-200 rounded-md px-4 py-2.5 text-sm outline-none focus:border-green-400"
+              className="flex-1 border border-border rounded-md px-4 py-2.5 text-sm outline-none focus:border-green-400"
             />
             <button onClick={() => query && handleQuery(query)} disabled={loading} className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold rounded-md disabled:opacity-50">
               {loading ? "..." : "Ask"}
@@ -132,13 +132,13 @@ export default function InsightsPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             {EXAMPLE_QUERIES.map(q => (
-              <button key={q} onClick={() => handleQuery(q)} className="text-xs text-slate-500 border border-slate-200 rounded-full px-3 py-1 hover:border-green-400 hover:text-green-700">
+              <button key={q} onClick={() => handleQuery(q)} className="text-xs text-content-muted border border-border rounded-full px-3 py-1 hover:border-green-400 hover:text-green-700">
                 {q}
               </button>
             ))}
           </div>
           {answer && (
-            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-sm text-slate-800">
+            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg text-sm text-content">
               <span className="font-semibold text-green-700 block mb-1">Answer</span>
               {answer}
             </div>
@@ -147,30 +147,30 @@ export default function InsightsPage() {
 
         <RiskHeatmap />
 
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-5">
-          <div className="px-5 py-3.5 border-b border-slate-100">
-            <span className="text-sm font-bold text-slate-900">Workload Risk Ranking</span>
-            <span className="text-xs text-slate-400 ml-2">Scored by test recency, RTO ratio, and failure rate</span>
+        <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden mb-5">
+          <div className="px-5 py-3.5 border-b border-border">
+            <span className="text-sm font-bold text-content">Workload Risk Ranking</span>
+            <span className="text-xs text-content-muted ml-2">Scored by test recency, RTO ratio, and failure rate</span>
           </div>
           <table className="w-full">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-100">
+              <tr className="bg-surface-2 border-b border-border">
                 {["Rank", "Workload", "Provider", "Risk Score", "Risk Level", "Reasons"].map(h => (
-                  <th key={h} className="text-[10px] font-bold uppercase tracking-wide text-slate-400 px-5 py-2.5 text-left">{h}</th>
+                  <th key={h} className="text-[10px] font-bold uppercase tracking-wide text-content-muted px-5 py-2.5 text-left">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {MOCK_RISKS.map(r => (
-                <tr key={r.rank} className="border-b border-slate-50 hover:bg-slate-50">
-                  <td className="px-5 py-3 text-sm text-slate-400">#{r.rank}</td>
-                  <td className="px-5 py-3 text-sm font-semibold text-slate-900">{r.workload}</td>
-                  <td className="px-5 py-3 text-sm text-slate-500 capitalize">{r.provider}</td>
-                  <td className="px-5 py-3 text-sm font-bold text-slate-700">{r.score}</td>
+                <tr key={r.rank} className="border-b border-border hover:bg-surface-2">
+                  <td className="px-5 py-3 text-sm text-content-muted">#{r.rank}</td>
+                  <td className="px-5 py-3 text-sm font-semibold text-content">{r.workload}</td>
+                  <td className="px-5 py-3 text-sm text-content-muted capitalize">{r.provider}</td>
+                  <td className="px-5 py-3 text-sm font-bold text-content">{r.score}</td>
                   <td className="px-5 py-3">
                     <span className={`text-xs font-bold border px-2 py-0.5 rounded uppercase ${LEVEL_COLORS[r.level]}`}>{r.level}</span>
                   </td>
-                  <td className="px-5 py-3 text-xs text-slate-500">{r.reasons.join(" · ") || "-"}</td>
+                  <td className="px-5 py-3 text-xs text-content-muted">{r.reasons.join(" · ") || "-"}</td>
                 </tr>
               ))}
             </tbody>

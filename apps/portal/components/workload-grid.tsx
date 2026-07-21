@@ -22,7 +22,7 @@ const statusBadge: Record<string, string> = {
   passed: "bg-green-100 text-green-800",
   failed: "bg-red-100 text-red-800",
   pending: "bg-yellow-100 text-yellow-800",
-  never: "bg-gray-100 text-gray-500",
+  never: "bg-surface-2 text-content-muted",
 };
 
 export function WorkloadGrid() {
@@ -32,15 +32,15 @@ export function WorkloadGrid() {
     queryFn: () => api.get("/v1/workloads").then((r) => r.data),
   });
 
-  if (isLoading) return <p className="text-sm text-gray-400">Loading…</p>;
+  if (isLoading) return <p className="text-sm text-content-muted">Loading…</p>;
   if (!workloads.length)
-    return <p className="text-sm text-gray-400">No workloads discovered yet.</p>;
+    return <p className="text-sm text-content-muted">No workloads discovered yet.</p>;
 
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full text-sm">
         <thead>
-          <tr className="border-b text-left text-gray-500 text-xs uppercase tracking-wide">
+          <tr className="border-b text-left text-content-muted text-xs uppercase tracking-wide">
             <th className="pb-2 pr-4">Name</th>
             <th className="pb-2 pr-4">Platform</th>
             <th className="pb-2 pr-4">Protected</th>
@@ -54,9 +54,9 @@ export function WorkloadGrid() {
           {workloads.map((w) => {
             const status = w.last_test_run_status ?? "never";
             return (
-              <tr key={w.id} className="border-b hover:bg-gray-50 cursor-pointer" onClick={() => router.push(`/dashboard/workloads/${w.id}`)}>
-                <td className="py-2 pr-4 font-medium text-gray-900">{w.name}</td>
-                <td className="py-2 pr-4 text-gray-600">{w.platform}</td>
+              <tr key={w.id} className="border-b hover:bg-surface-2 cursor-pointer" onClick={() => router.push(`/dashboard/workloads/${w.id}`)}>
+                <td className="py-2 pr-4 font-medium text-content">{w.name}</td>
+                <td className="py-2 pr-4 text-content-muted">{w.platform}</td>
                 <td className="py-2 pr-4">
                   {w.is_protected ? (
                     <span className="text-green-600">✓</span>
@@ -64,13 +64,13 @@ export function WorkloadGrid() {
                     <span className="text-red-500">✗</span>
                   )}
                 </td>
-                <td className="py-2 pr-4 text-gray-600">
+                <td className="py-2 pr-4 text-content-muted">
                   {w.rto_target_mins != null ? `${w.rto_target_mins} min` : "—"}
                 </td>
-                <td className="py-2 pr-4 text-gray-600">
+                <td className="py-2 pr-4 text-content-muted">
                   {w.rpo_target_mins != null ? `${w.rpo_target_mins} min` : "—"}
                 </td>
-                <td className="py-2 pr-4 text-gray-500 text-xs">
+                <td className="py-2 pr-4 text-content-muted text-xs">
                   {w.last_test_run_at
                     ? new Date(w.last_test_run_at).toLocaleDateString()
                     : "Never"}
