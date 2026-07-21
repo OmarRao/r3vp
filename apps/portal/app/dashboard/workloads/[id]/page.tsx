@@ -147,13 +147,13 @@ export default function WorkloadDetailPage() {
         <div className="bg-surface rounded-xl shadow p-5">
           <p className="text-xs text-content-muted uppercase tracking-wide">RTO Target</p>
           <p className="text-2xl font-bold text-content mt-1">
-            {workload.rto_target_mins != null ? `${workload.rto_target_mins} min` : "—"}
+            {workload.rto_target_mins != null ? `${workload.rto_target_mins} min` : "-"}
           </p>
         </div>
         <div className="bg-surface rounded-xl shadow p-5">
           <p className="text-xs text-content-muted uppercase tracking-wide">RPO Target</p>
           <p className="text-2xl font-bold text-content mt-1">
-            {workload.rpo_target_mins != null ? `${workload.rpo_target_mins} min` : "—"}
+            {workload.rpo_target_mins != null ? `${workload.rpo_target_mins} min` : "-"}
           </p>
         </div>
         <div className="bg-surface rounded-xl shadow p-5">
@@ -161,7 +161,7 @@ export default function WorkloadDetailPage() {
           <p className="text-lg font-semibold text-content mt-1">
             {workload.last_backup_at
               ? new Date(workload.last_backup_at).toLocaleString()
-              : "—"}
+              : "-"}
           </p>
         </div>
         <div className="bg-surface rounded-xl shadow p-5">
@@ -252,13 +252,13 @@ export default function WorkloadDetailPage() {
                       </span>
                     </td>
                     <td className="py-2 pr-4 text-content-muted">
-                      {run.actual_rto_mins != null ? `${run.actual_rto_mins} min` : "—"}
+                      {run.actual_rto_mins != null ? `${run.actual_rto_mins} min` : "-"}
                     </td>
                     <td className="py-2 pr-4 text-content-muted">
-                      {run.actual_rpo_mins != null ? `${run.actual_rpo_mins} min` : "—"}
+                      {run.actual_rpo_mins != null ? `${run.actual_rpo_mins} min` : "-"}
                     </td>
                     <td className="py-2 pr-4 text-content-muted">
-                      {run.readiness_score != null ? run.readiness_score : "—"}
+                      {run.readiness_score != null ? run.readiness_score : "-"}
                     </td>
                     <td className="py-2">
                       <Link

@@ -159,7 +159,7 @@ export default function ThreatsPage() {
                       </span>
                     </td>
                     <td className="py-2 pr-4 text-content-muted text-xs font-mono">
-                      {f.mitre_technique ?? "—"}
+                      {f.mitre_technique ?? "-"}
                     </td>
                     <td className="py-2 pr-4 text-content-muted text-xs">
                       {new Date(f.detected_at).toLocaleString()}

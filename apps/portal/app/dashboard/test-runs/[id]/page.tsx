@@ -43,7 +43,7 @@ function stepDuration(step: WorkflowStep): string {
     return `${Math.round(diffSecs / 60)}m ${diffSecs % 60}s`;
   }
   if (step.status === "running") return "in progress...";
-  return "—";
+  return "-";
 }
 
 function StepIcon({ status }: { status: WorkflowStep["status"] }) {
@@ -87,7 +87,7 @@ function MetricCell({
       <p className="text-xs text-content-muted uppercase tracking-wide">{label}</p>
       <p className="text-2xl font-bold mt-1">
         <span className={isOver ? "text-red-600" : isUnder ? "text-green-600" : "text-content"}>
-          {actual != null ? `${actual} min` : "—"}
+          {actual != null ? `${actual} min` : "-"}
         </span>
         {target != null && (
           <span className="text-sm text-content-muted font-normal ml-2">target: {target} min</span>
@@ -201,7 +201,7 @@ export default function TestRunDetailPage() {
                   : "text-content-muted"
               }`}
             >
-              {run.readiness_score != null ? run.readiness_score : "—"}
+              {run.readiness_score != null ? run.readiness_score : "-"}
             </p>
           </div>
           <div>

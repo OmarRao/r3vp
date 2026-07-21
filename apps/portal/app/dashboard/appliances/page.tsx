@@ -83,7 +83,7 @@ export default function AppliancesPage() {
                   return (
                     <tr key={a.id} className="border-b hover:bg-surface-2">
                       <td className="py-2 pr-4 font-medium text-content">{a.name}</td>
-                      <td className="py-2 pr-4 text-content-muted">{a.version ?? "—"}</td>
+                      <td className="py-2 pr-4 text-content-muted">{a.version ?? "-"}</td>
                       <td className="py-2 pr-4">
                         <span
                           className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusBadgeClass[s]}`}

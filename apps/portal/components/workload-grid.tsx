@@ -65,10 +65,10 @@ export function WorkloadGrid() {
                   )}
                 </td>
                 <td className="py-2 pr-4 text-content-muted">
-                  {w.rto_target_mins != null ? `${w.rto_target_mins} min` : "—"}
+                  {w.rto_target_mins != null ? `${w.rto_target_mins} min` : "-"}
                 </td>
                 <td className="py-2 pr-4 text-content-muted">
-                  {w.rpo_target_mins != null ? `${w.rpo_target_mins} min` : "—"}
+                  {w.rpo_target_mins != null ? `${w.rpo_target_mins} min` : "-"}
                 </td>
                 <td className="py-2 pr-4 text-content-muted text-xs">
                   {w.last_test_run_at

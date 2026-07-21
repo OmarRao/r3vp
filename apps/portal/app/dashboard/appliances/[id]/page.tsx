@@ -128,7 +128,7 @@ export default function ApplianceDetailPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-surface rounded-xl shadow p-5">
           <p className="text-xs text-content-muted uppercase tracking-wide">Version</p>
-          <p className="text-xl font-bold text-content mt-1">{appliance.version ?? "—"}</p>
+          <p className="text-xl font-bold text-content mt-1">{appliance.version ?? "-"}</p>
         </div>
         <div className="bg-surface rounded-xl shadow p-5">
           <p className="text-xs text-content-muted uppercase tracking-wide">Status</p>
