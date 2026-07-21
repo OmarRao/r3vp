@@ -7,6 +7,13 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Dependency Security Remediation
+
+### Fixed
+- Resolved 17 Dependabot alerts in transitive dependencies. Bumped Pillow `12.2.0` -> `12.3.0` in `uv.lock` (clears 13 pip advisories: heap out-of-bounds writes, decompression-bomb bypasses, and DoS paths in Pillow's image/font parsers). Ran `npm audit fix` in `apps/portal`, clearing the `js-yaml`, `brace-expansion`, and `protobufjs` npm advisories. Portal type-check and lint remain clean; `npm audit` reports 0 vulnerabilities
+
+---
+
 ## [Unreleased] - SSO (OIDC)
 
 ### Added
