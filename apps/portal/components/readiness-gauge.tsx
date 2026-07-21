@@ -32,7 +32,7 @@ export function ReadinessGauge({ score }: ReadinessGaugeProps) {
         <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
         <RadialBar background dataKey="value" cornerRadius={7} angleAxisId={0} />
       </RadialBarChart>
-      <span className="absolute text-3xl font-bold text-gray-800">{score}</span>
+      <span className="absolute text-3xl font-bold text-content">{score}</span>
     </div>
   );
 }

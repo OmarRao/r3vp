@@ -35,3 +35,14 @@ body {
   background-color: rgb(var(--color-bg));
   color: rgb(var(--color-content));
 }
+
+/*
+ * Theme-aware defaults for text form controls so fields do not render as a
+ * hardcoded white box on dark surfaces. Checkboxes/radios keep native styling.
+ */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  background-color: rgb(var(--color-surface));
+  color: rgb(var(--color-content));
+}

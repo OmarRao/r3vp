@@ -172,41 +172,41 @@ export default function ReportsPage() {
   const fw = FRAMEWORKS.find(f => f.id === selected);
 
   return (
-    <div className="p-7 bg-slate-50 min-h-screen">
+    <div className="p-7 bg-surface-2 min-h-screen">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Compliance Reports</h1>
-            <p className="text-sm text-slate-400 mt-1">Generate signed PDF evidence for SOC 2, ISO 27001, NIST CSF, and cyber insurance audits</p>
+            <h1 className="text-xl font-bold text-content">Compliance Reports</h1>
+            <p className="text-sm text-content-muted mt-1">Generate signed PDF evidence for SOC 2, ISO 27001, NIST CSF, and cyber insurance audits</p>
           </div>
         </div>
 
         {/* Generate section */}
-        <div className="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
-          <h2 className="text-sm font-bold text-slate-900 mb-4">Generate New Report</h2>
+        <div className="bg-surface border border-border rounded-xl p-6 mb-6 shadow-sm">
+          <h2 className="text-sm font-bold text-content mb-4">Generate New Report</h2>
           {/* Framework selector */}
           <div className="grid grid-cols-5 gap-3 mb-5">
             {FRAMEWORKS.map(f => (
               <button
                 key={f.id}
                 onClick={() => setSelected(f.id)}
-                className={`p-3 rounded-lg border text-left transition-all ${selected === f.id ? "border-green-400 bg-green-50 ring-1 ring-green-300" : "border-slate-200 hover:border-slate-300"}`}
+                className={`p-3 rounded-lg border text-left transition-all ${selected === f.id ? "border-green-400 bg-green-50 ring-1 ring-green-300" : "border-border hover:border-border"}`}
               >
-                <div className="text-xs font-bold text-slate-900 mb-1">{f.label}</div>
-                <div className="text-[10px] text-slate-400">{f.controls}</div>
+                <div className="text-xs font-bold text-content mb-1">{f.label}</div>
+                <div className="text-[10px] text-content-muted">{f.controls}</div>
               </button>
             ))}
           </div>
           {/* Date range + generate */}
           <div className="flex items-end gap-4">
             <div>
-              <label className="text-xs font-semibold text-slate-600 block mb-1">From</label>
-              <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-900 outline-none focus:border-green-400" />
+              <label className="text-xs font-semibold text-content-muted block mb-1">From</label>
+              <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="border border-border rounded-md px-3 py-2 text-sm text-content outline-none focus:border-green-400" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-600 block mb-1">To</label>
-              <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-900 outline-none focus:border-green-400" />
+              <label className="text-xs font-semibold text-content-muted block mb-1">To</label>
+              <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="border border-border rounded-md px-3 py-2 text-sm text-content outline-none focus:border-green-400" />
             </div>
             <button
               onClick={() => setGenerating(true)}
@@ -217,48 +217,48 @@ export default function ReportsPage() {
             </button>
           </div>
           {fw && (
-            <p className="text-xs text-slate-400 mt-3">
-              Selected: <strong className="text-slate-600">{fw.label}</strong> covering controls {fw.controls}. Report will be SHA-256 signed and stored in your audit history.
+            <p className="text-xs text-content-muted mt-3">
+              Selected: <strong className="text-content-muted">{fw.label}</strong> covering controls {fw.controls}. Report will be SHA-256 signed and stored in your audit history.
             </p>
           )}
         </div>
 
         {/* History table */}
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-          <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
-            <span className="text-sm font-bold text-slate-900">Report History</span>
-            <span className="text-xs text-slate-400">{MOCK_HISTORY.length} reports</span>
+        <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden">
+          <div className="px-5 py-3.5 border-b border-border flex items-center justify-between">
+            <span className="text-sm font-bold text-content">Report History</span>
+            <span className="text-xs text-content-muted">{MOCK_HISTORY.length} reports</span>
           </div>
           <table className="w-full">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="text-[10px] font-bold uppercase tracking-wide text-slate-400 px-5 py-2.5 text-left">Framework</th>
-                <th className="text-[10px] font-bold uppercase tracking-wide text-slate-400 px-4 py-2.5 text-left">Period</th>
-                <th className="text-[10px] font-bold uppercase tracking-wide text-slate-400 px-4 py-2.5 text-left">Pass Rate</th>
-                <th className="text-[10px] font-bold uppercase tracking-wide text-slate-400 px-4 py-2.5 text-left">RTO</th>
-                <th className="text-[10px] font-bold uppercase tracking-wide text-slate-400 px-4 py-2.5 text-left">Controls</th>
-                <th className="text-[10px] font-bold uppercase tracking-wide text-slate-400 px-4 py-2.5 text-left">Generated</th>
-                <th className="text-[10px] font-bold uppercase tracking-wide text-slate-400 px-4 py-2.5 text-left">Actions</th>
+              <tr className="bg-surface-2 border-b border-border">
+                <th className="text-[10px] font-bold uppercase tracking-wide text-content-muted px-5 py-2.5 text-left">Framework</th>
+                <th className="text-[10px] font-bold uppercase tracking-wide text-content-muted px-4 py-2.5 text-left">Period</th>
+                <th className="text-[10px] font-bold uppercase tracking-wide text-content-muted px-4 py-2.5 text-left">Pass Rate</th>
+                <th className="text-[10px] font-bold uppercase tracking-wide text-content-muted px-4 py-2.5 text-left">RTO</th>
+                <th className="text-[10px] font-bold uppercase tracking-wide text-content-muted px-4 py-2.5 text-left">Controls</th>
+                <th className="text-[10px] font-bold uppercase tracking-wide text-content-muted px-4 py-2.5 text-left">Generated</th>
+                <th className="text-[10px] font-bold uppercase tracking-wide text-content-muted px-4 py-2.5 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
               {MOCK_HISTORY.map(r => (
-                <tr key={r.id} className="border-b border-slate-50 hover:bg-slate-50">
+                <tr key={r.id} className="border-b border-border hover:bg-surface-2">
                   <td className="px-5 py-3">
                     <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded">
                       {FRAMEWORKS.find(f => f.id === r.report_type)?.label ?? r.report_type}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-slate-600">{r.from_date} to {r.to_date}</td>
+                  <td className="px-4 py-3 text-xs text-content-muted">{r.from_date} to {r.to_date}</td>
                   <td className="px-4 py-3 text-sm font-bold text-green-700">{r.summary.pass_rate_pct}%</td>
                   <td className="px-4 py-3 text-sm font-bold text-green-700">{r.summary.rto_compliance_pct}%</td>
-                  <td className="px-4 py-3 text-xs text-slate-600">
+                  <td className="px-4 py-3 text-xs text-content-muted">
                     {r.summary.controls_passing != null ? `${r.summary.controls_passing}/${r.summary.controls_total} passing` : `${r.summary.total_runs} runs`}
                   </td>
-                  <td className="px-4 py-3 text-xs text-slate-400">{new Date(r.generated_at).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-xs text-content-muted">{new Date(r.generated_at).toLocaleDateString()}</td>
                   <td className="px-4 py-3">
                     <button className="text-xs text-green-600 font-semibold hover:text-green-700 mr-3">Download</button>
-                    <button className="text-xs text-slate-400 hover:text-slate-600">View</button>
+                    <button className="text-xs text-content-muted hover:text-content-muted">View</button>
                   </td>
                 </tr>
               ))}

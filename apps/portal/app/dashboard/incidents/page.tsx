@@ -45,9 +45,9 @@ const statusBadge: Record<string, string> = {
 
 function IntegrationStatus({ ok, label }: { ok: boolean; label: string }) {
   return (
-    <div className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
-      <span className="text-xs text-gray-500">{label}</span>
-      <span className={`text-xs font-semibold ${ok ? "text-green-600" : "text-gray-400"}`}>
+    <div className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
+      <span className="text-xs text-content-muted">{label}</span>
+      <span className={`text-xs font-semibold ${ok ? "text-green-600" : "text-content-muted"}`}>
         {ok ? "Dispatched" : "Not sent"}
       </span>
     </div>
@@ -76,14 +76,14 @@ export default function IncidentsPage() {
     return (
       <div
         key={incident.id}
-        className={`bg-white rounded-xl shadow p-5 border-l-4 ${
+        className={`bg-surface rounded-xl shadow p-5 border-l-4 ${
           incident.status === "active" ? "border-red-500" : "border-green-400"
         }`}
       >
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-base font-bold text-gray-900">{incident.incident_number}</h2>
+              <h2 className="text-base font-bold text-content">{incident.incident_number}</h2>
               <span
                 className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                   severityBadge[incident.severity] ?? ""
@@ -99,8 +99,8 @@ export default function IncidentsPage() {
                 {incident.status}
               </span>
             </div>
-            <p className="text-sm text-gray-700 mt-1">{incident.title}</p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-sm text-content mt-1">{incident.title}</p>
+            <p className="text-xs text-content-muted mt-1">
               {incident.affected_host} &bull; Started{" "}
               {new Date(incident.created_at).toLocaleString()}
             </p>
@@ -118,12 +118,12 @@ export default function IncidentsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+            <h3 className="text-xs font-semibold text-content-muted uppercase tracking-wide mb-3">
               Incident Response Workflow
             </h3>
             <div className="space-y-0">
               {incident.ir_log.map((entry, idx) => (
-                <div key={idx} className="flex gap-3 py-2 border-b border-gray-50 last:border-0">
+                <div key={idx} className="flex gap-3 py-2 border-b border-border last:border-0">
                   <div
                     className={`w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 mt-0.5 ${
                       entry.success
@@ -134,24 +134,24 @@ export default function IncidentsPage() {
                     {entry.success ? "✓" : "✗"}
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-gray-700 capitalize">
+                    <p className="text-xs font-semibold text-content capitalize">
                       {entry.step.replace(/_/g, " ")}
                     </p>
-                    <p className="text-xs text-gray-500">{entry.detail}</p>
-                    <p className="text-xs text-gray-300 mt-0.5">
+                    <p className="text-xs text-content-muted">{entry.detail}</p>
+                    <p className="text-xs text-content-muted mt-0.5">
                       {new Date(entry.ts).toLocaleTimeString()}
                     </p>
                   </div>
                 </div>
               ))}
               {incident.ir_log.length === 0 && (
-                <p className="text-xs text-gray-400">No IR log entries yet.</p>
+                <p className="text-xs text-content-muted">No IR log entries yet.</p>
               )}
             </div>
           </div>
 
           <div>
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+            <h3 className="text-xs font-semibold text-content-muted uppercase tracking-wide mb-3">
               Integration Status
             </h3>
             <IntegrationStatus ok={incident.backup_triggered} label="Pre-incident Backup" />
@@ -160,10 +160,10 @@ export default function IncidentsPage() {
             <IntegrationStatus ok={incident.veeamone_reported} label="VeeamONE" />
             <IntegrationStatus ok={incident.notifications_sent} label="Notifications" />
             {incident.backup_job_id && (
-              <p className="text-xs text-gray-400 mt-2">Backup job: {incident.backup_job_id}</p>
+              <p className="text-xs text-content-muted mt-2">Backup job: {incident.backup_job_id}</p>
             )}
             {incident.soar_incident_id && (
-              <p className="text-xs text-gray-400">SOAR ID: {incident.soar_incident_id}</p>
+              <p className="text-xs text-content-muted">SOAR ID: {incident.soar_incident_id}</p>
             )}
           </div>
         </div>
@@ -175,18 +175,18 @@ export default function IncidentsPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Incidents</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-content">Incidents</h1>
+          <p className="text-sm text-content-muted mt-1">
             {activeIncidents.length} active &bull; {resolvedIncidents.length} resolved
           </p>
         </div>
       </div>
 
-      {isLoading && <p className="text-sm text-gray-400">Loading incidents...</p>}
+      {isLoading && <p className="text-sm text-content-muted">Loading incidents...</p>}
 
       {!isLoading && incidents.length === 0 && (
-        <div className="bg-white rounded-xl shadow p-10 text-center">
-          <p className="text-gray-500 text-sm">
+        <div className="bg-surface rounded-xl shadow p-10 text-center">
+          <p className="text-content-muted text-sm">
             No incidents. Threat scanner is watching the environment.
           </p>
         </div>
@@ -203,14 +203,14 @@ export default function IncidentsPage() {
 
       {resolvedIncidents.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
+          <h2 className="text-sm font-semibold text-content-muted uppercase tracking-wide">
             Resolved Incidents
           </h2>
           {resolvedIncidents.map(renderIncident)}
         </div>
       )}
 
-      <p className="text-xs text-gray-400 text-center pt-2">
+      <p className="text-xs text-content-muted text-center pt-2">
         Built by{" "}
         <a
           href="https://www.linkedin.com/in/omarrao/"

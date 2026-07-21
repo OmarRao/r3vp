@@ -38,25 +38,33 @@ export function Breadcrumb() {
 
   if (crumbs.length <= 1) return null;
 
+  // Theme-aware colors read the CSS variables defined in globals.css.
+  const c = {
+    surface2: "rgb(var(--color-surface-2))",
+    content: "rgb(var(--color-content))",
+    muted: "rgb(var(--color-content-muted))",
+    border: "rgb(var(--color-border))",
+  };
+
   return (
     <nav
       aria-label="Breadcrumb"
       style={{
-        flexShrink: 0, background: "#F8FAFC", borderBottom: "1px solid #E2E8F0",
+        flexShrink: 0, background: c.surface2, borderBottom: `1px solid ${c.border}`,
         padding: "0 28px", height: 32, display: "flex", alignItems: "center",
         gap: 6, fontSize: 11,
       }}
     >
-      <Link href="/dashboard" style={{ color: "#64748B", fontWeight: 500, textDecoration: "none" }}>
+      <Link href="/dashboard" style={{ color: c.muted, fontWeight: 500, textDecoration: "none" }}>
         R3VP
       </Link>
       {crumbs.map((crumb) => (
         <span key={crumb.href} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ color: "#CBD5E1", fontSize: 10 }}>›</span>
+          <span style={{ color: c.border, fontSize: 10 }}>›</span>
           {crumb.isLast ? (
-            <span style={{ color: "#0F172A", fontWeight: 600 }}>{crumb.label}</span>
+            <span style={{ color: c.content, fontWeight: 600 }}>{crumb.label}</span>
           ) : (
-            <Link href={crumb.href as Route} style={{ color: "#64748B", fontWeight: 500, textDecoration: "none" }}>
+            <Link href={crumb.href as Route} style={{ color: c.muted, fontWeight: 500, textDecoration: "none" }}>
               {crumb.label}
             </Link>
           )}

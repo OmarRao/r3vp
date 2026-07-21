@@ -44,6 +44,23 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 - The live Veeam token exchange, the exact instant-recovery session-body shape (restored-object key names in `parse_recovered_vm_identity`), pyVmomi moref resolution, isolated-portgroup provisioning on standard vSwitch and DVS, and screenshot evidence download remain to be validated against a real Veeam B&R + vCenter lab. All connection details are env/config-driven; see `docs/runbooks/veeam-vcenter-lab.md` for the precise boundary and how to configure it
 ---
 
+## [Unreleased] - Portal Dashboard Dark Mode
+
+### Added
+- Every authenticated `/dashboard/*` page and shared component converted to the semantic color tokens so the whole dashboard renders correctly in light and dark. Hardcoded neutrals (inline hex and `bg-white`/`bg-gray-*`/`text-gray-*`/`border-gray-*` utilities) mapped to `bg-surface`, `bg-surface-2`, `text-content`, `text-content-muted`, `border-border`, etc.
+- `ThemeToggle` added to the shared dashboard topbar in `app/dashboard/layout.tsx`, so it is reachable from every dashboard page
+- Sidebar extracted into a client `components/dashboard-sidebar.tsx`. It stays dark navy in both themes (fixed brand chrome) and now has visible active (green left border) and hover states
+- Theme-aware base styling for text inputs, selects, and textareas in `globals.css` so form fields no longer render as white boxes on dark surfaces
+- `postcss.config.js` added. Tailwind, autoprefixer, and postcss were already dependencies and fully configured, but the PostCSS config file that makes Next.js run Tailwind over `globals.css` was missing, so no utility classes were being generated. This is a prerequisite for any Tailwind styling (light or dark) to work
+
+### Added (dev tooling)
+- Dev-only dashboard preview bypass behind `NEXT_PUBLIC_DEV_PREVIEW`. Active only when `process.env.NODE_ENV !== "production"` AND `process.env.NEXT_PUBLIC_DEV_PREVIEW === "1"`; because Next.js forces `NODE_ENV=production` in any production build, it cannot be enabled in production. When active, `middleware.ts` skips Auth0 on protected routes so the dashboard can be rendered and verified locally. Documented in `.env.local.example` (marked DEV ONLY)
+
+### Verified
+- Rendered and screenshotted the dashboard routes in the browser in both themes (dashboard, test-runs, appliances, threats, incidents, continuous-validation, reports, reports/schedule, runbooks, fleet, mssp, providers, insights, integrations, settings, settings/team, and a workload detail). White-card-on-dark and low-contrast issues fixed; the generated compliance PDF report is intentionally left light. `npm run type-check` and `npm run lint` are clean (pre-existing `<img>` warning in demo/page.tsx aside)
+
+---
+
 ## [Unreleased] - Portal Dark Mode (foundation)
 
 ### Added

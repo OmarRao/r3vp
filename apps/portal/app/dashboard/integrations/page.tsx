@@ -85,26 +85,26 @@ export default function IntegrationsPage() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Integrations</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-bold text-content">Integrations</h1>
+        <p className="text-sm text-content-muted mt-1">
           Configure SOAR, SIEM, and VeeamONE integrations for automated incident response.
         </p>
       </div>
 
       {/* SOAR */}
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-surface rounded-xl shadow p-5">
         <h2 className="text-lg font-semibold mb-1">SOAR Integration</h2>
-        <p className="text-xs text-gray-400 mb-4">
+        <p className="text-xs text-content-muted mb-4">
           Dispatch threat detection events to your SOAR platform automatically on critical and high
           severity findings.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Platform</label>
+            <label className="block text-xs text-content-muted mb-1">Platform</label>
             <select
               value={soarForm.platform}
               onChange={(e) => setSoarForm((f) => ({ ...f, platform: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
             >
               <option value="splunk_soar">Splunk SOAR (Phantom)</option>
               <option value="xsoar">Palo Alto XSOAR</option>
@@ -112,22 +112,22 @@ export default function IntegrationsPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Webhook URL</label>
+            <label className="block text-xs text-content-muted mb-1">Webhook URL</label>
             <input
               type="url"
               value={soarForm.url}
               onChange={(e) => setSoarForm((f) => ({ ...f, url: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
               placeholder="https://soar.example.com"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-600 mb-1">API Key / Token</label>
+            <label className="block text-xs text-content-muted mb-1">API Key / Token</label>
             <input
               type="password"
               value={soarForm.api_key}
               onChange={(e) => setSoarForm((f) => ({ ...f, api_key: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
               placeholder="api-token"
             />
           </div>
@@ -147,10 +147,10 @@ export default function IntegrationsPage() {
             {soarChannels.map((c) => (
               <div
                 key={c.id}
-                className="flex items-center justify-between text-sm bg-gray-50 rounded-lg px-3 py-2"
+                className="flex items-center justify-between text-sm bg-surface-2 rounded-lg px-3 py-2"
               >
                 <span className="font-medium">{c.name}</span>
-                <span className="text-gray-400 text-xs">{c.destination}</span>
+                <span className="text-content-muted text-xs">{c.destination}</span>
                 <button
                   onClick={() => deleteChannelMutation.mutate(c.id)}
                   className="text-red-500 text-xs hover:text-red-700"
@@ -164,18 +164,18 @@ export default function IntegrationsPage() {
       </div>
 
       {/* SIEM */}
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-surface rounded-xl shadow p-5">
         <h2 className="text-lg font-semibold mb-1">SIEM Integration</h2>
-        <p className="text-xs text-gray-400 mb-4">
+        <p className="text-xs text-content-muted mb-4">
           Emit CEF, LEEF, or JSON syslog events to Splunk, IBM QRadar, or Microsoft Sentinel.
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Platform</label>
+            <label className="block text-xs text-content-muted mb-1">Platform</label>
             <select
               value={siemForm.platform}
               onChange={(e) => setSiemForm((f) => ({ ...f, platform: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
             >
               <option value="sentinel">Microsoft Sentinel</option>
               <option value="splunk">Splunk</option>
@@ -183,31 +183,31 @@ export default function IntegrationsPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Syslog Host</label>
+            <label className="block text-xs text-content-muted mb-1">Syslog Host</label>
             <input
               type="text"
               value={siemForm.host}
               onChange={(e) => setSiemForm((f) => ({ ...f, host: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
               placeholder="siem.example.com"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Port</label>
+            <label className="block text-xs text-content-muted mb-1">Port</label>
             <input
               type="number"
               value={siemForm.port}
               onChange={(e) => setSiemForm((f) => ({ ...f, port: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
               placeholder="514"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Format</label>
+            <label className="block text-xs text-content-muted mb-1">Format</label>
             <select
               value={siemForm.format}
               onChange={(e) => setSiemForm((f) => ({ ...f, format: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
             >
               <option value="cef">CEF (Splunk, ArcSight)</option>
               <option value="leef">LEEF (QRadar)</option>
@@ -230,10 +230,10 @@ export default function IntegrationsPage() {
             {siemChannels.map((c) => (
               <div
                 key={c.id}
-                className="flex items-center justify-between text-sm bg-gray-50 rounded-lg px-3 py-2"
+                className="flex items-center justify-between text-sm bg-surface-2 rounded-lg px-3 py-2"
               >
                 <span className="font-medium">{c.name}</span>
-                <span className="text-gray-400 text-xs">{c.destination}</span>
+                <span className="text-content-muted text-xs">{c.destination}</span>
                 <button
                   onClick={() => deleteChannelMutation.mutate(c.id)}
                   className="text-red-500 text-xs hover:text-red-700"
@@ -247,39 +247,39 @@ export default function IntegrationsPage() {
       </div>
 
       {/* VeeamONE */}
-      <div className="bg-white rounded-xl shadow p-5">
+      <div className="bg-surface rounded-xl shadow p-5">
         <h2 className="text-lg font-semibold mb-1">VeeamONE Integration</h2>
-        <p className="text-xs text-gray-400 mb-4">
+        <p className="text-xs text-content-muted mb-4">
           Push recovery test results and threat events to VeeamONE as custom alarms.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="block text-xs text-gray-600 mb-1">VeeamONE URL</label>
+            <label className="block text-xs text-content-muted mb-1">VeeamONE URL</label>
             <input
               type="url"
               value={veeamoneForm.url}
               onChange={(e) => setVeeamoneForm((f) => ({ ...f, url: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
               placeholder="https://veeamone.example.com"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Username</label>
+            <label className="block text-xs text-content-muted mb-1">Username</label>
             <input
               type="text"
               value={veeamoneForm.username}
               onChange={(e) => setVeeamoneForm((f) => ({ ...f, username: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
               placeholder="administrator"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Password</label>
+            <label className="block text-xs text-content-muted mb-1">Password</label>
             <input
               type="password"
               value={veeamoneForm.password}
               onChange={(e) => setVeeamoneForm((f) => ({ ...f, password: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-veeam-green"
               placeholder="password"
             />
           </div>
@@ -299,10 +299,10 @@ export default function IntegrationsPage() {
             {veeamoneChannels.map((c) => (
               <div
                 key={c.id}
-                className="flex items-center justify-between text-sm bg-gray-50 rounded-lg px-3 py-2"
+                className="flex items-center justify-between text-sm bg-surface-2 rounded-lg px-3 py-2"
               >
                 <span className="font-medium">{c.name}</span>
-                <span className="text-gray-400 text-xs">{c.destination.split("|")[0]}</span>
+                <span className="text-content-muted text-xs">{c.destination.split("|")[0]}</span>
                 <button
                   onClick={() => deleteChannelMutation.mutate(c.id)}
                   className="text-red-500 text-xs hover:text-red-700"
@@ -315,7 +315,7 @@ export default function IntegrationsPage() {
         )}
       </div>
 
-      <p className="text-xs text-gray-400 text-center pt-2">
+      <p className="text-xs text-content-muted text-center pt-2">
         Built by{" "}
         <a
           href="https://www.linkedin.com/in/omarrao/"

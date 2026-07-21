@@ -20,17 +20,17 @@ const tierBadge = (t: string) =>
     ? "bg-blue-50 text-blue-700 border-blue-200"
     : t === "premium"
     ? "bg-purple-50 text-purple-700 border-purple-200"
-    : "bg-slate-100 text-slate-600 border-slate-200";
+    : "bg-surface-2 text-content-muted border-border";
 
 export default function MsspPage() {
   const avg = Math.round(CUSTOMERS.reduce((s, c) => s + c.score, 0) / CUSTOMERS.length);
 
   return (
-    <div className="p-7 bg-slate-50 min-h-screen">
+    <div className="p-7 bg-surface-2 min-h-screen">
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">MSSP Console</h1>
-          <p className="text-sm text-slate-400 mt-1">Manage your customer organizations and cross-org readiness</p>
+          <h1 className="text-xl font-bold text-content">MSSP Console</h1>
+          <p className="text-sm text-content-muted mt-1">Manage your customer organizations and cross-org readiness</p>
         </div>
         <button className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold rounded-md">
           + Add Customer
@@ -40,29 +40,29 @@ export default function MsspPage() {
       {/* KPI Row */}
       <div className="grid grid-cols-5 gap-4 mb-5">
         {[
-          { label: "Total Customers", value: "5", color: "text-slate-900" },
+          { label: "Total Customers", value: "5", color: "text-content" },
           { label: "Healthy", value: "3", color: "text-green-600" },
           { label: "Warning", value: "1", color: "text-amber-500" },
           { label: "Critical", value: "1", color: "text-red-500" },
           { label: "Avg Readiness", value: `${avg}`, color: avg >= 80 ? "text-green-600" : "text-amber-500" },
         ].map((k) => (
-          <div key={k.label} className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm text-center">
+          <div key={k.label} className="bg-surface border border-border rounded-xl p-4 shadow-sm text-center">
             <div className={`text-3xl font-bold ${k.color} mb-1`}>{k.value}</div>
-            <div className="text-xs text-slate-400">{k.label}</div>
+            <div className="text-xs text-content-muted">{k.label}</div>
           </div>
         ))}
       </div>
 
       {/* Customer Table */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-5">
-        <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
-          <span className="text-sm font-bold text-slate-900">Customer Organizations ({CUSTOMERS.length})</span>
+      <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden mb-5">
+        <div className="px-5 py-3.5 border-b border-border flex items-center justify-between">
+          <span className="text-sm font-bold text-content">Customer Organizations ({CUSTOMERS.length})</span>
         </div>
         <table className="w-full">
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-100">
+            <tr className="bg-surface-2 border-b border-border">
               {["Customer", "Industry", "Tier", "Readiness", "Workloads", "Threats", "Last Test", "Status", ""].map((h) => (
-                <th key={h} className="text-[10px] font-bold uppercase tracking-wide text-slate-400 px-4 py-2.5 text-left">
+                <th key={h} className="text-[10px] font-bold uppercase tracking-wide text-content-muted px-4 py-2.5 text-left">
                   {h}
                 </th>
               ))}
@@ -70,14 +70,14 @@ export default function MsspPage() {
           </thead>
           <tbody>
             {CUSTOMERS.map((c) => (
-              <tr key={c.id} className="border-b border-slate-50 hover:bg-slate-50">
+              <tr key={c.id} className="border-b border-border hover:bg-surface-2">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <span className={`w-2 h-2 rounded-full ${statusDot(c.status)}`} />
-                    <span className="text-sm font-semibold text-slate-900">{c.name}</span>
+                    <span className="text-sm font-semibold text-content">{c.name}</span>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-sm text-slate-500">{c.industry}</td>
+                <td className="px-4 py-3 text-sm text-content-muted">{c.industry}</td>
                 <td className="px-4 py-3">
                   <span className={`text-[10px] font-bold uppercase border rounded px-2 py-0.5 ${tierBadge(c.tier)}`}>
                     {c.tier}
@@ -86,13 +86,13 @@ export default function MsspPage() {
                 <td className="px-4 py-3">
                   <span className={`text-xs font-bold px-2 py-0.5 rounded ${scoreColor(c.score)}`}>{c.score}</span>
                 </td>
-                <td className="px-4 py-3 text-sm text-slate-600">{c.workloads}</td>
+                <td className="px-4 py-3 text-sm text-content-muted">{c.workloads}</td>
                 <td className="px-4 py-3">
-                  <span className={`text-sm font-semibold ${c.threats > 0 ? "text-red-500" : "text-slate-400"}`}>
+                  <span className={`text-sm font-semibold ${c.threats > 0 ? "text-red-500" : "text-content-muted"}`}>
                     {c.threats}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm text-slate-500">{c.lastTest}</td>
+                <td className="px-4 py-3 text-sm text-content-muted">{c.lastTest}</td>
                 <td className="px-4 py-3">
                   <span
                     className={`text-xs font-bold uppercase ${
@@ -107,7 +107,7 @@ export default function MsspPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <button className="text-xs text-slate-400 hover:text-green-600 font-semibold border border-slate-200 rounded px-2 py-1">
+                  <button className="text-xs text-content-muted hover:text-green-600 font-semibold border border-border rounded px-2 py-1">
                     View
                   </button>
                 </td>
@@ -118,10 +118,10 @@ export default function MsspPage() {
       </div>
 
       {/* Alert Rules */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
-          <span className="text-sm font-bold text-slate-900">Alert Rules (3)</span>
-          <button className="text-xs text-slate-500 hover:text-green-600 font-semibold border border-slate-200 rounded px-3 py-1.5">
+      <div className="bg-surface border border-border rounded-xl shadow-sm overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-border flex items-center justify-between">
+          <span className="text-sm font-bold text-content">Alert Rules (3)</span>
+          <button className="text-xs text-content-muted hover:text-green-600 font-semibold border border-border rounded px-3 py-1.5">
             Add Rule
           </button>
         </div>
@@ -130,18 +130,18 @@ export default function MsspPage() {
           { on: true, name: "Active threat alert", condition: "threat_detected", scope: "tier:premium" },
           { on: false, name: "Stale test alert", condition: "no_test_in_days 14", scope: "All customers" },
         ].map((rule, i) => (
-          <div key={i} className="flex items-center gap-4 px-5 py-3.5 border-b border-slate-50 last:border-0">
+          <div key={i} className="flex items-center gap-4 px-5 py-3.5 border-b border-border last:border-0">
             <div
-              className={`w-8 h-4 rounded-full flex-shrink-0 relative cursor-pointer ${rule.on ? "bg-green-500" : "bg-slate-300"}`}
+              className={`w-8 h-4 rounded-full flex-shrink-0 relative cursor-pointer ${rule.on ? "bg-green-500" : "bg-border"}`}
             >
               <span
-                className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow transition-all ${rule.on ? "left-4" : "left-0.5"}`}
+                className={`absolute top-0.5 w-3 h-3 bg-surface rounded-full shadow transition-all ${rule.on ? "left-4" : "left-0.5"}`}
               />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-slate-900">{rule.name}</p>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Condition: <code className="bg-slate-100 px-1 py-0.5 rounded text-[10px]">{rule.condition}</code>
+              <p className="text-sm font-semibold text-content">{rule.name}</p>
+              <p className="text-xs text-content-muted mt-0.5">
+                Condition: <code className="bg-surface-2 px-1 py-0.5 rounded text-[10px]">{rule.condition}</code>
                 &nbsp; Applies to: {rule.scope}
               </p>
             </div>
