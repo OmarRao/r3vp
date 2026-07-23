@@ -66,6 +66,9 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 ### Verified
 - Rendered and screenshotted the dashboard routes in the browser in both themes (dashboard, test-runs, appliances, threats, incidents, continuous-validation, reports, reports/schedule, runbooks, fleet, mssp, providers, insights, integrations, settings, settings/team, and a workload detail). White-card-on-dark and low-contrast issues fixed; the generated compliance PDF report is intentionally left light. `npm run type-check` and `npm run lint` are clean (pre-existing `<img>` warning in demo/page.tsx aside)
 
+### Fixed
+- Added the missing workloads index page `app/dashboard/workloads/page.tsx`. The sidebar linked to `/dashboard/workloads`, but only the dynamic `workloads/[id]` route existed, so the index 404'd. The new list view reuses the existing `WorkloadGrid` component (rows link to each workload's detail page) and the semantic color tokens. Verified via the dev preview (`NEXT_PUBLIC_DEV_PREVIEW=1`) in both light and dark themes
+
 ---
 
 ## [Unreleased] - Portal Dark Mode (foundation)
