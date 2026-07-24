@@ -17,7 +17,7 @@ RUN apt-get update \
 RUN useradd --create-home --uid 10001 appuser
 
 # Pin sops to a specific release for reproducible builds (update deliberately).
-ARG SOPS_VERSION=v3.13.2
+ARG SOPS_VERSION=v3.13.3
 RUN curl -fsSL "https://github.com/getsops/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.amd64" \
        -o /usr/local/bin/sops \
     && chmod +x /usr/local/bin/sops

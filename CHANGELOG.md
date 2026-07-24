@@ -7,6 +7,13 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - sops bump v3.13.3
+
+### Fixed
+- Bumped the pinned `SOPS_VERSION` in the appliance Dockerfile from `v3.13.2` to `v3.13.3`, clearing code-scanning alert GHSA-hrxh-6v49-42gf (high): sops v3.13.3 bundles `google.golang.org/grpc` `v1.82.1` (the fixed version) instead of the vulnerable `v1.81.1`. sops runs only at build/deploy time for local secret decryption and is not exposed to the gRPC/xDS/HTTP2 attack surface, but the clean upstream fix is preferred
+
+---
+
 ## [Unreleased] - Dependency Security Remediation
 
 ### Fixed
