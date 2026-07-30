@@ -26,6 +26,11 @@ dependencies = [
     "google-cloud-compute>=1.14",
     "google-auth>=2.28",
     "defusedxml>=0.7",
+    # Pin transitive/seeded packages to patched versions so the image resolves
+    # them fixed (image scanner: setuptools CVE-2025-47273 / CVE-2026-59890,
+    # msgpack GHSA-6v7p-g79w-8964).
+    "setuptools>=83.0.0",
+    "msgpack>=1.2.1",
 ]
 
 [project.optional-dependencies]
