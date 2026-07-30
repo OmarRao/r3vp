@@ -7,6 +7,13 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Code Scanning: Remove pip from images (root cause)
+
+### Fixed
+- Definitively root-caused the `setuptools 70.3.0` (CVE-2025-47273 / CVE-2026-59890) and `msgpack 1.1.2` (GHSA-6v7p-g79w-8964) image-scan findings: they are pip's own **vendored** build-time dependencies (listed verbatim in `pip/_vendor/vendor.txt`), so they were immune to venv, uv-cache, and pyproject changes and identical across both images. The application runs from the uv-managed venv and never uses pip at runtime, so both Dockerfiles now remove pip/setuptools/wheel after the OS patch step (`python -m pip uninstall -y pip setuptools wheel`). This drops the findings and shrinks the runtime attack surface; uv does not use pip, so builds are unaffected. The venv still carries patched setuptools/msgpack from the pyproject pins
+
+---
+
 ## [Unreleased] - Code Scanning: Drop uv cache from images
 
 ### Fixed
