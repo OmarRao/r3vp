@@ -7,6 +7,13 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Code Scanning: Drop uv cache from images
+
+### Fixed
+- Root-caused the persistent `setuptools` (CVE-2025-47273 / CVE-2026-59890) and `msgpack` (GHSA-6v7p-g79w-8964) image-scan findings: they were not in the runtime venv but in the uv download/build cache (`~/.cache/uv`) that `uv sync` writes into the image layer and Trivy scans. Both Dockerfiles now build with `uv sync --no-cache` so the cache is never persisted, and the runtime `CMD` uses `uv run --no-sync` so it does not need the cache at container start. Combined with the pyproject pins, the venv carries only patched versions. Verified `uv run --no-sync` still imports and runs the app
+
+---
+
 ## [Unreleased] - Code Scanning: Pin setuptools/msgpack via pyproject
 
 ### Fixed
