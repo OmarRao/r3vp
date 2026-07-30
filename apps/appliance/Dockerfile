@@ -25,7 +25,11 @@ RUN curl -fsSL "https://github.com/getsops/sops/releases/download/${SOPS_VERSION
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 COPY pyproject.toml .
-RUN uv sync --no-dev --no-editable
+# Upgrade build/support packages that uv seeds into the resolved environment
+# but does not pin in uv.lock, to their fixed releases, closing image-scanner
+# findings (setuptools CVE-2025-47273 / CVE-2026-59890; msgpack GHSA-6v7p-g79w-8964).
+RUN uv sync --no-dev --no-editable \
+    && uv pip install --no-cache-dir --upgrade "setuptools>=83.0.0" "msgpack>=1.2.1"
 
 COPY health_checks/ health_checks/
 COPY src/ src/

@@ -7,6 +7,16 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Security and Quality Sweep
+
+### Fixed
+- Dependabot (npm): bumped `next` `15.5.18` -> `15.5.22` (clears the Server Actions SSRF and Image Optimization SVG DoS advisories) and pinned `sharp` `>= 0.35.0` via override (clears the inherited libvips CVEs). `npm audit` now reports 0 vulnerabilities
+- Also pinned `brace-expansion >= 2.0.2` via override, clearing a high-severity DoS advisory (GHSA-mh99-v99m-4gvg) reachable through the dev-only eslint toolchain; eslint/type-check/lint remain green
+- Dependabot (pip): bumped `pyasn1` `0.6.3` -> `0.6.4` in `uv.lock` (quadratic-complexity and REAL-value resource-consumption DoS advisories)
+- Code scanning (Trivy image scan): the API and appliance Dockerfiles now upgrade `setuptools` (`>= 83.0.0`) and `msgpack` (`>= 1.2.1`) in the resolved environment after `uv sync`, closing setuptools CVE-2025-47273 / CVE-2026-59890 and msgpack GHSA-6v7p-g79w-8964 (these are seeded into the venv and not pinned in uv.lock)
+
+---
+
 ## [Unreleased] - Veeam 13.1 Integration
 
 ### Added
