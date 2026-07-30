@@ -13,7 +13,9 @@ Verified offline by the fixture-based unit tests (`tests/test_veeam_rest.py`,
 `tests/test_vcenter_moref.py`, `tests/test_veeam_session_states.py`), no server
 required:
 
-- Veeam REST API version detection (v1.0 / v1.1 / v1.2) from the build version.
+- Veeam internal capability-tier detection (v1.0 / v1.1 / v1.2) and the
+  `x-api-version` header value derived from the build version (11.x -> 1.0-rev1,
+  12.x -> 1.1/1.2, 13.0.0 -> 1.3-rev0, 13.0.1+ and 13.1 -> 1.3-rev1).
 - OAuth2 token request shaping and response parsing.
 - Restore-point discovery path selection and newest-consistent / in-RPO-window
   restore-point selection.
@@ -39,6 +41,10 @@ Requires a lab to verify (the real-lab boundary):
    (`create_isolated_portgroup` / `create_isolated_portgroup_dvs`).
 4. `CreateScreenshot_Task` evidence download from the datastore (currently
    returns empty bytes as a placeholder in `vcenter/client.py::take_screenshot`).
+5. The exact `x-api-version` revision for Veeam 13.1. `rest.x_api_version` maps
+   13.0.1 and later (including 13.1) to `1.3-rev1`, which is the correct floor;
+   confirm 13.1 against a live server and, if it ships a newer revision, either
+   extend `x_api_version` or pin it via `R3VP_VEEAM_API_VERSION_OVERRIDE`.
 
 Run the lab-only checks with the gated smoke test once implemented
 (`@pytest.mark.live`, kept out of the required CI gates).

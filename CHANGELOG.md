@@ -7,6 +7,22 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Veeam 13.1 Integration
+
+### Added
+- `connectors/veeam/rest.py`: `x_api_version(build)` maps a Veeam build to the required `x-api-version` header value, grounded in the Veeam version ladder (11.x -> 1.0-rev1; 12.0/12.1 -> 1.1-rev0/rev1; 12.2/12.3.1+ -> 1.2-rev0/rev1; 13.0.0 -> 1.3-rev0; 13.0.1+ and 13.1 -> 1.3-rev1), plus `build_version_tuple` for minor/patch-aware parsing. `parse_server_info` now reports `rest_api_version`
+- The Veeam client now sends the required `x-api-version` header on every request (previously none was sent, so requests would be rejected by a real server): a conservative default for the pre-serverInfo token call, upgraded to the exact per-build value once the build is detected
+- `R3VP_VEEAM_API_VERSION_OVERRIDE` config to pin a specific revision when needed
+- 13.1 `serverInfo` fixture and unit tests: `x_api_version` across 11/12.x/13.x/13.1 builds, `build_version_tuple` parsing, and `parse_server_info` reporting `1.3-rev1` for 13.x
+
+### Fixed
+- Version support docs corrected: Veeam 13.x uses REST API 1.3 (13.0.1+ and 13.1 -> 1.3-rev1), not 1.2 as previously labeled. README, the lab runbook, and the client docstrings updated
+
+### Notes
+- Pure mapping and parsing are unit-verified offline via fixtures. The exact 13.1 revision and the live header behavior should be confirmed against a real Veeam B&R 13.1 server; 1.3-rev1 is the correct floor for 13.0.1 and later
+
+---
+
 ## [Unreleased] - sops bump v3.13.3
 
 ### Fixed

@@ -61,6 +61,57 @@ def test_parse_server_info_missing_build_defaults_conservative():
     assert info["build_version"] is None
 
 
+# -- x-api-version header (wire version) ---------------------------------------
+
+@pytest.mark.parametrize(
+    "build, expected",
+    [
+        ("11.0.1.1261", "1.0-rev1"),
+        ("12.0.0.1420", "1.1-rev0"),
+        ("12.1.0.2131", "1.1-rev1"),
+        ("12.2.0.334", "1.2-rev0"),
+        ("12.3.1.1139", "1.2-rev1"),
+        ("12.3.2.500", "1.2-rev1"),
+        ("13.0.0.4967", "1.3-rev0"),
+        ("13.0.1.180", "1.3-rev1"),
+        ("13.1.0.1000", "1.3-rev1"),   # Veeam 13.1
+        ("14.0.0.1", "1.3-rev1"),      # future major -> newest known
+        (None, rest.DEFAULT_X_API_VERSION),
+        ("", rest.DEFAULT_X_API_VERSION),
+        ("garbage", rest.DEFAULT_X_API_VERSION),
+    ],
+)
+def test_x_api_version(build, expected):
+    assert rest.x_api_version(build) == expected
+
+
+@pytest.mark.parametrize(
+    "build, expected",
+    [
+        ("13.1.0.1000", (13, 1, 0, 1000)),
+        ("12.3", (12, 3, 0, 0)),
+        ("13", (13, 0, 0, 0)),
+        (None, (0, 0, 0, 0)),
+        ("garbage", (0, 0, 0, 0)),
+        ("13.x.1.2", (13, 0, 1, 2)),
+    ],
+)
+def test_build_version_tuple(build, expected):
+    assert rest.build_version_tuple(build) == expected
+
+
+def test_parse_server_info_v131():
+    info = rest.parse_server_info(load("server_info_v131.json"))
+    assert info["build_version"] == "13.1.0.1000"
+    assert info["api_version"] == "v1.2"          # internal capability tier
+    assert info["rest_api_version"] == "1.3-rev1"  # wire x-api-version header
+
+
+def test_parse_server_info_includes_rest_api_version():
+    info = rest.parse_server_info(load("server_info_v13.json"))
+    assert info["rest_api_version"] == "1.3-rev1"
+
+
 # -- auth ----------------------------------------------------------------------
 
 def test_build_token_request():

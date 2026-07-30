@@ -26,21 +26,72 @@ DEFAULT_RECOVERY_REASON = "R3VP automated recovery validation"
 
 # -- Version detection ---------------------------------------------------------
 
-def api_version_for_build(build_version: str | None) -> str:
-    """Map a Veeam build version string to the REST API version prefix.
+# Conservative x-api-version used before the server build is known (the token
+# and serverInfo calls). Broadly supported by Veeam 12.1 and later; the header
+# is upgraded to the exact matching version once serverInfo reports the build.
+DEFAULT_X_API_VERSION = "1.1-rev1"
 
-    Returns 'v1.2' for Veeam 13.x, 'v1.1' for Veeam 12.x, else 'v1.0'.
-    A missing/unparseable build version falls back to 'v1.0' (the most
-    conservative surface), so callers never crash on an unexpected server.
+
+def build_version_tuple(build_version: str | None) -> tuple[int, int, int, int]:
+    """Parse a Veeam build like '13.1.0.1234' into (major, minor, patch, build).
+
+    Missing or unparseable components default to 0, so a partial or garbage
+    build string never raises.
     """
-    if not build_version:
-        return "v1.0"
-    major = build_version.split(".")[0].strip()
-    if major == "13":
+    parts = (build_version or "").split(".")
+    out: list[int] = []
+    for i in range(4):
+        try:
+            out.append(int(parts[i].strip()))
+        except (IndexError, ValueError):
+            out.append(0)
+    return out[0], out[1], out[2], out[3]
+
+
+def api_version_for_build(build_version: str | None) -> str:
+    """Internal capability tier used to pick endpoint shapes (not the wire
+    version). Returns 'v1.2' for Veeam 13.x (newest known shapes), 'v1.1' for
+    Veeam 12.x, else 'v1.0'. The real REST version sent on the wire is
+    `x_api_version`. A missing/unparseable build falls back to 'v1.0'.
+    """
+    major = build_version_tuple(build_version)[0]
+    if major >= 13:
         return "v1.2"
-    if major == "12":
+    if major == 12:
         return "v1.1"
     return "v1.0"
+
+
+def x_api_version(build_version: str | None) -> str:
+    """Return the Veeam `x-api-version` header value for a product build.
+
+    Veeam requires this header (format `<version>-<revision>`, e.g. '1.3-rev1')
+    on every REST request. The value is derived from the server's reported
+    buildVersion so it always matches the target server. Mapping is grounded in
+    the Veeam Help Center version ladder:
+      - 13.0.1+ (including 13.1) -> 1.3-rev1;  13.0.0 -> 1.3-rev0
+      - 12.3.1+ -> 1.2-rev1;  12.2.x -> 1.2-rev0;  12.1.x -> 1.1-rev1;  12.0.x -> 1.1-rev0
+      - 11.x -> 1.0-rev1
+    NOTE: the exact 13.1 revision should be confirmed against a live 13.1
+    server; 1.3-rev1 is the correct floor for 13.0.1 and later. Unknown or
+    unparseable builds fall back to DEFAULT_X_API_VERSION.
+    """
+    if not build_version:
+        return DEFAULT_X_API_VERSION
+    major, minor, patch, build = build_version_tuple(build_version)
+    if major >= 13:
+        return "1.3-rev0" if (major, minor, patch, build) < (13, 0, 1, 0) else "1.3-rev1"
+    if major == 12:
+        if (minor, patch) >= (3, 1):
+            return "1.2-rev1"
+        if minor >= 2:
+            return "1.2-rev0"
+        if minor >= 1:
+            return "1.1-rev1"
+        return "1.1-rev0"
+    if major == 11:
+        return "1.0-rev1"
+    return DEFAULT_X_API_VERSION
 
 
 def parse_server_info(body: dict) -> dict:
@@ -51,6 +102,7 @@ def parse_server_info(body: dict) -> dict:
         "vbr_id": body.get("vbrId"),
         "server_name": body.get("name"),
         "api_version": api_version_for_build(build_version),
+        "rest_api_version": x_api_version(build_version),
     }
 
 

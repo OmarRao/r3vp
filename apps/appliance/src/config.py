@@ -27,6 +27,11 @@ class ApplianceSettings(BaseSettings):
     veeam_base_url: str = ""
     veeam_username: str = ""
     veeam_password: SecretStr = SecretStr("")
+    # Optional override for the x-api-version header (e.g. "1.3-rev1"). Leave
+    # empty to auto-derive from the server's reported build. Set only when a
+    # specific server build needs a revision the auto-mapping does not yet
+    # cover (for example, confirming the exact 13.1 revision against a lab).
+    veeam_api_version_override: str = ""
 
     # vCenter (populated from vault at runtime)
     vcenter_host: str = ""
