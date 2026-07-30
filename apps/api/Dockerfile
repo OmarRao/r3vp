@@ -16,7 +16,11 @@ RUN useradd --create-home --uid 10001 appuser
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 COPY pyproject.toml .
-RUN uv sync --no-dev --no-editable
+# --no-cache: do not persist uv's download/build cache into the image. uv
+# caches build-support packages (older setuptools, transitive msgpack) that the
+# image scanner would otherwise flag even though they are not in the runtime
+# venv. The venv itself is installed normally.
+RUN uv sync --no-dev --no-editable --no-cache
 
 COPY src/ src/
 COPY alembic.ini .
@@ -26,4 +30,4 @@ USER appuser
 
 EXPOSE 8000
 
-CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "--no-sync", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

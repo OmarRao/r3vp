@@ -25,7 +25,11 @@ RUN curl -fsSL "https://github.com/getsops/sops/releases/download/${SOPS_VERSION
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 COPY pyproject.toml .
-RUN uv sync --no-dev --no-editable
+# --no-cache: do not persist uv's download/build cache into the image. uv
+# caches build-support packages (older setuptools, transitive msgpack) that the
+# image scanner would otherwise flag even though they are not in the runtime
+# venv. The venv itself is installed normally.
+RUN uv sync --no-dev --no-editable --no-cache
 
 COPY health_checks/ health_checks/
 COPY src/ src/
@@ -36,4 +40,4 @@ USER appuser
 
 VOLUME ["/certs", "/vault"]
 
-CMD ["uv", "run", "python", "-m", "src.main"]
+CMD ["uv", "run", "--no-sync", "python", "-m", "src.main"]
