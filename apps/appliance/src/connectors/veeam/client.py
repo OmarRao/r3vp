@@ -3,7 +3,9 @@
 Handles auth token lifecycle, retries, version-aware API path selection,
 and maps Veeam API responses into the platform's internal data models.
 
-Supports Veeam 11 (v1.0), Veeam 12 (v1.1), and Veeam 13.0.2+ (v1.2).
+Supports Veeam 11, 12.x, and 13.x (including 13.1). The Veeam-required
+`x-api-version` header is set per request and derived from the server's
+reported build (for example 13.0.1 and later, including 13.1, use 1.3-rev1).
 
 Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
 https://www.linkedin.com/in/omarrao/
@@ -44,6 +46,20 @@ class VeeamClient:
         self._build_version: str | None = None
         self._vbr_id: str | None = None
         self._server_name: str | None = None
+        # Veeam requires x-api-version on every request. Start with a
+        # conservative value (upgraded once serverInfo reports the build), or
+        # honor an explicit override from config.
+        self._apply_x_api_version(
+            settings.veeam_api_version_override or rest.DEFAULT_X_API_VERSION
+        )
+
+    def _apply_x_api_version(self, value: str) -> None:
+        self._http.headers["x-api-version"] = value
+
+    @property
+    def rest_api_version(self) -> str:
+        """The x-api-version header value for the detected build (or override)."""
+        return settings.veeam_api_version_override or rest.x_api_version(self._build_version)
 
     @property
     def api_version(self) -> str:
@@ -71,11 +87,15 @@ class VeeamClient:
             self._build_version = info["build_version"]
             self._vbr_id = info["vbr_id"]
             self._server_name = info["server_name"]
+            # Upgrade the request header to the exact version for this build,
+            # unless an explicit override is configured.
+            self._apply_x_api_version(self.rest_api_version)
             log.info(
                 "veeam_server_info_detected",
                 build_version=self._build_version,
                 vbr_id=self._vbr_id,
                 api_version=self.api_version,
+                rest_api_version=self.rest_api_version,
             )
         except Exception as exc:
             log.warning("veeam_server_info_unavailable", error=str(exc))
@@ -90,6 +110,7 @@ class VeeamClient:
         return {
             "build_version": self._build_version,
             "api_version": self.api_version,
+            "rest_api_version": self.rest_api_version,
             "server_name": self._server_name,
         }
 

@@ -128,14 +128,21 @@ See [docs/phases/phase-6.md](docs/phases/phase-6.md) for full connector referenc
 
 ### Veeam B&R Version Support
 
-| Version | API | Instant Recovery | Veeam Inline Malware Events |
+| Version | REST API (x-api-version) | Instant Recovery | Veeam Inline Malware Events |
 |---|---|---|---|
-| Veeam 10.x | v1.0 | Not supported | No |
-| Veeam 11.x | v1.0 | Supported | No |
-| Veeam 12.x | v1.1 | Supported | No |
-| Veeam 13.0.2+ | v1.2 | Supported | Yes |
+| Veeam 10.x | 1.0-rev1 | Not supported | No |
+| Veeam 11.x | 1.0-rev1 | Supported | No |
+| Veeam 12.0 / 12.1 | 1.1-rev0 / 1.1-rev1 | Supported | No |
+| Veeam 12.2 / 12.3.1+ | 1.2-rev0 / 1.2-rev1 | Supported | 12.3+ |
+| Veeam 13.0.0 | 1.3-rev0 | Supported | Yes |
+| Veeam 13.0.1+ and 13.1 | 1.3-rev1 | Supported | Yes |
 
-R3VP auto-detects the Veeam version at startup. No manual version configuration needed.
+R3VP auto-detects the Veeam build at startup and sends the matching
+`x-api-version` header on every request; no manual version configuration is
+needed. If a specific build needs a revision the auto-mapping does not yet
+cover, set `R3VP_VEEAM_API_VERSION_OVERRIDE` (for example `1.3-rev1`) to pin
+it. The exact 13.1 revision should be confirmed against a live 13.1 server;
+13.0.1 and later map to `1.3-rev1`.
 
 ### Phase 4: Threat Intelligence and Incident Response
 
@@ -643,11 +650,15 @@ In Veeam 11, the REST API may need to be enabled manually:
 
 ### API Version Detection
 
-R3VP automatically detects which version of the REST API your Veeam server supports by calling `/api/v1/serverInfo` at startup. It picks the right client behavior based on the version returned. You do not need to configure this manually.
+R3VP automatically detects which version of the REST API your Veeam server supports by calling `/api/v1/serverInfo` at startup, then sends the matching `x-api-version` header (for example `1.3-rev1` for Veeam 13.0.1 and later, including 13.1) on every subsequent request. You do not need to configure this manually.
 
-For Veeam 12.x (`buildVersion` starting with `12.`), R3VP uses the full v1.1 API including the instant recovery management endpoints added in Veeam 12.
+For Veeam 13.x (`buildVersion` starting with `13.`), R3VP uses the 1.3 REST API (`1.3-rev0` for 13.0.0, `1.3-rev1` for 13.0.1 and later including 13.1) and the newest instant-recovery and inline-malware endpoints.
 
-For Veeam 11.x, R3VP uses v1.0 and supplements missing functionality via WinRM where needed.
+For Veeam 12.x, R3VP uses the 1.1 / 1.2 REST API including the instant recovery management endpoints added in Veeam 12.
+
+For Veeam 11.x, R3VP uses 1.0-rev1 and supplements missing functionality via WinRM where needed.
+
+To pin a specific revision (for example while confirming the exact 13.1 revision against a lab server), set `R3VP_VEEAM_API_VERSION_OVERRIDE`.
 
 ### Firewall Rules
 
