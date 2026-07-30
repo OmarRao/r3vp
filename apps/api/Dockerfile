@@ -3,12 +3,15 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Pull the latest Debian security patches for base-image OS packages, then
-# upgrade pip/setuptools to current releases. This closes the fixable CVEs
-# Trivy reports against the base image.
+# remove pip and setuptools. The application runs from the uv-managed venv and
+# never needs pip at runtime; pip bundles vendored build-time dependencies
+# (msgpack, setuptools) that the image scanner flags even though they are not
+# in the runtime surface. Removing pip drops those findings and shrinks the
+# attack surface. uv does not use pip, so builds are unaffected.
 RUN apt-get update \
     && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install --no-cache-dir --upgrade pip setuptools
+    && python -m pip uninstall -y pip setuptools wheel 2>/dev/null || true
 
 # Run as a dedicated non-root user (CWE-250: avoid running the container as root).
 RUN useradd --create-home --uid 10001 appuser

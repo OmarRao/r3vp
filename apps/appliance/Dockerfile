@@ -3,7 +3,12 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Apply Debian security patches to base-image packages and install runtime
-# dependencies, then upgrade pip/setuptools to close the fixable CVEs.
+# dependencies, then remove pip and setuptools. The app runs from the
+# uv-managed venv and never needs pip at runtime; pip bundles vendored
+# build-time dependencies (msgpack, setuptools) that the image scanner flags
+# even though they are not in the runtime surface. Removing pip drops those
+# findings and shrinks the attack surface. uv does not use pip, so builds are
+# unaffected.
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
@@ -11,7 +16,7 @@ RUN apt-get update \
     age \
     curl \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install --no-cache-dir --upgrade pip setuptools
+    && python -m pip uninstall -y pip setuptools wheel 2>/dev/null || true
 
 # Run as a dedicated non-root user (CWE-250: avoid running the container as root).
 RUN useradd --create-home --uid 10001 appuser
