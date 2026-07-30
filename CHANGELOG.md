@@ -7,6 +7,13 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Code Scanning: Pin setuptools/msgpack via pyproject
+
+### Fixed
+- The image scanner findings for `setuptools` (CVE-2025-47273 / CVE-2026-59890) and `msgpack` (GHSA-6v7p-g79w-8964) persisted after the Dockerfile-level upgrade attempt, because the image build context does not include `uv.lock` and `uv sync` resolves fresh, so a post-sync `uv pip install` did not affect the resolved venv. Pinned `setuptools>=83.0.0` and `msgpack>=1.2.1` as explicit dependencies in both `apps/api` and `apps/appliance` pyproject files (and the lock), so the image's fresh `uv sync` resolves the patched versions. Reverted the ineffective Dockerfile `uv pip install` lines
+
+---
+
 ## [Unreleased] - Security and Quality Sweep
 
 ### Fixed
