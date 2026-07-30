@@ -79,11 +79,15 @@ The platform is designed for three primary audiences:
 
 ### Veeam B&R API Compatibility
 
-R3VP auto-detects the Veeam Backup and Replication REST API version at connection time and adapts its requests accordingly. Supported API versions:
+R3VP auto-detects the Veeam Backup and Replication build at connection time and sends the matching `x-api-version` header on every request, adapting its behavior to the server. Supported REST API versions (header value shown):
 
-- v1.0 (VBR 11)
-- v1.1 (VBR 12)
-- v1.2 (VBR 12.1+)
+- `1.0-rev1` (VBR 11)
+- `1.1-rev0` / `1.1-rev1` (VBR 12.0 / 12.1)
+- `1.2-rev0` / `1.2-rev1` (VBR 12.2 / 12.3.1+)
+- `1.3-rev0` (VBR 13.0.0)
+- `1.3-rev1` (VBR 13.0.1 and later, including 13.1)
+
+To pin a specific revision (for example while validating a new 13.1 build), set `R3VP_VEEAM_API_VERSION_OVERRIDE` on the appliance.
 
 ---
 
@@ -386,7 +390,7 @@ Configure the connection from your appliance to Veeam Backup and Replication.
 | Verify TLS certificate | Toggle off only for self-signed certs in lab environments |
 | API version override | Leave on Auto-detect unless troubleshooting |
 
-R3VP tests the connection and auto-detects the API version (v1.0, v1.1, or v1.2). A green checkmark confirms successful authentication. The password is never stored in the Portal; it is encrypted using the appliance's age public key before being sent to the appliance, where it is merged into the SOPS vault.
+R3VP tests the connection and auto-detects the REST API version from the server build (`1.0-rev1` through `1.3-rev1`, the latter for VBR 13.0.1 and later including 13.1). A green checkmark confirms successful authentication. The password is never stored in the Portal; it is encrypted using the appliance's age public key before being sent to the appliance, where it is merged into the SOPS vault.
 
 ### Step 4 - Discover Workloads
 
