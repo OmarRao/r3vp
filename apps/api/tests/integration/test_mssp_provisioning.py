@@ -1,3 +1,8 @@
+# Copyright (c) 2026 Omar Rao
+# SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Commercial
+# This file is available under the GNU Affero General Public License v3.0
+# or under a separate commercial license.
+
 """Integration tests: MSSP partner provisioning over real Postgres.
 
 Guards the fix for the modeling gap where the console used the caller's org id

@@ -1,3 +1,8 @@
+# Copyright (c) 2026 Omar Rao
+# SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Commercial
+# This file is available under the GNU Affero General Public License v3.0
+# or under a separate commercial license.
+
 """Build the live context the natural-language insights query answers over.
 
 Assembles the org-scoped figures `answer_nl_query` consumes (workload counts,

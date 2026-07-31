@@ -832,9 +832,31 @@ The repository itself is hardened to protect the integrity of the source:
 
 ---
 
-## License
+## Licensing
 
-MIT License. See [LICENSE](LICENSE).
+Copyright © 2026 Omar Rao.
+
+R3VP uses a **dual-license model**:
+
+- **Open source (AGPL-3.0).** This public repository is licensed under the GNU
+  Affero General Public License version 3.0. See [LICENSE](LICENSE). If you use,
+  modify, deploy, or distribute the software, you must comply with the AGPL-3.0
+  requirements, including making the complete corresponding source code
+  available to users who interact with your version over a network.
+- **Commercial license.** Companies that want closed-source, proprietary, SaaS
+  or hosted, product-integration, redistribution, resale, distributor, reseller,
+  or white-label rights, or that otherwise do not want to comply with the
+  AGPL-3.0, must obtain a separate written commercial license. See
+  [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md).
+
+This repository does **not** grant any trademark rights. Use of the R3VP name,
+branding, and logos is governed by [TRADEMARKS.md](TRADEMARKS.md).
+
+**Prior MIT releases.** This project was previously distributed under the MIT
+License. Versions that were released under MIT remain governed by the license
+terms under which those versions were originally distributed; adopting AGPL-3.0
+and a commercial license for the current and future versions does not change
+the terms that already applied to those earlier releases.
 
 ---
 

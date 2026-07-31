@@ -1,3 +1,8 @@
+# Copyright (c) 2026 Omar Rao
+# SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Commercial
+# This file is available under the GNU Affero General Public License v3.0
+# or under a separate commercial license.
+
 """SSO configuration and OIDC login endpoints.
 
 Two protocols are supported per org (one active config each): SAML 2.0 (legacy

@@ -1,3 +1,8 @@
+# Copyright (c) 2026 Omar Rao
+# SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Commercial
+# This file is available under the GNU Affero General Public License v3.0
+# or under a separate commercial license.
+
 """Nutanix AHV connector via Prism Central REST API v3.
 
 Communicates with Nutanix Prism Central using basic auth over HTTPS.
