@@ -1,3 +1,8 @@
+# Copyright (c) 2026 Omar Rao
+# SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Commercial
+# This file is available under the GNU Affero General Public License v3.0
+# or under a separate commercial license.
+
 """Unit tests for the pure OIDC service logic (no network, no database).
 
 An RSA keypair is generated in-process, id_tokens are signed locally, and a

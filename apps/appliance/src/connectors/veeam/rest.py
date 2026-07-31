@@ -1,3 +1,8 @@
+# Copyright (c) 2026 Omar Rao
+# SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Commercial
+# This file is available under the GNU Affero General Public License v3.0
+# or under a separate commercial license.
+
 """Pure request-building and response-parsing helpers for the Veeam B&R REST API.
 
 Everything in this module is a pure function: no network, no config, no I/O. The

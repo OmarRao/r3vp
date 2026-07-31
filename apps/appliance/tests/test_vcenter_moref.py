@@ -1,3 +1,8 @@
+# Copyright (c) 2026 Omar Rao
+# SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Commercial
+# This file is available under the GNU Affero General Public License v3.0
+# or under a separate commercial license.
+
 """Unit tests for pure vCenter moref-resolution planning.
 
 Exercises identity extraction from recorded Veeam session bodies and the ordered

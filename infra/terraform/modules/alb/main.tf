@@ -1,3 +1,8 @@
+# Copyright (c) 2026 Omar Rao
+# SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-Commercial
+# This file is available under the GNU Affero General Public License v3.0
+# or under a separate commercial license.
+
 # Application Load Balancer for R3VP API
 # Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy
 

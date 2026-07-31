@@ -2,6 +2,7 @@
 name = "r3vp-appliance"
 version = "0.1.0"
 description = "R3VP on-premises validation appliance"
+license = "AGPL-3.0-only"
 requires-python = ">=3.12"
 dependencies = [
     "httpx[http2]>=0.27",

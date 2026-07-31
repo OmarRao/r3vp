@@ -1,5 +1,8 @@
 FROM python:3.12-slim
 
+LABEL org.opencontainers.image.licenses="AGPL-3.0-only" \
+      org.opencontainers.image.authors="Omar Rao"
+
 WORKDIR /app
 
 # Apply Debian security patches to base-image packages and install runtime

@@ -7,6 +7,17 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Dual Licensing: AGPL-3.0 + Commercial
+
+### Changed
+- Adopted a dual-license model for current and future versions. Replaced the MIT `LICENSE` with the complete official GNU Affero General Public License v3.0, and added a separate paid commercial license path
+- Added `COMMERCIAL-LICENSE.md` (commercial scope and process; contact `omarsrao@gmail.com`), `TRADEMARKS.md` (no trademark grant, nominative-use policy), and `DEPENDENCY-LICENSE-REVIEW.md` (technical dependency-license inventory, not legal advice)
+- README gains a Licensing section; `docs/user-guide.md` License section updated (it previously and incorrectly stated Apache-2.0); `license = "AGPL-3.0-only"` added to the API, appliance, and portal manifests, plus Docker image `LABEL`s
+- Added SPDX dual-license headers (`AGPL-3.0-only OR LicenseRef-Commercial`) to 242 owned source files (Python, TypeScript/TSX, Terraform, shell, CSS). Generated files, migrations, docs assets, config, and lock files were left unheadered
+- Prior versions distributed under MIT remain governed by the terms under which they were originally distributed; this change applies to the current and future versions and does not revoke prior grants. No application behavior changed
+
+---
+
 ## [Unreleased] - Code Scanning: Remove pip from images (root cause)
 
 ### Fixed

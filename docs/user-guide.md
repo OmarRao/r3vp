@@ -60,7 +60,7 @@ The platform is designed for three primary audiences:
 - **Outbound-only connectivity** - The appliance initiates all connections to the SaaS API over mTLS. No inbound firewall rules are required.
 - **Evidence integrity** - Every test result, screenshot, and log file is bundled into a SHA-256 signed evidence package stored in the Evidence Vault.
 - **Audit immutability** - The audit log is hash-chained so any tampering is detectable.
-- **Open source** - The full platform is freely available. No licensing fees, no vendor lock-in.
+- **Open source (AGPL-3.0)** - The full platform is available under the GNU Affero General Public License v3.0, with no vendor lock-in. A separate commercial license is available for organizations that need closed-source, SaaS, reseller, or white-label rights (see the Licensing section).
 
 ### Supported Providers
 
@@ -2039,23 +2039,32 @@ Feature requests are welcomed as GitHub issues using the feature request templat
 
 ### License
 
-R3VP is licensed under the Apache License 2.0. See the `LICENSE` file in the repository for the full text.
+Copyright (c) 2026 Omar Rao.
 
-```
-Copyright 2026 Omar Rao
+R3VP uses a **dual-license model**:
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+- **Open source (AGPL-3.0).** The public repository is licensed under the GNU
+  Affero General Public License version 3.0. See the `LICENSE` file in the
+  repository for the full text. If you use, modify, deploy, or distribute the
+  software under AGPL-3.0, you must comply with its requirements, including
+  making the complete corresponding source code available to users who
+  interact with your version over a network.
+- **Commercial license.** Organizations that want closed-source, proprietary,
+  SaaS or hosted, product-integration, redistribution, resale, distributor,
+  reseller, or white-label rights, or that otherwise do not want to comply with
+  the AGPL-3.0, must obtain a separate written commercial license. See
+  `COMMERCIAL-LICENSE.md`.
 
-    http://www.apache.org/licenses/LICENSE-2.0
+Commercial rights are granted only through a separate written agreement. To
+request a commercial license, contact `omarsrao@gmail.com`.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+This repository does not grant trademark rights; see `TRADEMARKS.md`.
+
+**Prior MIT releases.** R3VP was previously distributed under the MIT License.
+Versions released under MIT remain governed by the license terms under which
+those versions were originally distributed; adopting AGPL-3.0 and a commercial
+license for the current and future versions does not change the terms that
+already applied to those earlier releases.
 
 ---
 
