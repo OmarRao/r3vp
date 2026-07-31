@@ -1,6 +1,6 @@
 # R3VP - Ransomware Readiness and Recovery Validation Platform
 
-## User Guide - v0.2.0 (2026-06-26)
+## User Guide - v1.0.0 (2026-07-31)
 
 > **R3VP** is free, open-source software that automates ransomware recovery validation for enterprise workloads. It gives security and infrastructure teams continuous, evidence-backed assurance that their backups can actually be restored before an incident forces the question.
 
