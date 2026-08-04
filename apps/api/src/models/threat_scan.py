@@ -20,7 +20,7 @@ class ThreatScan(Base):
     __tablename__ = "threat_scans"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False, index=True)
     appliance_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("appliances.id"), nullable=False)
     scan_id: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
@@ -45,7 +45,7 @@ class ThreatFinding(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     scan_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("threat_scans.id"), nullable=False)
-    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False, index=True)
     signature_id: Mapped[str] = mapped_column(String(255), nullable=False)
     threat_name: Mapped[str] = mapped_column(String(255), nullable=False)
     threat_type: Mapped[str] = mapped_column(String(50), nullable=False)
@@ -67,7 +67,7 @@ class ThreatIncident(Base):
     __tablename__ = "threat_incidents"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False, index=True)
     incident_number: Mapped[str] = mapped_column(String(50), nullable=False)
     title: Mapped[str] = mapped_column(String(512), nullable=False)
     severity: Mapped[str] = mapped_column(String(50), nullable=False)

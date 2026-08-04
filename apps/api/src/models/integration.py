@@ -22,7 +22,7 @@ class Integration(Base):
     __tablename__ = "integrations"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False, index=True)
     integration_type: Mapped[str] = mapped_column(String(50), nullable=False)
     # servicenow | jira | pagerduty | splunk | qradar | sentinel
     name: Mapped[str] = mapped_column(String(200), nullable=False)

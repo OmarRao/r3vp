@@ -28,12 +28,12 @@ class TestRun(Base):
     __tablename__ = "test_runs"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    workload_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("workloads.id"), nullable=False)
+    workload_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("workloads.id"), nullable=False, index=True)
     triggered_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
     restore_point: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    status: Mapped[str] = mapped_column(String(50), default="pending")
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
+    status: Mapped[str] = mapped_column(String(50), default="pending", index=True)
     rto_actual_mins: Mapped[int | None] = mapped_column(Integer)
     rpo_actual_mins: Mapped[int | None] = mapped_column(Integer)
     readiness_score: Mapped[int | None] = mapped_column(Integer)
@@ -51,7 +51,7 @@ class TestRunStep(Base):
     __tablename__ = "test_run_steps"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    run_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("test_runs.id"), nullable=False)
+    run_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("test_runs.id"), nullable=False, index=True)
     step_name: Mapped[str] = mapped_column(String(100), nullable=False)
     status: Mapped[str] = mapped_column(String(50), nullable=False)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -65,7 +65,7 @@ class HealthCheckResult(Base):
     __tablename__ = "health_check_results"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    run_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("test_runs.id"), nullable=False)
+    run_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("test_runs.id"), nullable=False, index=True)
     check_name: Mapped[str] = mapped_column(String(100), nullable=False)
     passed: Mapped[bool] = mapped_column(Boolean, nullable=False)
     output: Mapped[str | None] = mapped_column(Text)
@@ -91,7 +91,7 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("orgs.id"), nullable=False)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("orgs.id"), nullable=False, index=True)
     auth0_sub: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(50), default="admin")

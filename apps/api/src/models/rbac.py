@@ -40,7 +40,7 @@ class OrgMember(Base):
     __tablename__ = "org_members"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False, index=True)
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     role_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("roles.id"), nullable=False)
     invited_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
@@ -55,7 +55,7 @@ class OrgInvite(Base):
     __tablename__ = "org_invites"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False, index=True)
     email: Mapped[str] = mapped_column(String(255), nullable=False)
     role_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("roles.id"), nullable=False)
     token: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
@@ -74,7 +74,7 @@ class ApiKey(Base):
     __tablename__ = "api_keys"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
+    org_id: Mapped[uuid.UUID] = mapped_column(nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     key_prefix: Mapped[str] = mapped_column(String(12), nullable=False)
     # first 8 chars shown in UI for identification

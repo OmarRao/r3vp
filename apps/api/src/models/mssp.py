@@ -38,7 +38,7 @@ class MsspCustomerOrg(Base):
     __tablename__ = "mssp_customer_orgs"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    mssp_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("mssp_partners.id", ondelete="CASCADE"), nullable=False)
+    mssp_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("mssp_partners.id", ondelete="CASCADE"), nullable=False, index=True)
     org_id: Mapped[uuid.UUID] = mapped_column(nullable=False)
     display_name: Mapped[str] = mapped_column(String(200), nullable=False)
     industry: Mapped[str | None] = mapped_column(String(100))
@@ -54,7 +54,7 @@ class MsspAlertRule(Base):
     __tablename__ = "mssp_alert_rules"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    mssp_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("mssp_partners.id", ondelete="CASCADE"), nullable=False)
+    mssp_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("mssp_partners.id", ondelete="CASCADE"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     condition: Mapped[str] = mapped_column(String(50), nullable=False)
     # readiness_below | rto_breach | test_failure | no_test_in_days | threat_detected

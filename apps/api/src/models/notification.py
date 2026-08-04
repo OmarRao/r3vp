@@ -19,7 +19,7 @@ class NotificationChannel(Base):
     __tablename__ = "notification_channels"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("orgs.id"), nullable=False)
+    org_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("orgs.id"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     channel_type: Mapped[str] = mapped_column(String(50), nullable=False)  # email | slack | teams
     destination: Mapped[str] = mapped_column(String(512), nullable=False)  # email address or webhook URL

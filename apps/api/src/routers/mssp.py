@@ -207,19 +207,32 @@ async def mssp_billing(user: AuthUser, period_days: int = 30, db: AsyncSession =
         .order_by(MsspCustomerOrg.display_name)
     )).scalars().all()
 
-    line_items = []
-    for c in customers:
-        workloads = await db.scalar(
-            select(func.count(func.distinct(Workload.id)))
+    # Aggregate all customers' workload and test-run counts in two grouped
+    # queries instead of two per customer (avoids an N+1 over the portfolio).
+    org_ids = [c.org_id for c in customers]
+    wl_counts: dict = {}
+    tr_counts: dict = {}
+    if org_ids:
+        wl_rows = await db.execute(
+            select(Appliance.org_id, func.count(func.distinct(Workload.id)))
             .select_from(Workload).join(Appliance)
-            .where(Appliance.org_id == c.org_id)
-        ) or 0
-        test_runs = await db.scalar(
-            select(func.count(TestRun.id))
+            .where(Appliance.org_id.in_(org_ids))
+            .group_by(Appliance.org_id)
+        )
+        wl_counts = {oid: n for oid, n in wl_rows.all()}
+        tr_rows = await db.execute(
+            select(Appliance.org_id, func.count(TestRun.id))
             .select_from(TestRun).join(Workload).join(Appliance)
-            .where(Appliance.org_id == c.org_id, TestRun.started_at >= since)
-        ) or 0
-        line_items.append(compute_line_item(c.display_name, c.tier, workloads, test_runs))
+            .where(Appliance.org_id.in_(org_ids), TestRun.started_at >= since)
+            .group_by(Appliance.org_id)
+        )
+        tr_counts = {oid: n for oid, n in tr_rows.all()}
+
+    line_items = [
+        compute_line_item(c.display_name, c.tier,
+                          wl_counts.get(c.org_id, 0), tr_counts.get(c.org_id, 0))
+        for c in customers
+    ]
 
     return {
         "period_days": period_days,
