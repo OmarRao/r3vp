@@ -6,6 +6,7 @@
 """Executive reporting: CISO scorecard, trend data, digest schedule."""
 from __future__ import annotations
 
+import asyncio
 import uuid
 from datetime import UTC, datetime
 
@@ -99,7 +100,10 @@ async def download_scorecard_pdf(
     require_permission(getattr(user, "permissions", []), "reports:generate")
     period_label = period if period != "current" else datetime.now(UTC).strftime("%B %Y")
     snapshot, trend, org_name = await build_live_scorecard(db, user.org_id)
-    pdf_bytes = render_scorecard_pdf(
+    # WeasyPrint rendering is CPU-bound and blocks the event loop; run it in a
+    # worker thread so other requests are not stalled during PDF generation.
+    pdf_bytes = await asyncio.to_thread(
+        render_scorecard_pdf,
         org_name=org_name,
         period_label=period_label,
         snapshot=snapshot,

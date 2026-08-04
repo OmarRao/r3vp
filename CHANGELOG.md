@@ -7,6 +7,18 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Performance: Indexes + Async Hot Paths
+
+### Changed
+- Added btree indexes on the hot filter/join columns the dashboard, readiness, scorecard, MSSP, and threat endpoints use (19 indexes via migration `0022` and matching `index=True` on the ORM models). Postgres does not auto-index foreign-key columns, so these were sequential scans; now `appliances.org_id`, `workloads.appliance_id`, `test_runs.workload_id/status/completed_at/started_at`, the per-run child tables, `threat_*` `org_id`, `mssp_*` `mssp_id`, and the per-org tables are indexed
+- MSSP billing (`GET /v1/mssp/billing`) no longer issues two queries per customer (an N+1 over the portfolio); it aggregates all customers' workload and test-run counts in two grouped queries. Same result, fewer round-trips
+- The scorecard PDF endpoint now renders WeasyPrint in a worker thread (`asyncio.to_thread`) instead of on the event loop, so a CPU-bound PDF render no longer stalls other concurrent requests
+
+### Notes
+- No behavior or results change; the readiness/scorecard/billing numbers and the PDF output are identical. Indexes are declared on the models (so `create_all` matches the migration) and created idempotently (`CREATE INDEX IF NOT EXISTS`)
+
+---
+
 ## [Unreleased] - Dual Licensing: AGPL-3.0 + Commercial
 
 ### Changed

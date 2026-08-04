@@ -31,7 +31,7 @@ class Workload(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    appliance_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("appliances.id"), nullable=False)
+    appliance_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("appliances.id"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     platform: Mapped[str] = mapped_column(String(50), nullable=False)  # vmware | hyperv | physical
     os_type: Mapped[str | None] = mapped_column(String(50))             # windows | linux
