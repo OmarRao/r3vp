@@ -3,7 +3,7 @@
   "info": {
     "title": "R3VP API",
     "description": "Ransomware Readiness and Recovery Validation Platform - SaaS API",
-    "version": "0.2.0"
+    "version": "1.0.0"
   },
   "paths": {
     "/v1/appliance/register": {
@@ -2617,6 +2617,88 @@
             "HTTPBearer": []
           }
         ]
+      }
+    },
+    "/v1/sso/oidc/login": {
+      "get": {
+        "tags": [
+          "sso"
+        ],
+        "summary": "Oidc Login",
+        "description": "Initiate OIDC login: return the authorization redirect URL + state/nonce.\n\nPublic (pre-authentication) endpoint. The caller must persist ``state`` and\n``nonce`` and re-check them at the callback. The discovery fetch is live\nnetwork I/O; the URL construction is the unit-tested pure helper.",
+        "operationId": "oidc_login_v1_sso_oidc_login_get",
+        "parameters": [
+          {
+            "name": "org_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Org Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/sso/oidc/callback": {
+      "post": {
+        "tags": [
+          "sso"
+        ],
+        "summary": "Oidc Callback",
+        "description": "Exchange an authorization code and validate the returned id_token.\n\nNetwork I/O (token exchange + JWKS fetch) makes the full path E2E-untestable\nwithout a real IdP; the id_token validation and claim mapping it relies on\nare the unit-tested pure helpers in ``src.services.oidc``.",
+        "operationId": "oidc_callback_v1_sso_oidc_callback_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OidcCallbackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/v1/executive/scorecard": {
@@ -5438,6 +5520,30 @@
         ],
         "title": "InviteRequest"
       },
+      "OidcCallbackRequest": {
+        "properties": {
+          "org_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Org Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "nonce": {
+            "type": "string",
+            "title": "Nonce"
+          }
+        },
+        "type": "object",
+        "required": [
+          "org_id",
+          "code",
+          "nonce"
+        ],
+        "title": "OidcCallbackRequest"
+      },
       "ProgressRequest": {
         "properties": {
           "step": {
@@ -5962,35 +6068,110 @@
       },
       "SsoConfigRequest": {
         "properties": {
+          "protocol": {
+            "type": "string",
+            "title": "Protocol",
+            "default": "saml"
+          },
           "provider": {
             "type": "string",
             "title": "Provider"
-          },
-          "entity_id": {
-            "type": "string",
-            "title": "Entity Id"
-          },
-          "sso_url": {
-            "type": "string",
-            "title": "Sso Url"
-          },
-          "certificate": {
-            "type": "string",
-            "title": "Certificate"
           },
           "attribute_mapping": {
             "additionalProperties": true,
             "type": "object",
             "title": "Attribute Mapping",
             "default": {}
+          },
+          "entity_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Id"
+          },
+          "sso_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sso Url"
+          },
+          "certificate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Certificate"
+          },
+          "oidc_issuer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oidc Issuer"
+          },
+          "oidc_client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oidc Client Id"
+          },
+          "oidc_client_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oidc Client Secret"
+          },
+          "oidc_redirect_uri": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oidc Redirect Uri"
+          },
+          "oidc_scopes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Oidc Scopes",
+            "default": []
           }
         },
         "type": "object",
         "required": [
-          "provider",
-          "entity_id",
-          "sso_url",
-          "certificate"
+          "provider"
         ],
         "title": "SsoConfigRequest"
       },

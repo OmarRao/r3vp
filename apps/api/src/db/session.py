@@ -9,7 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from src.config import settings
 
-engine = create_async_engine(settings.database_url, echo=False, pool_pre_ping=True)
+engine = create_async_engine(
+    settings.database_url,
+    echo=False,
+    pool_pre_ping=True,      # drop dead connections before use
+    pool_size=10,            # steady-state pooled connections (default was 5)
+    max_overflow=20,         # burst headroom under concurrency (default was 10)
+    pool_recycle=1800,       # recycle connections after 30 min to avoid staleness
+)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 # Alias used by the scheduler and other background tasks

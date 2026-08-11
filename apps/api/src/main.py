@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from temporalio.client import Client, TLSConfig
 
 from src.config import settings
@@ -93,10 +94,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="R3VP API",
-    version="0.2.0",
+    version="1.0.0",
     description="Ransomware Readiness and Recovery Validation Platform - SaaS API",
     lifespan=lifespan,
 )
+
+# Compress large JSON responses (dashboards, reports, OpenAPI) for clients that
+# accept gzip; small responses are left uncompressed.
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 app.add_middleware(
     CORSMiddleware,
