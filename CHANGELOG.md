@@ -7,6 +7,16 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Performance: Compression + Connection Pool
+
+### Changed
+- Enabled gzip response compression (`GZipMiddleware`, `minimum_size=1000`) so large JSON responses (dashboards, reports, OpenAPI) are compressed for clients that accept gzip; small responses are left untouched
+- Tuned the async DB connection pool: `pool_size=10`, `max_overflow=20`, `pool_recycle=1800` (was the defaults 5 / 10 / none), giving concurrency headroom and recycling stale connections
+- Set the FastAPI app `version` to `1.0.0` (was a stale `0.2.0`) and regenerated `docs/api-spec/openapi.json`
+- Added a guard test that gzip compression stays enabled
+
+---
+
 ## [Unreleased] - Performance: Indexes + Async Hot Paths
 
 ### Changed

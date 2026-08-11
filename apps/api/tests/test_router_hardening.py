@@ -22,6 +22,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.routing import APIRoute
 
 from src.main import app
@@ -55,6 +56,11 @@ def test_router_permission_strings_are_in_catalog():
             if perm not in PERMISSIONS:
                 missing.setdefault(f.name, set()).add(perm)
     assert not missing, f"Permission strings not in the RBAC catalog: {missing}"
+
+
+def test_gzip_compression_enabled():
+    """Responses should be gzip-compressible; guards the perf middleware."""
+    assert any(m.cls is GZipMiddleware for m in app.user_middleware)
 
 
 def test_app_has_no_duplicate_routes():
