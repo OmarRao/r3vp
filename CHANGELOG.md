@@ -7,6 +7,13 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Dependency Security: cryptography + h2
+
+### Fixed
+- Bumped transitive pip dependencies in `uv.lock` to patched versions: `cryptography` `49.0.0` -> `50.0.0` (high: PKCS#7 EnvelopedData Bleichenbacher oracle) and `h2` `4.3.0` -> `4.4.1` (medium: duplicate Host header request smuggling). Clears the two open Dependabot alerts
+
+---
+
 ## [Unreleased] - Performance: Compression + Connection Pool
 
 ### Changed
