@@ -834,6 +834,21 @@ The repository itself is hardened to protect the integrity of the source:
 
 ---
 
+## Monitoring and Health
+
+The API exposes operational endpoints for probes and metrics (all exempt from rate limiting):
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /live` | Liveness probe (process is up). Used by the k8s `livenessProbe`. |
+| `GET /ready` | Readiness probe (the API can reach its database); returns `503` when the DB is unreachable. Used by the k8s `readinessProbe`. |
+| `GET /health` | Simple status check (kept for backward compatibility). |
+| `GET /metrics` | Prometheus exposition: request counts, latency histograms, and in-flight requests, ready to scrape. |
+
+Point a Prometheus scraper at `/metrics` and wire the probes into your orchestrator (the bundled `k8s/deployment.yaml` already does).
+
+---
+
 ## Licensing
 
 Copyright © 2026 Omar Rao.
