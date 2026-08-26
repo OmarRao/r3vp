@@ -1661,6 +1661,21 @@ Retry-After: 27
 { "detail": "Rate limit exceeded. Please retry later." }
 ```
 
+### Monitoring and Health
+
+The API exposes operational endpoints (all exempt from rate limiting and, for
+`/metrics`, hidden from the OpenAPI schema):
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /live` | Liveness: returns `{"status": "alive"}` while the process is serving. Wire to your orchestrator's liveness probe. |
+| `GET /ready` | Readiness: returns `{"status": "ready"}` (200) when the API can reach its database, or `{"status": "not ready"}` (503) when it cannot. Wire to your readiness probe. |
+| `GET /health` | Legacy status check, kept for backward compatibility. |
+| `GET /metrics` | Prometheus exposition (request counts, latency histograms, in-flight requests). Point a Prometheus scraper here. |
+
+The bundled `k8s/deployment.yaml` already sets the liveness probe to `/live` and
+the readiness probe to `/ready`.
+
 ### Error Format
 
 All errors follow a consistent format:

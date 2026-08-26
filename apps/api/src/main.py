@@ -9,6 +9,9 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import JSONResponse
+from prometheus_fastapi_instrumentator import Instrumentator
+from sqlalchemy import text
 from temporalio.client import Client, TLSConfig
 
 from src.config import settings
@@ -146,6 +149,30 @@ app.include_router(compliance_frameworks.router, prefix="/v1/compliance-framewor
 app.include_router(continuous_validation.router, prefix="/v1/continuous-validation", tags=["continuous-validation"])
 
 
-@app.get("/health")
+@app.get("/health", tags=["health"])
 async def health() -> dict:
     return {"status": "ok"}
+
+
+@app.get("/live", tags=["health"])
+async def live() -> dict:
+    """Liveness probe: the process is up and serving."""
+    return {"status": "alive"}
+
+
+@app.get("/ready", tags=["health"])
+async def ready() -> JSONResponse:
+    """Readiness probe: the API can reach its database."""
+    from src.db.session import engine
+
+    try:
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        return JSONResponse({"status": "ready"})
+    except Exception as exc:  # noqa: BLE001 - report any DB failure as not-ready
+        log.warning("readiness_check_failed", error=str(exc))
+        return JSONResponse({"status": "not ready"}, status_code=503)
+
+
+# Prometheus metrics at /metrics (request counts, latency histograms, in-flight).
+Instrumentator().instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)

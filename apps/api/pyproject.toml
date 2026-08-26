@@ -23,6 +23,7 @@ dependencies = [
     "jinja2>=3.1",
     "apscheduler>=3.10",
     "aiofiles>=23.0",
+    "prometheus-fastapi-instrumentator>=7.0",
     # Pin transitive/seeded packages to patched versions so the image resolves
     # them fixed (image scanner: setuptools CVE-2025-47273 / CVE-2026-59890,
     # msgpack GHSA-6v7p-g79w-8964).

@@ -7,6 +7,18 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Observability: Metrics + Health Probes
+
+### Added
+- Prometheus metrics at `GET /metrics` (request counts, latency histograms, in-flight requests) via `prometheus-fastapi-instrumentator`, ready to scrape
+- Kubernetes-native health probes: `GET /live` (liveness) and `GET /ready` (readiness, returns 503 when the database is unreachable). `/health` is kept for backward compatibility
+- Unit tests for `/live` and `/metrics`; integration test for `/ready` against real Postgres
+
+### Fixed
+- `k8s/deployment.yaml` referenced a `/ready` readiness probe that did not exist (pods would never become ready); the endpoint now exists, and the liveness probe points at the new `/live`. README and user-guide gain a Monitoring and Health section; OpenAPI spec regenerated
+
+---
+
 ## [Unreleased] - API Rate Limiting
 
 ### Added
