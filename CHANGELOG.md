@@ -7,6 +7,14 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Dependency Security: js-yaml + nanoid
+
+### Fixed
+- Bumped transitive npm dependencies in `apps/portal/package-lock.json` to patched versions via `npm audit fix`: `js-yaml` -> `4.3.1` and `nanoid` -> `3.3.18` (both high). `npm audit` reports 0 vulnerabilities
+- Dismissed 7 Go-stdlib code-scanning alerts inside the third-party `sops` binary (v3.13.3, the latest release; no build with the patched Go is published yet). sops runs only to decrypt a local age-encrypted vault, not untrusted network input, so the paths are unreachable; the alerts will clear on the next sops release
+
+---
+
 ## [Unreleased] - HTTP Hardening: Security Headers + Request IDs
 
 ### Added
