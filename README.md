@@ -830,6 +830,14 @@ The repository itself is hardened to protect the integrity of the source:
 - **Required review via `CODEOWNERS`.** The repository owner is a default reviewer, with explicit ownership over security-sensitive areas (auth, credential vault, relay, CI/CD, and infrastructure).
 - **Secret scanning and push protection.** GitHub secret scanning and push protection are enabled to block credential leaks before they land; no secrets are committed to the tree.
 - **Pinned CI supply chain.** All GitHub Actions are pinned to full commit SHAs, and Dependabot monitors dependencies.
+- **Signed images with SBOM and provenance.** Every published container image is signed with [Cosign](https://github.com/sigstore/cosign) using keyless (Sigstore/Fulcio) signing, and ships with a CycloneDX SBOM and SLSA build-provenance attestation. Verify a published image before deploying it:
+
+  ```bash
+  cosign verify \
+    --certificate-identity-regexp "https://github.com/OmarRao/r3vp/.*" \
+    --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+    ghcr.io/omarrao/r3vp-api:latest
+  ```
 - **Responsible disclosure.** Security issues are reported privately per [SECURITY.md](SECURITY.md).
 
 ---

@@ -7,6 +7,13 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Supply Chain: Signed Images + SBOM + Provenance
+
+### Added
+- Published container images are now signed with Cosign keyless (Sigstore/Fulcio via GitHub OIDC) and carry a CycloneDX SBOM and SLSA build-provenance attestation, generated in the Docker Publish workflow (`sbom: true`, `provenance: mode=max`, `id-token: write`, `sigstore/cosign-installer` SHA-pinned). README documents how to `cosign verify` a published image before deploying
+
+---
+
 ## [Unreleased] - Observability: Metrics + Health Probes
 
 ### Added
