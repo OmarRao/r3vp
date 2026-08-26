@@ -7,6 +7,17 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - API Rate Limiting
+
+### Added
+- Per-client API rate limiting (`src/rate_limit.py`): a fixed-window limiter keyed by API key (when supplied) or source IP, defaulting to 120 requests/minute (`R3VP_API_RATE_LIMIT_PER_MINUTE`, toggle with `R3VP_API_RATE_LIMIT_ENABLED`). Every response carries `X-RateLimit-Limit/Remaining/Reset`; exceeding the limit returns `429` with `Retry-After`. Health, docs, and metrics paths are exempt. This makes real the rate-limit behavior the user guide already documented
+- Unit and middleware tests (limiter windows, per-key isolation, 429 + headers, exempt paths)
+
+### Notes
+- The limiter store is in-process (fine for single-instance and the default deployment); the same interface can be backed by a shared store (Redis) for horizontal scale. README Security Design and user-guide Rate Limiting sections updated to match the implementation
+
+---
+
 ## [Unreleased] - Dependency Security: cryptography + h2
 
 ### Fixed
