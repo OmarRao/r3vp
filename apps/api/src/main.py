@@ -15,6 +15,7 @@ from sqlalchemy import text
 from temporalio.client import Client, TLSConfig
 
 from src.config import settings
+from src.http_hardening import SecurityHeadersMiddleware
 from src.rate_limit import FixedWindowRateLimiter, RateLimitMiddleware
 from src.routers import (
     api_keys,
@@ -114,6 +115,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Security headers + per-request correlation id on every response.
+app.add_middleware(SecurityHeadersMiddleware)
 
 # Per-client rate limiting (added last so it runs first, before request work).
 if settings.rate_limit_enabled:
