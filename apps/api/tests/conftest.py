@@ -4,6 +4,14 @@
 # or under a separate commercial license.
 
 """Override the DB session for tests so they never hit a real database."""
+import os
+
+# Disable per-client rate limiting for the shared app used across the suite so
+# many requests in one window do not cross-contaminate tests. The limiter is
+# exercised on its own fresh app in tests/test_rate_limit.py. Must be set before
+# src.config / src.main are imported below.
+os.environ.setdefault("R3VP_API_RATE_LIMIT_ENABLED", "false")
+
 from unittest.mock import AsyncMock
 
 import pytest

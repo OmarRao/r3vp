@@ -819,6 +819,8 @@ npm run dev
 
 **Read-only by default.** The Veeam service account only has Restore Operator permissions. It cannot modify backup jobs or delete restore points.
 
+**Per-client rate limiting.** The API rate-limits requests per client (API key when supplied, otherwise source IP) in a fixed 60-second window, defaulting to 120 requests per minute and returning `429 Too Many Requests` with a `Retry-After` header when exceeded. Every response carries `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`. The limit is configurable (`R3VP_API_RATE_LIMIT_PER_MINUTE`) and health/docs/metrics endpoints are exempt.
+
 ### Source Code Protection
 
 The repository itself is hardened to protect the integrity of the source:

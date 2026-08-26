@@ -32,5 +32,9 @@ class APISettings(BaseSettings):
 
     log_level: str = "INFO"
 
+    # Rate limiting (fixed-window, per client identity)
+    rate_limit_enabled: bool = True
+    rate_limit_per_minute: int = 120
+
 
 settings = APISettings()

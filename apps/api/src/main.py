@@ -12,6 +12,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from temporalio.client import Client, TLSConfig
 
 from src.config import settings
+from src.rate_limit import FixedWindowRateLimiter, RateLimitMiddleware
 from src.routers import (
     api_keys,
     appliances,
@@ -110,6 +111,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Per-client rate limiting (added last so it runs first, before request work).
+if settings.rate_limit_enabled:
+    app.add_middleware(
+        RateLimitMiddleware,
+        limiter=FixedWindowRateLimiter(settings.rate_limit_per_minute, window_seconds=60),
+    )
 
 app.include_router(appliances.router, prefix="/v1/appliance", tags=["Appliance"])
 app.include_router(workloads.router, prefix="/v1/workloads", tags=["Workloads"])

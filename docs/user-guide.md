@@ -1633,19 +1633,32 @@ https://api.r3vp.io/v1
 
 ### Rate Limiting
 
-API requests are rate-limited per API key:
+API requests are rate-limited per client within a fixed 60-second window. The
+client is identified by its API key when one is supplied, otherwise by its
+source IP. The default limit is **120 requests per minute** and is configurable
+on the server (`R3VP_API_RATE_LIMIT_PER_MINUTE`, or disable entirely with
+`R3VP_API_RATE_LIMIT_ENABLED=false`). Health, docs, and metrics endpoints are
+never rate-limited.
 
-| Tier | Requests per minute |
-|---|---|
-| Default | 120 |
-| Elevated (available on request) | 600 |
-
-Rate limit headers are included in all responses:
+Rate limit headers are included on every response:
 
 ```
 X-RateLimit-Limit: 120
 X-RateLimit-Remaining: 118
 X-RateLimit-Reset: 1751000460
+```
+
+When the limit is exceeded, the API returns `429 Too Many Requests` with a
+`Retry-After` header (seconds until the window resets):
+
+```
+HTTP/1.1 429 Too Many Requests
+X-RateLimit-Limit: 120
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1751000460
+Retry-After: 27
+
+{ "detail": "Rate limit exceeded. Please retry later." }
 ```
 
 ### Error Format
