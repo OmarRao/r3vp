@@ -7,6 +7,14 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - HTTP Hardening: Security Headers + Request IDs
+
+### Added
+- `SecurityHeadersMiddleware` (`src/http_hardening.py`): adds `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Strict-Transport-Security`, and `Permissions-Policy` to every response, and assigns each request a correlation id (honoring an inbound `X-Request-ID` or generating one) that is bound to the structlog context and echoed in the `X-Request-ID` response header for cross-service tracing
+- Tests for the headers and request-id echo; README Security Design section updated
+
+---
+
 ## [Unreleased] - Supply Chain: Signed Images + SBOM + Provenance
 
 ### Added

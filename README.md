@@ -821,6 +821,8 @@ npm run dev
 
 **Per-client rate limiting.** The API rate-limits requests per client (API key when supplied, otherwise source IP) in a fixed 60-second window, defaulting to 120 requests per minute and returning `429 Too Many Requests` with a `Retry-After` header when exceeded. Every response carries `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`. The limit is configurable (`R3VP_API_RATE_LIMIT_PER_MINUTE`) and health/docs/metrics endpoints are exempt.
 
+**Security headers and request tracing.** Every response carries hardening headers (`X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`, `Strict-Transport-Security`, and a restrictive `Permissions-Policy`). Each request is assigned a correlation id (honoring an inbound `X-Request-ID` or generating one), bound to every log line for that request and echoed back in the `X-Request-ID` response header for cross-service tracing between the appliance and the SaaS.
+
 ### Source Code Protection
 
 The repository itself is hardened to protect the integrity of the source:
