@@ -7,6 +7,14 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Dependency Security Sweep (next, sharp, weasyprint, others)
+
+### Fixed
+- Bumped dependencies to patched versions, clearing 9 Dependabot alerts: `next` -> `15.5.25` (critical) and `eslint-config-next` to match, plus `sharp` `0.35.4`, `js-yaml` `4.3.2`, `browserslist` `4.28.9`, `baseline-browser-mapping`, and `joi` in the portal lockfile (`npm audit` reports 0 vulnerabilities), and `weasyprint` `69.0` -> `70.0` (medium) in `uv.lock`
+- Verified the portal `next` bump with type-check, lint, and the Playwright E2E suite (4/4 pass)
+
+---
+
 ## [Unreleased] - Portal End-to-End Tests (Playwright)
 
 ### Added
