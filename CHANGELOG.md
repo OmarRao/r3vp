@@ -7,6 +7,13 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Trivy: Exclude the sops Binary From Scanning
+
+### Changed
+- The image scanner (Trivy) now skips the third-party prebuilt `sops` binary (`skip-files: usr/local/bin/sops`). Its embedded Go transitive libraries repeatedly surface fixed-upstream CVEs that lag the pinned sops release, and sops is used only at build/deploy time to decrypt a local age-encrypted vault (never untrusted network input), so those paths are unreachable. This stops the recurring per-CVE dismissal churn while keeping all application dependencies fully scanned; sops itself is kept current via the pinned `SOPS_VERSION`
+
+---
+
 ## [Unreleased] - Dependency Security Sweep (next, sharp, weasyprint, others)
 
 ### Fixed
