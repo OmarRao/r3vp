@@ -807,6 +807,17 @@ cp .env.local.example .env.local
 npm run dev
 ```
 
+**End-to-end tests.** The portal has a Playwright smoke suite that boots the app
+with the dev-only preview bypass (so authenticated pages render without a real
+Auth0 or Firebase tenant) and checks the login page, the dashboard, the
+workloads page, and the theme toggle. It runs in CI on every PR and locally:
+
+```bash
+cd apps/portal
+npx playwright install chromium   # one time
+npm run test:e2e
+```
+
 ---
 
 ## Security Design

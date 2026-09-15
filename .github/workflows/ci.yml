@@ -95,6 +95,23 @@ jobs:
       - run: npm run type-check
       - run: npm run lint
 
+  portal-e2e:
+    name: Portal E2E
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/portal
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/portal/package-lock.json
+      - run: npm ci || npm install
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+
   docker-build:
     name: Docker builds
     runs-on: ubuntu-latest
