@@ -7,6 +7,14 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Portal End-to-End Tests (Playwright)
+
+### Added
+- Playwright end-to-end smoke suite for the portal (`apps/portal/e2e/`, `playwright.config.ts`): boots the app with the dev-only preview bypass and verifies the demo login page, the dashboard (sidebar navigation), the workloads page heading, and the theme toggle. The config auto-starts the dev server; no backend is required (API calls fall into loading/empty states)
+- A `Portal E2E` CI job (installs Chromium, runs the suite) and a `test:e2e` script. This closes the portal's automated-test gap (previously only type-check and lint). Verified locally: 4/4 tests pass. README Development Setup documents how to run it
+
+---
+
 ## [Unreleased] - Dependency Security: js-yaml + nanoid
 
 ### Fixed
