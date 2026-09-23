@@ -31,6 +31,16 @@ def test_non_url_rejected():
     assert any("http" in e for e in errors)
 
 
+def test_private_and_metadata_url_rejected():
+    for url in (
+        "http://169.254.169.254/latest/meta-data/",
+        "http://127.0.0.1/x",
+        "http://10.0.0.5/x",
+    ):
+        errors = validate_integration_config("servicenow", {"instance_url": url, "api_token": "t"})
+        assert any("not an allowed URL" in e for e in errors), url
+
+
 def test_qradar_port_validation():
     assert any("number" in e for e in validate_integration_config(
         "qradar", {"syslog_host": "h", "syslog_port": "abc"}))

@@ -13,8 +13,12 @@ Built by Omar Rao, Engineer - Data Resilience, Cybersecurity and Privacy -- http
 """
 from __future__ import annotations
 
+import asyncio
+
 import httpx
 import structlog
+
+from src.services.url_guard import UnsafeUrlError, assert_safe_url
 
 log = structlog.get_logger()
 
@@ -66,6 +70,7 @@ async def dispatch_to_splunk_soar(
         ],
     }
     try:
+        await asyncio.to_thread(assert_safe_url, base_url)
         async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.post(
                 f"{base_url.rstrip('/')}/rest/container",
@@ -80,6 +85,9 @@ async def dispatch_to_splunk_soar(
             container_id = str(data.get("id", ""))
             log.info("soar.splunk.dispatched", container_id=container_id)
             return container_id
+    except UnsafeUrlError as exc:
+        log.error("soar.splunk.blocked_ssrf", base_url=base_url, error=str(exc))
+        return None
     except Exception as exc:
         log.error("soar.splunk.failed", error=str(exc))
         return None
@@ -121,6 +129,7 @@ async def dispatch_to_xsoar(
         },
     }
     try:
+        await asyncio.to_thread(assert_safe_url, base_url)
         async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.post(
                 f"{base_url.rstrip('/')}/incident",
@@ -135,6 +144,9 @@ async def dispatch_to_xsoar(
             incident_id = str(data.get("id", ""))
             log.info("soar.xsoar.dispatched", incident_id=incident_id)
             return incident_id
+    except UnsafeUrlError as exc:
+        log.error("soar.xsoar.blocked_ssrf", base_url=base_url, error=str(exc))
+        return None
     except Exception as exc:
         log.error("soar.xsoar.failed", error=str(exc))
         return None
@@ -166,11 +178,15 @@ async def dispatch_generic_webhook(
         "finding_id": finding_id,
     }
     try:
+        await asyncio.to_thread(assert_safe_url, webhook_url)
         async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.post(webhook_url, json=payload)
             resp.raise_for_status()
             log.info("soar.generic.dispatched", url=webhook_url)
             return True
+    except UnsafeUrlError as exc:
+        log.error("soar.generic.blocked_ssrf", url=webhook_url, error=str(exc))
+        return False
     except Exception as exc:
         log.error("soar.generic.failed", error=str(exc))
         return False

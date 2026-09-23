@@ -16,6 +16,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from src.services.url_guard import UnsafeUrlError, check_scheme_and_literal
+
 # Fields each connector must have to dispatch (from the connector implementations).
 REQUIRED_FIELDS: dict[str, list[str]] = {
     "servicenow": ["instance_url", "api_token"],
@@ -44,8 +46,15 @@ def validate_integration_config(integration_type: str, config: dict[str, Any]) -
 
     for field in URL_FIELDS:
         value = config.get(field)
-        if value and not str(value).startswith(("http://", "https://")):
-            errors.append(f"{field} must be an http(s) URL")
+        if not value:
+            continue
+        # Reject non-http(s) schemes and any literal private/loopback/link-local
+        # (e.g. cloud metadata) address at config time. Hostnames are re-checked
+        # with full DNS resolution at dispatch time (see services.url_guard).
+        try:
+            check_scheme_and_literal(str(value))
+        except UnsafeUrlError as exc:
+            errors.append(f"{field} is not an allowed URL: {exc}")
 
     if integration_type == "qradar":
         port = config.get("syslog_port")

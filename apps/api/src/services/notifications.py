@@ -6,12 +6,15 @@
 """Notification dispatch: email (SES), Slack webhook, Teams webhook."""
 from __future__ import annotations
 
+import asyncio
+
 import httpx
 import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.notification import NotificationChannel
+from src.services.url_guard import assert_safe_url
 
 log = structlog.get_logger()
 
@@ -94,6 +97,7 @@ async def _send_slack(webhook_url: str, workload_name: str, run_id: str, summary
             }
         ],
     }
+    await asyncio.to_thread(assert_safe_url, webhook_url)
     async with httpx.AsyncClient(timeout=10.0) as client:
         resp = await client.post(webhook_url, json=payload)
         resp.raise_for_status()
@@ -118,6 +122,7 @@ async def _send_teams(webhook_url: str, workload_name: str, run_id: str, summary
             }
         ],
     }
+    await asyncio.to_thread(assert_safe_url, webhook_url)
     async with httpx.AsyncClient(timeout=10.0) as client:
         resp = await client.post(webhook_url, json=payload)
         resp.raise_for_status()
@@ -153,6 +158,7 @@ async def _send_webhook(url: str, workload_name: str, run_id: str, summary: str,
         "triggers": events,
         "summary": summary,
     }
+    await asyncio.to_thread(assert_safe_url, url)
     async with httpx.AsyncClient(timeout=10.0) as client:
         resp = await client.post(url, json=payload)
         resp.raise_for_status()

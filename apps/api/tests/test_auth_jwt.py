@@ -152,6 +152,8 @@ async def test_webhook_sender_posts_generic_payload(monkeypatch):
             return _Resp()
 
     monkeypatch.setattr(notifications.httpx, "AsyncClient", _Client)
+    # The SSRF guard resolves the host; stub it so this unit test stays offline.
+    monkeypatch.setattr(notifications, "assert_safe_url", lambda url: None)
     await notifications._send_webhook("https://siem.example/ingest", "sql-prod-01", "run-1", "summary", ["test_failed"])
     assert captured["url"] == "https://siem.example/ingest"
     assert captured["json"]["source"] == "r3vp"
