@@ -152,9 +152,29 @@ async def accept_inventory_sync(
     return upserted
 
 
+async def _run_belongs_to_appliance(
+    db: AsyncSession, run_id: uuid.UUID, appliance_id: uuid.UUID
+) -> bool:
+    """True when the test run targets a workload owned by this appliance.
+
+    Appliances authenticate as themselves, but the run id is a client-supplied
+    path parameter. Without this check any appliance could post progress or
+    results against another tenant's run (cross-tenant write / IDOR).
+    """
+    from src.models.workload import Workload
+
+    owner = await db.scalar(
+        select(Workload.appliance_id)
+        .join(TestRun, TestRun.workload_id == Workload.id)
+        .where(TestRun.id == run_id)
+    )
+    return owner == appliance_id
+
+
 async def update_run_progress(
     db: AsyncSession,
     run_id: uuid.UUID,
+    appliance_id: uuid.UUID,
     step: str,
     status: str,
     detail: dict,
@@ -162,6 +182,9 @@ async def update_run_progress(
     from sqlalchemy.dialects.postgresql import insert as pg_insert
 
     from src.models.test_run import TestRunStep
+
+    if not await _run_belongs_to_appliance(db, run_id, appliance_id):
+        raise PermissionError(f"run {run_id} does not belong to appliance {appliance_id}")
 
     now = datetime.now(UTC)
     await db.execute(
@@ -185,12 +208,16 @@ async def update_run_progress(
 async def finalise_run(
     db: AsyncSession,
     run_id: uuid.UUID,
+    appliance_id: uuid.UUID,
     passed: bool,
     rto_actual_mins: int,
     rpo_actual_mins: int,
     readiness_score: int,
     failure_reason: str | None,
 ) -> None:
+    if not await _run_belongs_to_appliance(db, run_id, appliance_id):
+        raise PermissionError(f"run {run_id} does not belong to appliance {appliance_id}")
+
     now = datetime.now(UTC)
     await db.execute(
         update(TestRun)

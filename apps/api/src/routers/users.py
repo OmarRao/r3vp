@@ -9,6 +9,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -41,6 +42,16 @@ async def provision_user(
 ) -> User:
     if req.role not in ("admin", "viewer"):
         raise HTTPException(400, "role must be admin or viewer")
+
+    # auth0_sub is globally unique, so an unscoped upsert would let an admin of
+    # one org overwrite a user already provisioned under a different org. Refuse
+    # to touch a sub that belongs to another tenant.
+    existing_org = await db.scalar(
+        select(User.org_id).where(User.auth0_sub == req.auth0_sub)
+    )
+    if existing_org is not None and existing_org != user.org_id:
+        raise HTTPException(409, "User already provisioned in another organization")
+
     stmt = (
         pg_insert(User)
         .values(org_id=user.org_id, auth0_sub=req.auth0_sub, email=req.email, role=req.role)

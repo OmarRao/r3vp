@@ -76,11 +76,19 @@ async def _send_email(pdf_bytes: bytes, filename: str, subject: str, body: str, 
     attachment.add_header("Content-Disposition", "attachment", filename=filename)
     msg.attach(attachment)
 
-    with smtplib.SMTP(smtp_host, smtp_port) as smtp:
-        if smtp_user:
+    def _send() -> None:
+        with smtplib.SMTP(smtp_host, smtp_port) as smtp:
+            # Always upgrade to TLS so the report (and any credentials) never
+            # traverse the network in cleartext, independent of whether the
+            # relay requires authentication.
             smtp.starttls()
-            smtp.login(smtp_user, smtp_pass)
-        smtp.send_message(msg)
+            if smtp_user:
+                smtp.login(smtp_user, smtp_pass)
+            smtp.send_message(msg)
+
+    # smtplib is blocking; run it off the event loop so one slow relay does not
+    # stall the whole worker.
+    await asyncio.to_thread(_send)
 
     return DeliveryResult(recipient=DeliveryRecipient(type="email", destination=address), success=True)
 
