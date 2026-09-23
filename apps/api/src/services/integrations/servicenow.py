@@ -8,9 +8,12 @@
 # https://www.linkedin.com/in/omarrao/
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 import httpx
+
+from src.services.url_guard import assert_safe_url
 
 SEVERITY_MAP = {"high": "1", "medium": "2", "low": "3"}
 
@@ -33,6 +36,7 @@ async def send_incident(config: dict, event_type: str, payload: dict[str, Any]) 
         "subcategory": "Backup and Recovery",
         "caller_id": config.get("caller_id", "r3vp"),
     }
+    await asyncio.to_thread(assert_safe_url, instance)
     async with httpx.AsyncClient(timeout=15) as client:
         resp = await client.post(
             f"{instance}/api/now/table/{table}",

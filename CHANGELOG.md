@@ -7,6 +7,20 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Extend SSRF Guard to All Outbound Connectors
+
+### Changed
+- Applied the dispatch-time SSRF guard to the remaining outbound paths that POST to a customer-configured URL: the report-delivery Slack/Teams senders (`services/delivery.py`) and the ServiceNow, Jira, and Splunk HEC connectors. Each now runs the full DNS-resolving check off the event loop immediately before the request, matching the coverage already added for the webhook, notification, and SOAR paths. The Microsoft Sentinel connector (host anchored to the fixed Azure domain) and internal-only syslog SIEM and VeeamONE integrations remain exempt.
+
+---
+
+## [Unreleased] - Dependency Security Fix (anyio)
+
+### Fixed
+- Bumped `anyio` `4.14.1` -> `4.15.1` in `uv.lock`, clearing 3 Dependabot alerts: a critical TLS certificate-spoofing issue (IDNA 2003 host name encoding in `TLSStream`), a high-severity `run_process`/`open_process` supplementary-groups leak, and a medium-severity process-pool stderr deadlock. All are fixed in `anyio` `4.14.2` and later.
+
+---
+
 ## [Unreleased] - SSRF Protection for Outbound Integration URLs
 
 ### Added
