@@ -18,6 +18,7 @@ from functools import lru_cache
 from typing import Annotated
 
 import jwt
+import structlog
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import InvalidTokenError, PyJWKClient
@@ -26,6 +27,7 @@ from pydantic import BaseModel
 from src.config import settings
 
 _bearer = HTTPBearer()
+_log = structlog.get_logger()
 
 
 class CurrentUser(BaseModel):
@@ -60,7 +62,10 @@ def _decode_token(token: str) -> dict:
     try:
         signing_key = _jwk_client().get_signing_key_from_jwt(token)
     except (InvalidTokenError, jwt.PyJWKClientError) as exc:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, f"Invalid token header: {exc}") from exc
+        # Log the specific cause server-side; return a generic message so token
+        # internals are not disclosed to the caller (reconnaissance aid).
+        _log.info("auth.token.signing_key_failed", error=str(exc))
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid authentication token") from exc
 
     try:
         payload: dict = jwt.decode(
@@ -71,7 +76,8 @@ def _decode_token(token: str) -> dict:
             issuer=f"https://{settings.auth0_domain}/",
         )
     except InvalidTokenError as exc:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, f"Token validation failed: {exc}") from exc
+        _log.info("auth.token.validation_failed", error=str(exc))
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid authentication token") from exc
 
     return payload
 
