@@ -6,8 +6,11 @@
 """Report delivery service: email, Slack, and Teams."""
 from __future__ import annotations
 
+import asyncio
 import logging
 from dataclasses import dataclass
+
+from src.services.url_guard import assert_safe_url
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +91,7 @@ async def _send_slack(pdf_bytes: bytes, filename: str, subject: str, body: str, 
     payload = {
         "text": f":page_facing_up: *{subject}*\n{body}\n_PDF report attached as `{filename}`_"
     }
+    await asyncio.to_thread(assert_safe_url, webhook_url)
     async with httpx.AsyncClient(timeout=15) as client:
         resp = await client.post(webhook_url, json=payload)
         resp.raise_for_status()
@@ -104,6 +108,7 @@ async def _send_teams(pdf_bytes: bytes, filename: str, subject: str, body: str, 
         "themeColor": "00B336",
         "sections": [{"activityTitle": subject, "activityText": body, "facts": [{"name": "Report", "value": filename}]}],
     }
+    await asyncio.to_thread(assert_safe_url, webhook_url)
     async with httpx.AsyncClient(timeout=15) as client:
         resp = await client.post(webhook_url, json=payload)
         resp.raise_for_status()

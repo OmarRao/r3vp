@@ -8,9 +8,12 @@
 # https://www.linkedin.com/in/omarrao/
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 import httpx
+
+from src.services.url_guard import assert_safe_url
 
 
 async def create_issue(config: dict, event_type: str, payload: dict[str, Any]) -> None:
@@ -33,6 +36,7 @@ async def create_issue(config: dict, event_type: str, payload: dict[str, Any]) -
             "labels": ["r3vp", event_type.replace("_", "-")],
         }
     }
+    await asyncio.to_thread(assert_safe_url, base)
     async with httpx.AsyncClient(timeout=15) as client:
         resp = await client.post(
             f"{base}/rest/api/3/issue",

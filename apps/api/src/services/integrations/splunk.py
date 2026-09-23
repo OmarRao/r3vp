@@ -8,10 +8,13 @@
 # https://www.linkedin.com/in/omarrao/
 from __future__ import annotations
 
+import asyncio
 import time
 from typing import Any
 
 import httpx
+
+from src.services.url_guard import assert_safe_url
 
 
 async def send_hec_event(config: dict, event_type: str, payload: dict[str, Any]) -> None:
@@ -26,6 +29,7 @@ async def send_hec_event(config: dict, event_type: str, payload: dict[str, Any])
         "index": index,
         "event": {"event_type": event_type, **payload},
     }
+    await asyncio.to_thread(assert_safe_url, hec_url)
     async with httpx.AsyncClient(timeout=15, verify=config.get("verify_ssl", True)) as client:
         resp = await client.post(
             f"{hec_url}/services/collector/event",
