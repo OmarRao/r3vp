@@ -1458,6 +1458,17 @@ R3VP can forward structured events to SIEM platforms via:
 
 Navigate to **Settings** > **Integrations** > **SIEM** to configure the destination and format.
 
+### Outbound URL Safety (SSRF Protection)
+
+To protect the platform against server-side request forgery, every URL you enter for a Slack, Teams, generic webhook, or SOAR (Splunk SOAR, XSOAR) integration is validated before R3VP will call it:
+
+- The URL must use `http` or `https`. Other schemes (for example `file://`) are rejected.
+- The host may not be, or resolve to, a loopback (`127.0.0.1`, `localhost`), private (RFC1918, such as `10.x`, `192.168.x`), link-local, or otherwise non-public address. This blocks the cloud metadata endpoint (`169.254.169.254`) and any attempt to reach internal services.
+
+Obvious violations (a literal private IP or a bad scheme) are rejected when you save the integration. Because DNS can change, the resolved address is checked again at the moment R3VP dispatches the event; if the host resolves to an internal address at that point, the request is dropped and the block is logged. If a save is rejected, use a publicly reachable endpoint (for a service behind your firewall, expose it through a public ingress or use the SIEM syslog integration instead).
+
+> Note: the syslog SIEM and VeeamONE integrations legitimately target your internal network and are exempt from this public-only check.
+
 ---
 
 ## 23. Audit Log

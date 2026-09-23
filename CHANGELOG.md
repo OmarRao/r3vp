@@ -7,6 +7,18 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - SSRF Protection for Outbound Integration URLs
+
+### Added
+- A shared SSRF guard (`apps/api/src/services/url_guard.py`) that validates every user-supplied outbound integration URL. It rejects non-`http(s)` schemes and any URL whose host is, or resolves to, a loopback, private (RFC1918), link-local, or otherwise non-public address, blocking the cloud metadata endpoint (`169.254.169.254`), `localhost`, and internal-network targets.
+- Unit tests covering the literal (DNS-free) and full resolving checks: metadata/loopback/private literals blocked, non-`http(s)` schemes blocked, hostnames resolving to private/metadata addresses blocked (including mixed-address hosts), and public hosts allowed.
+
+### Changed
+- Integration config validation now rejects private/metadata/non-`http(s)` URLs at save time (fast literal check, no DNS on the event loop) instead of only checking for an `http(s)` prefix.
+- The SOAR dispatchers (`dispatch_to_splunk_soar`, `dispatch_to_xsoar`, `dispatch_generic_webhook`) and the Slack, Teams, and generic webhook notification senders now run the full DNS-resolving guard immediately before each outbound POST (off the event loop via `asyncio.to_thread`), so a host that resolves to an internal address is dropped and logged rather than requested. Syslog SIEM and VeeamONE, which legitimately target internal infrastructure, are intentionally exempt.
+
+---
+
 ## [Unreleased] - Trivy: Exclude the sops Binary From Scanning
 
 ### Changed
