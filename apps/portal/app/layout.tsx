@@ -22,7 +22,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    // suppressHydrationWarning: the THEME_INIT_SCRIPT below sets the `dark`
+    // class on <html> before hydration, so the client tree legitimately differs
+    // from the server markup. Without this, React reconciles the mismatch on
+    // reload and strips the class, causing a flash / lost theme.
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>

@@ -28,6 +28,28 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Portal: Fix Theme Reset on Reload
+
+### Fixed
+- The dashboard theme no longer flashes/resets to light on a full page reload.
+  The no-flash `THEME_INIT_SCRIPT` applies the `dark` class to `<html>` before
+  hydration, which React then reconciled away on reload (the server markup has
+  no such class). Added `suppressHydrationWarning` to the root `<html>` element
+  (the standard Next.js pattern for theme-init scripts) so the pre-paint class
+  survives hydration. No behavior change beyond the fix.
+
+---
+
+## [Unreleased] - Dependency Security Sweep (residual: Mako, next, sharp)
+
+### Fixed
+- Cleared the remaining Dependabot alerts surfaced after the prior sweep:
+  - Python (`uv.lock`): `Mako` `1.3.12` -> `1.4.3`.
+  - Portal (`apps/portal`): `next` `^15.5.25` -> `^15.5.27` (and `eslint-config-next` to match), `sharp` override `>=0.35.0` -> `>=0.35.5`, plus new `overrides` for patched transitive `postcss-selector-parser` `>=7.1.6` and `source-map-js` `>=1.2.2`.
+- Verified: portal type-check and lint clean, portal E2E smoke green. (The transitive `Mako` bump is a lockfile-only change exercised by the API suite in CI.)
+
+---
+
 ## [Unreleased] - Trivy: Scoped Ignore for Unfixable rustls Advisory
 
 ### Changed
