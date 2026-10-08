@@ -807,10 +807,16 @@ cp .env.local.example .env.local
 npm run dev
 ```
 
-**End-to-end tests.** The portal has a Playwright smoke suite that boots the app
-with the dev-only preview bypass (so authenticated pages render without a real
-Auth0 or Firebase tenant) and checks the login page, the dashboard, the
-workloads page, and the theme toggle. It runs in CI on every PR and locally:
+**End-to-end tests.** The portal has a Playwright suite that boots the app with
+the dev-only preview bypass (so authenticated pages render without a real Auth0
+or Firebase tenant) and points the API at a dead port, so every assertion
+targets static chrome and client state rather than backend data. Coverage spans
+three spec files: a smoke test (`smoke.spec.ts`), a per-route heading check for
+every dashboard page (`dashboard-pages.spec.ts`), and interaction tests
+(`navigation.spec.ts`) covering sidebar click-through with `aria-current`
+verification, theme-choice persistence to `localStorage`, the onboarding wizard's
+client-side step navigation, and the demo login page. It runs in CI on every PR
+and locally:
 
 ```bash
 cd apps/portal

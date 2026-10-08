@@ -7,6 +7,27 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Portal E2E Coverage Expansion
+
+### Added
+- Expanded the portal Playwright suite beyond the single smoke test with two new
+  spec files, both run against the dev-preview auth bypass with the API pointed
+  at a dead port so no assertion depends on backend data:
+  - `apps/portal/e2e/dashboard-pages.spec.ts` asserts the primary heading and the
+    sidebar chrome render on every dashboard route: Dashboard (Recovery Readiness
+    Dashboard), Workloads, Test Runs, Appliances, Threat Scanner, Incidents,
+    Continuous Validation, Compliance Reports, DR Runbooks, Fleet, MSSP Console,
+    Multi-Cloud Providers, AI Insights, Integrations, Settings, and Team
+    Management.
+  - `apps/portal/e2e/navigation.spec.ts` covers sidebar click-through (clicking a
+    nav link lands on the route, renders its heading, and sets `aria-current`),
+    theme-choice persistence to `localStorage`, the onboarding wizard's
+    client-side step 1 -> step 2 navigation, and the demo login card.
+- All assertions are resilient to loading/empty states and target static text and
+  client state only. Suite is green at 27 passed; portal lint and type-check clean.
+
+---
+
 ## [Unreleased] - Portal: Fix Theme Reset on Reload
 
 ### Fixed
