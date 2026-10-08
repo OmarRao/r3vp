@@ -7,6 +7,16 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Dependency Security Sweep (residual: Mako, next, sharp)
+
+### Fixed
+- Cleared the remaining Dependabot alerts surfaced after the prior sweep:
+  - Python (`uv.lock`): `Mako` `1.3.12` -> `1.4.3`.
+  - Portal (`apps/portal`): `next` `^15.5.25` -> `^15.5.27` (and `eslint-config-next` to match), `sharp` override `>=0.35.0` -> `>=0.35.5`, plus new `overrides` for patched transitive `postcss-selector-parser` `>=7.1.6` and `source-map-js` `>=1.2.2`.
+- Verified: portal type-check and lint clean, portal E2E smoke green. (The transitive `Mako` bump is a lockfile-only change exercised by the API suite in CI.)
+
+---
+
 ## [Unreleased] - Trivy: Scoped Ignore for Unfixable rustls Advisory
 
 ### Changed
