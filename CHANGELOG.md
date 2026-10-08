@@ -28,6 +28,23 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Trivy: Scoped Ignore for Unfixable rustls Advisory
+
+### Changed
+- Added a root `.trivyignore` and wired it into the container scan (`trivyignores`). Its first entry is `GHSA-2mjx-qc3c-rqvc` (rustls `0.23.42` -> `0.23.45`, MEDIUM), which is compiled into the prebuilt `temporalio` wheel's native bridge. The pinned rustls is controlled by the Temporal SDK maintainers and even the latest release (temporalio `1.34.0`) still locks `0.23.42`, so there is no wheel we can bump to; the bridge's rustls only secures the appliance's authenticated TLS link to its own Temporal server. Ignores are scoped by advisory ID (never a blanket package or directory skip) so any other vulnerability still surfaces; revisit when temporalio ships rustls `>= 0.23.45`.
+
+---
+
+## [Unreleased] - Dependency Security Sweep (PyJWT, axios, urllib3, oauthlib)
+
+### Fixed
+- Cleared the open Dependabot alerts across both ecosystems:
+  - Python (`uv.lock`): `PyJWT` `2.13.0` -> `2.15.1` (a critical and several high/medium advisories in the JWT library that backs Auth0 token verification), `urllib3` `2.7.0` -> `2.8.0`, and `oauthlib` `3.3.1` -> `4.0.0`.
+  - Portal (`apps/portal`): `axios` `^1.7.2` -> `^1.20.0` (high/medium), and pinned `@grpc/grpc-js` `>=1.13.6`, `brace-expansion` `>=5.0.12`, and `braces` `>=3.0.3` via `overrides` to pull patched transitive versions.
+- Verified: API unit suite (85 passed, including the auth/JWT tests on the new PyJWT), portal type-check and lint clean, and the portal E2E smoke green.
+
+---
+
 ## [Unreleased] - Tenant Isolation and Input Hardening
 
 ### Security
