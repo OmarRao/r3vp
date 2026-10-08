@@ -7,6 +7,16 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Dependency Security Sweep (PyJWT, axios, urllib3, oauthlib)
+
+### Fixed
+- Cleared the open Dependabot alerts across both ecosystems:
+  - Python (`uv.lock`): `PyJWT` `2.13.0` -> `2.15.1` (a critical and several high/medium advisories in the JWT library that backs Auth0 token verification), `urllib3` `2.7.0` -> `2.8.0`, and `oauthlib` `3.3.1` -> `4.0.0`.
+  - Portal (`apps/portal`): `axios` `^1.7.2` -> `^1.20.0` (high/medium), and pinned `@grpc/grpc-js` `>=1.13.6`, `brace-expansion` `>=5.0.12`, and `braces` `>=3.0.3` via `overrides` to pull patched transitive versions.
+- Verified: API unit suite (85 passed, including the auth/JWT tests on the new PyJWT), portal type-check and lint clean, and the portal E2E smoke green.
+
+---
+
 ## [Unreleased] - Tenant Isolation and Input Hardening
 
 ### Security
