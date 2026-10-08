@@ -7,6 +7,18 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Portal: Fix Theme Reset on Reload
+
+### Fixed
+- The dashboard theme no longer flashes/resets to light on a full page reload.
+  The no-flash `THEME_INIT_SCRIPT` applies the `dark` class to `<html>` before
+  hydration, which React then reconciled away on reload (the server markup has
+  no such class). Added `suppressHydrationWarning` to the root `<html>` element
+  (the standard Next.js pattern for theme-init scripts) so the pre-paint class
+  survives hydration. No behavior change beyond the fix.
+
+---
+
 ## [Unreleased] - Trivy: Scoped Ignore for Unfixable rustls Advisory
 
 ### Changed
