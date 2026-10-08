@@ -131,6 +131,10 @@ jobs:
           # itself is kept current via the pinned SOPS_VERSION in the appliance
           # Dockerfile; app dependencies are still fully scanned.
           skip-files: "usr/local/bin/sops"
+          # Advisory-scoped ignores (each justified in the file) for transitive
+          # CVEs with no fix we can apply, e.g. rustls baked into the prebuilt
+          # temporalio wheel. Scoped by ID so other CVEs still surface.
+          trivyignores: ".trivyignore"
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@dd903d2e4f5405488e5ef1422510ee31c8b32357 # v3
