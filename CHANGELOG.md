@@ -17,6 +17,13 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Trivy: Scoped Ignore for Unfixable rustls Advisory
+
+### Changed
+- Added a root `.trivyignore` and wired it into the container scan (`trivyignores`). Its first entry is `GHSA-2mjx-qc3c-rqvc` (rustls `0.23.42` -> `0.23.45`, MEDIUM), which is compiled into the prebuilt `temporalio` wheel's native bridge. The pinned rustls is controlled by the Temporal SDK maintainers and even the latest release (temporalio `1.34.0`) still locks `0.23.42`, so there is no wheel we can bump to; the bridge's rustls only secures the appliance's authenticated TLS link to its own Temporal server. Ignores are scoped by advisory ID (never a blanket package or directory skip) so any other vulnerability still surfaces; revisit when temporalio ships rustls `>= 0.23.45`.
+
+---
+
 ## [Unreleased] - Dependency Security Sweep (PyJWT, axios, urllib3, oauthlib)
 
 ### Fixed

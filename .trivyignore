@@ -1,0 +1,16 @@
+# Trivy vulnerability ignore list.
+#
+# Entries are scoped to a specific advisory ID (never a blanket package or
+# directory skip) so any *other* vulnerability in the same library still
+# surfaces. Each entry records why it is not actionable for us.
+
+# rustls 0.23.42 -> 0.23.45 (GHSA-2mjx-qc3c-rqvc, MEDIUM).
+# rustls is a transitive Rust dependency compiled into the prebuilt `temporalio`
+# Python wheel's native bridge (temporalio/bridge). The pinned rustls version is
+# controlled by the Temporal SDK maintainers; as of temporalio 1.34.0 (the
+# latest release) the bundled bridge still locks rustls 0.23.42, so there is no
+# upstream wheel we can bump to in order to clear it. The bridge's rustls is
+# used only for the appliance's outbound, authenticated TLS connection to its
+# own Temporal server (not untrusted network input). Re-evaluate and remove this
+# line when a temporalio release ships rustls >= 0.23.45.
+GHSA-2mjx-qc3c-rqvc
