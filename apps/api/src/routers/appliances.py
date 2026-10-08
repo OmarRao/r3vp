@@ -150,8 +150,11 @@ async def post_progress(
     appliance: Appliance = Depends(_verified_appliance),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
-    await svc.update_run_progress(db, run_id=run_id, step=req.step,
-                                  status=req.status, detail=req.detail)
+    try:
+        await svc.update_run_progress(db, run_id=run_id, appliance_id=appliance.id,
+                                      step=req.step, status=req.status, detail=req.detail)
+    except PermissionError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Test run not found") from exc
     return {"status": "accepted"}
 
 
@@ -162,15 +165,19 @@ async def post_result(
     appliance: Appliance = Depends(_verified_appliance),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
-    await svc.finalise_run(
-        db,
-        run_id=run_id,
-        passed=req.passed,
-        rto_actual_mins=req.rto_actual_mins,
-        rpo_actual_mins=req.rpo_actual_mins,
-        readiness_score=req.readiness_score,
-        failure_reason=req.failure_reason,
-    )
+    try:
+        await svc.finalise_run(
+            db,
+            run_id=run_id,
+            appliance_id=appliance.id,
+            passed=req.passed,
+            rto_actual_mins=req.rto_actual_mins,
+            rpo_actual_mins=req.rpo_actual_mins,
+            readiness_score=req.readiness_score,
+            failure_reason=req.failure_reason,
+        )
+    except PermissionError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Test run not found") from exc
     return {"status": "accepted"}
 
 

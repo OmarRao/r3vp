@@ -7,6 +7,20 @@ https://www.linkedin.com/in/omarrao/ | https://omarrao.substack.com/
 
 ---
 
+## [Unreleased] - Tenant Isolation and Input Hardening
+
+### Security
+- **Cross-tenant write on appliance test-run ingest (IDOR) fixed.** `POST /v1/appliance/test-runs/{run_id}/progress` and `.../result` now verify the run targets a workload owned by the authenticated appliance before mutating it; a run belonging to another tenant returns 404 instead of being overwritten.
+- **Threat-scan ingest bound to the verified appliance.** `POST /v1/threat-intel/scans` previously trusted an `appliance_id` from the request body and had no auth dependency. It now derives the appliance and org from the mTLS-verified gateway headers; a body `appliance_id` that does not match the authenticated appliance is rejected (403), closing cross-tenant scan/finding injection.
+- **Cross-org user overwrite in provisioning fixed.** `POST /v1/users/provision` no longer lets an org admin overwrite a user already provisioned under a different organization (`auth0_sub` is globally unique); such a request now returns 409.
+- **Authentication errors no longer leak token internals.** JWT signing-key and validation failures return a generic "Invalid authentication token" message; the specific cause is logged server-side only.
+
+### Changed
+- List endpoints for threat findings, incidents, and scans now cap `limit` (1-200) and always bound the query, preventing unbounded result loads.
+- Report email delivery runs the blocking SMTP send off the event loop (`asyncio.to_thread`) and always upgrades the connection with STARTTLS, independent of whether the relay requires authentication.
+
+---
+
 ## [Unreleased] - Extend SSRF Guard to All Outbound Connectors
 
 ### Changed

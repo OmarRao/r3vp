@@ -15,7 +15,7 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,6 +24,7 @@ from src.auth import AdminUser, AuthUser
 from src.db.session import get_db
 from src.models.appliance import Appliance
 from src.models.threat_scan import ThreatFinding, ThreatIncident, ThreatScan
+from src.routers.appliances import _verified_appliance
 from src.services.rbac import require_permission
 from src.services.threat_analysis import (
     analyze_restore_points,
@@ -61,18 +62,26 @@ class ScanResultIn(BaseModel):
 @router.post("/scans", status_code=201)
 async def submit_scan_result(
     payload: ScanResultIn,
+    appliance: Appliance = Depends(_verified_appliance),
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     """
     Called by the appliance to submit threat scan results.
-    Uses appliance_id from the payload (authenticated via mTLS at the gateway level).
-    """
-    appliance_id = uuid.UUID(payload.appliance_id)
 
-    # Look up org_id from the appliance
-    appliance = await db.scalar(select(Appliance).where(Appliance.id == appliance_id))
-    if not appliance:
-        raise HTTPException(status_code=404, detail="Appliance not found")
+    The appliance identity comes from the mTLS-verified gateway headers
+    (X-Appliance-ID + X-Client-Cert-Thumbprint), never from the request body,
+    so a client cannot inject scans into another tenant's org. If the body
+    carries an appliance_id it must match the authenticated appliance.
+    """
+    if payload.appliance_id:
+        try:
+            body_appliance_id = uuid.UUID(payload.appliance_id)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail="Invalid appliance_id") from exc
+        if body_appliance_id != appliance.id:
+            raise HTTPException(status_code=403, detail="appliance_id does not match authenticated appliance")
+
+    appliance_id = appliance.id
     org_id = appliance.org_id
 
     # Count by severity
@@ -155,7 +164,7 @@ async def list_findings(
     db: AsyncSession = Depends(get_db),
     status: str | None = None,
     severity: str | None = None,
-    limit: int = 50,
+    limit: int = Query(50, ge=1, le=200),
 ) -> list[dict]:
     """List threat findings for the authenticated org."""
     q = select(ThreatFinding).where(ThreatFinding.org_id == user.org_id)
@@ -187,12 +196,13 @@ async def list_incidents(
     user: AuthUser,
     db: AsyncSession = Depends(get_db),
     status: str | None = None,
+    limit: int = Query(50, ge=1, le=200),
 ) -> list[dict]:
     """List incidents for the authenticated org."""
     q = select(ThreatIncident).where(ThreatIncident.org_id == user.org_id)
     if status:
         q = q.where(ThreatIncident.status == status)
-    q = q.order_by(ThreatIncident.created_at.desc())
+    q = q.order_by(ThreatIncident.created_at.desc()).limit(limit)
     rows = (await db.execute(q)).scalars().all()
     return [
         {
@@ -276,7 +286,7 @@ async def resolve_incident(
 async def list_scans(
     user: AuthUser,
     db: AsyncSession = Depends(get_db),
-    limit: int = 20,
+    limit: int = Query(20, ge=1, le=200),
 ) -> list[dict]:
     """List recent threat scans for the authenticated org."""
     rows = (await db.execute(
